@@ -1,5 +1,8 @@
 const Utilizador = require('../models/utilizadorModel');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const secretKey = 'carneiro_secret';
 
 // Obter todos os utilizadores
 exports.mostrarUtilizadores = async (req, res) => {
@@ -61,7 +64,7 @@ exports.atualizarUtilizador = async (req, res) => {
     const { nome, email, password } = req.body;
 
     try {
-        const utilizador = await Utilizador.findByPk(req.params.id);
+        const utilizador = await Utilizador.findByPk(req.user.id);
         if (!utilizador) {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
         }
@@ -90,14 +93,58 @@ exports.atualizarUtilizador = async (req, res) => {
 
 // Remover um utilizador
 exports.apagarUtilizador = async (req, res) => {
+    console.log(JSON.stringify(req.user))
     try {
-        const utilizador = await Utilizador.findByPk(req.params.id);
+        const utilizador = await Utilizador.findByPk(req.user.id);
         if (!utilizador) {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
         }
 
+        if(req.user.isAdmin) res.status(401).json({ error: 'Operação não permitida' })
+
         await utilizador.destroy();
+
+        // Limpeza da Cookie
+        res.clearCookie('Authorization', {
+            httpOnly: true,  // Garante que o cookie só possa ser acessado pelo servidor
+            secure: process.env.NODE_ENV === 'production',  // Em produção, você usaria cookies seguros
+            sameSite: 'Strict'  // Aplique a política de SameSite
+        });
+
         res.json({ message: 'Utilizador removido com sucesso!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+
+// Login
+exports.login = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const utilizador = await Utilizador.findOne({ where: { Email: email } });
+
+        if (!utilizador) {
+            return res.status(404).json({ error: 'Utilizador não encontrado' });
+        }
+
+        // Comparar a senha fornecida com o hash da senha no banco de dados
+        const match = await bcrypt.compare(password, utilizador.Password);
+        
+        if (!match) {
+            return res.status(401).json({ error: 'Senha incorreta' });
+        }
+
+        var isAdmin = utilizador.Cargo == 'Administrador'
+        var isGestor = utilizador.Cargo == 'Gestor'
+
+        // Gerar o token JWT
+        const token = jwt.sign({ id: utilizador.ID_Utilizador, nome: utilizador.Nome, email: utilizador.Email, isAdmin: isAdmin, isGestor: isGestor }, secretKey, { expiresIn: '1h' });
+
+        res.cookie('Authorization', token, { httpOnly: true, secure: true, sameSite: 'Strict' });
+        res.status(200).send({ message: 'Utilizador autenticado com sucesso!' });
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

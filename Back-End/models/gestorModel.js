@@ -28,7 +28,6 @@ Utilizador.hasMany(Gestor, { foreignKey: 'ID_Utilizador' });
 Gestor.belongsTo(Utilizador, { foreignKey: 'ID_Utilizador' });
 
 // Um gestor pode gerir vários cafés
-Gestor.hasMany(Cafe, { foreignKey: 'ID_Gestor' });
-Cafe.belongsTo(Gestor, { foreignKey: 'ID_Gestor' });
+
 
 module.exports = Gestor;

@@ -32,6 +32,18 @@ const Utilizador = sequelize.define('Utilizador', {
     Password: { 
         type: DataTypes.STRING, 
         allowNull: false 
+    },
+    Cargo: {  // Novo campo Cargo
+        type: DataTypes.ENUM,
+        values: ['Utilizador', 'Gestor', 'Administrador'], // Valores válidos
+        allowNull: false,
+        defaultValue: 'Utilizador', // Valor padrão
+        validate: {
+            isIn: {
+                args: [['Utilizador', 'Gestor', 'Administrador']],
+                msg: 'Cargo inválido. Valores válidos são: Utilizador, Gestor, Administrador.'
+            }
+        }
     }
 }, { 
     tableName: 'Utilizadores', 

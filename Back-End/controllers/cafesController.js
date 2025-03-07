@@ -1,6 +1,6 @@
 const Cafe = require('../models/cafeModel');
+const Gestor = require('../models/gestorModel');
 const multer = require('multer');
-
 
 // Configuração do multer para upload de imagens
 const storage = multer.memoryStorage();
@@ -33,13 +33,24 @@ exports.criarCafe = async (req, res) => {
         const { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
         const imagem_cafe = req.file ? req.file.buffer : null;
 
+        // Supondo que o ID_Gestor seja obtido a partir do token ou sessão do utilizador autenticado
+        const gestorId = req.user.ID_Gestor;
+
+        // Verifique se o gestor já tem um café
+        const cafeExistente = await Cafe.findOne({ where: { ID_Gestor: gestorId } });
+        if (cafeExistente) {
+            return res.status(403).json({ message: 'Este gestor já tem um café atribuído.' });
+        }
+
+        // Criação do novo café com o ID_Gestor atribuído
         const novoCafe = await Cafe.create({
             Nome_Cafe: nome_cafe,
             Imagem_Cafe: imagem_cafe,
             Local: local,
             Tipo_Cafe: tipo_cafe,
             Horario_Abertura: horario_abertura,
-            Horario_Fecho: horario_fecho
+            Horario_Fecho: horario_fecho,
+            ID_Gestor: gestorId // Atribuindo o ID_Gestor ao café
         });
 
         res.json({ id: novoCafe.id, message: 'Café criado com sucesso!' });
@@ -54,6 +65,13 @@ exports.atualizarCafe = async (req, res) => {
         const cafe = await Cafe.findByPk(req.params.id);
         if (!cafe) return res.status(404).json({ error: 'Café não encontrado' });
 
+        // Verifique se o café pertence ao gestor autenticado
+        const gestorId = req.user.ID_Gestor;
+        if (cafe.ID_Gestor !== gestorId) {
+            return res.status(403).json({ message: 'Você não tem permissão para alterar este café.' });
+        }
+
+        // Atualizar o café com as novas informações
         await cafe.update(req.body);
         res.json({ message: 'Café atualizado com sucesso!' });
     } catch (error) {
@@ -67,6 +85,13 @@ exports.apagarCafe = async (req, res) => {
         const cafe = await Cafe.findByPk(req.params.id);
         if (!cafe) return res.status(404).json({ error: 'Café não encontrado' });
 
+        // Verifique se o café pertence ao gestor autenticado
+        const gestorId = req.user.ID_Gestor;
+        if (cafe.ID_Gestor !== gestorId) {
+            return res.status(403).json({ message: 'Você não tem permissão para remover este café.' });
+        }
+
+        // Apagar o café
         await cafe.destroy();
         res.json({ message: 'Café removido com sucesso!' });
     } catch (error) {

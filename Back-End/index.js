@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const sequelize = require('./Database/sequelize');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+const Utilizador = require('./models/utilizadorModel')
 
 const cafesRoutes = require('./routes/cafesRoutes');
 const utilizadoresRoutes = require('./routes/utilizadoresRoutes');
@@ -11,10 +14,30 @@ const gestorRoutes = require('./routes/gestorRoutes');
 //const reservasRoutes = require('./routes/reservasRoutes');
 
 
+/* Criar admin */
+
+async function createAdmin() {
+
+  const hashedPassword = await bcrypt.hash('admin', 10);
+
+  const novoUtilizador = await Utilizador.create({
+    Nome: 'admin',
+    Email: 'admin@gmail.com',
+    Password: hashedPassword,
+    Cargo: 'Administrador'
+  });
+
+}
+
+createAdmin();
+
+/* Fim */
+
+
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+app.use(cookieParser())
 
 app.use('/cafes', cafesRoutes);
 app.use('/autenticar', utilizadoresRoutes);
