@@ -1,12 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../Database/sequelize');
 
-// Função auxiliar para validar strings sem números
-const isValidString = (str) => /^[A-Za-zÀ-ÿ\s]+$/.test(str);
-
-// Função auxiliar para validar email
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
 const Utilizador = sequelize.define('Utilizador', {
     ID_Utilizador: { 
         type: DataTypes.INTEGER, 
@@ -19,10 +13,9 @@ const Utilizador = sequelize.define('Utilizador', {
         allowNull: false,
         unique: true,
         validate: {
-            isValidString(value) {
-                if (!isValidString(value)) {
-                    throw new Error('Nome deve conter apenas letras e espaços');
-                }
+            is: {
+                args: /^[A-Za-zÀ-ÿ\s]+$/i, // Permite apenas letras e espaços
+                msg: 'Nome deve conter apenas letras e espaços'
             }
         }
     },
@@ -31,10 +24,8 @@ const Utilizador = sequelize.define('Utilizador', {
         allowNull: false, 
         unique: true,
         validate: {
-            isValidEmail(value) {
-                if (!isValidEmail(value)) {
-                    throw new Error('Email inválido');
-                }
+            isEmail: {
+                msg: 'Email inválido'
             }
         }
     },

@@ -5,6 +5,8 @@ const cors = require('cors');
 
 const cafesRoutes = require('./routes/cafesRoutes');
 const utilizadoresRoutes = require('./routes/utilizadoresRoutes');
+const gestorRoutes = require('./routes/gestorRoutes');
+
 
 //const reservasRoutes = require('./routes/reservasRoutes');
 
@@ -16,6 +18,8 @@ app.use(express.json());
 
 app.use('/cafes', cafesRoutes);
 app.use('/autenticar', utilizadoresRoutes);
+app.use('/gestor', gestorRoutes);
+
 
 //app.use('/reservas', reservasRoutes);
 
@@ -31,6 +35,10 @@ sequelize.query('PRAGMA foreign_keys=off;') // Disable foreign key checks
       .catch(err => console.error('Erro ao sincronizar BD:', err));
   });
 
+// Sincronizar Sequelize
+//sequelize.sync()
+//    .then(() => console.log('Banco de dados sincronizado'))
+//    .catch(err => console.error('Erro ao sincronizar BD:', err));
 
 
 const PORT = process.env.PORT || 3000;

@@ -28,18 +28,34 @@ const Cafe = sequelize.define('Cafe', {
         type: DataTypes.INTEGER, 
         allowNull: false,
         validate: {
-            min: 0,
-            max: 23,
-            isInt: true,
+            min: {
+                args: [0],
+                msg: 'O horário de abertura deve ser no mínimo 0 (meia-noite).'
+            },
+            max: {
+                args: [23],
+                msg: 'O horário de abertura deve ser no máximo 23 (11 da noite).'
+            },
+            isInt: {
+                msg: 'O horário de abertura deve ser um número inteiro entre 0 e 23.'
+            }
         }
     },
     Horario_Fecho: { 
         type: DataTypes.INTEGER, 
         allowNull: false,
         validate: {
-            min: 0,
-            max: 23,
-            isInt: true,
+            min: {
+                args: [0],
+                msg: 'O horário de fecho deve ser no mínimo 0 (meia-noite).'
+            },
+            max: {
+                args: [23],
+                msg: 'O horário de fecho deve ser no máximo 23 (11 da noite).'
+            },
+            isInt: {
+                msg: 'O horário de fecho deve ser um número inteiro entre 0 e 23.'
+            }
         }
     },
 }, { 
