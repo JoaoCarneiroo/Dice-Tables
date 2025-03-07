@@ -4,6 +4,53 @@ const jwt = require('jsonwebtoken');
 
 const secretKey = 'carneiro_secret';
 
+
+// Login de Utilizador
+exports.login = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const utilizador = await Utilizador.findOne({ where: { Email: email } });
+
+        if (!utilizador) {
+            return res.status(404).json({ error: 'Utilizador não encontrado' });
+        }
+
+        // Comparar a senha fornecida com o hash da senha no banco de dados
+        const match = await bcrypt.compare(password, utilizador.Password);
+        
+        if (!match) {
+            return res.status(401).json({ error: 'Senha incorreta' });
+        }
+
+        var isAdmin = utilizador.Cargo == 'Administrador'
+        var isGestor = utilizador.Cargo == 'Gestor'
+
+        // Gerar o token JWT
+        const token = jwt.sign({ id: utilizador.ID_Utilizador, nome: utilizador.Nome, email: utilizador.Email, isAdmin: isAdmin, isGestor: isGestor }, secretKey, { expiresIn: '1h' });
+
+        res.cookie('Authorization', token, { httpOnly: true, secure: true, sameSite: 'Strict' });
+        res.status(200).send({ message: 'Utilizador autenticado com sucesso!' });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+
+// Logout de Utilizador
+exports.logout = (req, res) => {
+    res.clearCookie('Authorization', {
+        httpOnly: true,  
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: 'Strict'
+    });
+
+    // Retorna uma resposta informando que o usuário foi desconectado
+    res.status(200).json({ message: 'Desconectado com sucesso!' });
+};
+
+
 // Obter todos os utilizadores
 exports.mostrarUtilizadores = async (req, res) => {
     try {
@@ -15,6 +62,7 @@ exports.mostrarUtilizadores = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
 
 // Obter um utilizador pelo ID
 exports.mostrarUtilizadorID = async (req, res) => {
@@ -30,6 +78,7 @@ exports.mostrarUtilizadorID = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
 
 // Criar um novo utilizador
 exports.criarUtilizador = async (req, res) => {
@@ -58,6 +107,7 @@ exports.criarUtilizador = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
 
 // Atualizar um utilizador
 exports.atualizarUtilizador = async (req, res) => {
@@ -91,9 +141,10 @@ exports.atualizarUtilizador = async (req, res) => {
     }
 };
 
+
 // Remover um utilizador
 exports.apagarUtilizador = async (req, res) => {
-    console.log(JSON.stringify(req.user))
+
     try {
         const utilizador = await Utilizador.findByPk(req.user.id);
         if (!utilizador) {
@@ -106,9 +157,9 @@ exports.apagarUtilizador = async (req, res) => {
 
         // Limpeza da Cookie
         res.clearCookie('Authorization', {
-            httpOnly: true,  // Garante que o cookie só possa ser acessado pelo servidor
-            secure: process.env.NODE_ENV === 'production',  // Em produção, você usaria cookies seguros
-            sameSite: 'Strict'  // Aplique a política de SameSite
+            httpOnly: true,  
+            secure: process.env.NODE_ENV === 'production',  
+            sameSite: 'Strict' 
         });
 
         res.json({ message: 'Utilizador removido com sucesso!' });
@@ -118,34 +169,4 @@ exports.apagarUtilizador = async (req, res) => {
 };
 
 
-// Login
-exports.login = async (req, res) => {
-    const { email, password } = req.body;
 
-    try {
-        const utilizador = await Utilizador.findOne({ where: { Email: email } });
-
-        if (!utilizador) {
-            return res.status(404).json({ error: 'Utilizador não encontrado' });
-        }
-
-        // Comparar a senha fornecida com o hash da senha no banco de dados
-        const match = await bcrypt.compare(password, utilizador.Password);
-        
-        if (!match) {
-            return res.status(401).json({ error: 'Senha incorreta' });
-        }
-
-        var isAdmin = utilizador.Cargo == 'Administrador'
-        var isGestor = utilizador.Cargo == 'Gestor'
-
-        // Gerar o token JWT
-        const token = jwt.sign({ id: utilizador.ID_Utilizador, nome: utilizador.Nome, email: utilizador.Email, isAdmin: isAdmin, isGestor: isGestor }, secretKey, { expiresIn: '1h' });
-
-        res.cookie('Authorization', token, { httpOnly: true, secure: true, sameSite: 'Strict' });
-        res.status(200).send({ message: 'Utilizador autenticado com sucesso!' });
-
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};

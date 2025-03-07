@@ -30,15 +30,14 @@ exports.mostrarCafeID = async (req, res) => {
 // Criar um novo café
 exports.criarCafe = async (req, res) => {
     try {
+        if(!req.user.isGestor) return res.status(401).send({ error: 'Função restrita a gestor'})
+
         const { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
         const imagem_cafe = req.file ? req.file.buffer : null;
 
-        // Supondo que o ID_Gestor seja obtido a partir do token ou sessão do utilizador autenticado
-        const gestorId = req.user.ID_Gestor;
-
         // Verifique se o gestor já tem um café
-        const cafeExistente = await Cafe.findOne({ where: { ID_Gestor: gestorId } });
-        if (cafeExistente) {
+        const gestorExistente = await Gestor.findOne({ where: { ID_Utilizador: req.user.id } });
+        if (gestorExistente) {
             return res.status(403).json({ message: 'Este gestor já tem um café atribuído.' });
         }
 
@@ -50,8 +49,14 @@ exports.criarCafe = async (req, res) => {
             Tipo_Cafe: tipo_cafe,
             Horario_Abertura: horario_abertura,
             Horario_Fecho: horario_fecho,
-            ID_Gestor: gestorId // Atribuindo o ID_Gestor ao café
         });
+
+        await Gestor.create({
+            ID_Cafe: novoCafe.id,
+            ID_Utilizador: req.user.id
+        });
+
+
 
         res.json({ id: novoCafe.id, message: 'Café criado com sucesso!' });
     } catch (error) {

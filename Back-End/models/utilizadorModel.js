@@ -14,7 +14,7 @@ const Utilizador = sequelize.define('Utilizador', {
         unique: true,
         validate: {
             is: {
-                args: /^[A-Za-zÀ-ÿ\s]+$/i, // Permite apenas letras e espaços
+                args: /^[A-Za-zÀ-ÿ\s]+$/i,
                 msg: 'Nome deve conter apenas letras e espaços'
             }
         }
@@ -33,11 +33,11 @@ const Utilizador = sequelize.define('Utilizador', {
         type: DataTypes.STRING, 
         allowNull: false 
     },
-    Cargo: {  // Novo campo Cargo
+    Cargo: {
         type: DataTypes.ENUM,
-        values: ['Utilizador', 'Gestor', 'Administrador'], // Valores válidos
+        values: ['Utilizador', 'Gestor', 'Administrador'], 
         allowNull: false,
-        defaultValue: 'Utilizador', // Valor padrão
+        defaultValue: 'Utilizador',
         validate: {
             isIn: {
                 args: [['Utilizador', 'Gestor', 'Administrador']],

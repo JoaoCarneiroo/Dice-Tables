@@ -11,7 +11,7 @@ router.delete('/', checkAuth, utilizadoresController.apagarUtilizador);
 
 
 router.post('/login', utilizadoresController.login);
-
+router.post('/logout', utilizadoresController.logout);
 
 
 module.exports = router;

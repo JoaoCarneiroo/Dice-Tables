@@ -8,13 +8,21 @@ const Gestor = sequelize.define('Gestor', {
         type: DataTypes.INTEGER, 
         primaryKey: true, 
         autoIncrement: true,
-        unique: true
+        unique: true,
+    },
+    ID_Cafe: { 
+        type: DataTypes.INTEGER, 
+        allowNull: false,
+        references: {
+            model: 'Cafes',
+            key: 'ID_Cafe'
+        }
     },
     ID_Utilizador: { 
         type: DataTypes.INTEGER, 
         allowNull: false,
         references: {
-            model: Utilizador, // Ligação ao utilizador que é gestor
+            model: 'Utilizadores',
             key: 'ID_Utilizador'
         }
     }
@@ -23,11 +31,12 @@ const Gestor = sequelize.define('Gestor', {
     timestamps: false 
 });
 
-// Um utilizador pode ser gestor de vários cafés
+
 Utilizador.hasMany(Gestor, { foreignKey: 'ID_Utilizador' });
 Gestor.belongsTo(Utilizador, { foreignKey: 'ID_Utilizador' });
 
-// Um gestor pode gerir vários cafés
+Cafe.hasMany(Gestor, { foreignKey: 'ID_Cafe' });
+Gestor.belongsTo(Cafe, { foreignKey: 'ID_Cafe' });
 
 
 module.exports = Gestor;

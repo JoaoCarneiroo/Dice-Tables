@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../Database/sequelize');
-const Gestor = require('../models/gestorModel');
 
 const Cafe = sequelize.define('Cafe', {
     ID_Cafe: { 
@@ -59,21 +58,11 @@ const Cafe = sequelize.define('Cafe', {
             }
         }
     },
-    ID_Gestor: { // Este campo faz a associação do café ao gestor
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: Gestor,
-            key: 'ID_Gestor'
-        }
-    }
+    
 }, { 
     tableName: 'Cafes', 
     timestamps: false 
 });
 
-// Relacionamentos
-Cafe.belongsTo(Gestor, { foreignKey: 'ID_Gestor' });
-Gestor.hasMany(Cafe, { foreignKey: 'ID_Gestor' });
 
 module.exports = Cafe;
