@@ -20,9 +20,22 @@ const Cafe = sequelize.define('Cafe', {
         type: DataTypes.STRING, 
         allowNull: false 
     },
-    Tipo_Cafe: { 
-        type: DataTypes.STRING, 
-        allowNull: false 
+    Tipo_Cafe: {
+        type: DataTypes.TINYINT, 
+        allowNull: false,
+        validate: {
+            min: {
+                args: [0],
+                msg: 'O valor tem de ser entre 0 e 1.' // 0 é o café que tem jogos
+            },
+            max: {
+                args: [1],
+                msg: 'O valor tem de ser entre 0 e 1' // 1 é o café que nao tem jogos mas permite jogar
+            },
+            isInt: {
+                msg: 'Tem de ser um número entre 0 e 1.'
+            }
+        }
     },
     Horario_Abertura: { 
         type: DataTypes.INTEGER, 

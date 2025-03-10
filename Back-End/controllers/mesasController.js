@@ -1,7 +1,9 @@
 const Mesas = require('../models/mesasModel');
 const Gestor = require('../models/gestorModel');
+const Cafes = require('../models/cafeModel');
 
-// Obter todos as Mesas
+
+// Obter todas as Mesas
 exports.mostrarMesas = async (req, res) => {
     try {
         const mesas = await Mesas.findAll();
@@ -10,6 +12,29 @@ exports.mostrarMesas = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// Obter todas as Mesas de um café
+exports.mostrarMesasID = async (req, res) => {
+    try {
+        const Cafe = await Cafes.findByPk(req.params.id);
+
+        if (!Cafe) {
+            return res.status(404).json({ error: "Café não encontrado." });
+        }
+
+        const idCafe = Cafe.ID_Cafe
+        
+        // Buscar todos os jogos do café
+        const mesas = await Mesas.findAll({
+            where: { ID_Cafe: idCafe }
+        });
+
+        res.json(mesas);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 // Criar uma nova Mesa (apenas se o utilizador autenticado for gestor do café)
 exports.criarMesa = async (req, res) => {

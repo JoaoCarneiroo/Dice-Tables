@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../Database/sequelize');
-const Cafe = require('../models/cafeModel');
+const Cafes = require('../models/cafeModel');
 
 const Mesas = sequelize.define('Mesas', {
     ID_Mesa: { 
@@ -15,7 +15,8 @@ const Mesas = sequelize.define('Mesas', {
         references: {
             model: 'Cafes',
             key: 'ID_Cafe'
-        }
+        },
+        onDelete: 'CASCADE' // Se o café for apagado também são apagadas as Mesas
     },
     Lugares: { 
         type: DataTypes.INTEGER, 
@@ -27,8 +28,8 @@ const Mesas = sequelize.define('Mesas', {
     timestamps: false 
 });
 
-Cafe.hasMany(Mesas, { foreignKey: 'ID_Cafe' });
-Mesas.belongsTo(Cafe, { foreignKey: 'ID_Cafe' });
 
+Cafes.hasMany(Mesas, { foreignKey: 'ID_Cafe' });
+Mesas.belongsTo(Cafes, { foreignKey: 'ID_Cafe', onDelete: 'CASCADE'  });
 
 module.exports = Mesas;
