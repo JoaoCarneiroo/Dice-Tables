@@ -1,4 +1,3 @@
-const Gestor = require('../models/gestorModel');
 const Utilizador = require('../models/utilizadorModel');
 
 // Promover um utilizador a gestor

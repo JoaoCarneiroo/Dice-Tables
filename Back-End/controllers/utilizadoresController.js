@@ -17,6 +17,8 @@ exports.login = async (req, res) => {
                 const decoded = jwt.verify(tokenExistente, secretKey);
                 if (decoded.email === email) {
                     return res.status(400).json({ error: 'Utilizador já autenticado!' });
+                } else {
+                    return res.status(400).json({ error: 'Utilizador já autenticado com outra conta!' });
                 }
             } catch (error) {
                 console.error("Erro ao verificar token existente:", error.message);            }

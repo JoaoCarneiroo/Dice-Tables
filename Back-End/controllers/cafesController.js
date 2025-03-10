@@ -67,17 +67,30 @@ exports.criarCafe = async (req, res) => {
 // Atualizar um café
 exports.atualizarCafe = async (req, res) => {
     try {
+        if (!req.user.isGestor) return res.status(401).send({ error: 'Função restrita a gestor' });
+
         const cafe = await Cafe.findByPk(req.params.id);
         if (!cafe) return res.status(404).json({ error: 'Café não encontrado' });
 
         // Verifique se o café pertence ao gestor autenticado
-        const gestorId = req.user.ID_Gestor;
-        if (cafe.ID_Gestor !== gestorId) {
+        const gestorExistente = await Gestor.findOne({ where: { ID_Cafe: cafe.ID_Cafe, ID_Utilizador: req.user.id } });
+        if (!gestorExistente) {
             return res.status(403).json({ message: 'Você não tem permissão para alterar este café.' });
         }
 
+        const { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
+        const imagem_cafe = req.file ? req.file.buffer : cafe.Imagem_Cafe; 
+        
         // Atualizar o café com as novas informações
-        await cafe.update(req.body);
+        await cafe.update({
+            Nome_Cafe: nome_cafe || cafe.Nome_Cafe,
+            Imagem_Cafe: imagem_cafe,
+            Local: local || cafe.Local,
+            Tipo_Cafe: tipo_cafe || cafe.Tipo_Cafe,
+            Horario_Abertura: horario_abertura || cafe.Horario_Abertura,
+            Horario_Fecho: horario_fecho || cafe.Horario_Fecho,
+        });
+
         res.json({ message: 'Café atualizado com sucesso!' });
     } catch (error) {
         res.status(500).json({ error: error.message });

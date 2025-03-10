@@ -42,13 +42,26 @@ exports.criarJogo = async (req, res) => {
         const { nomeJogo, notasJogo, preco, quantidade } = req.body;
 
         // Verificar se o utilizador autenticado é gestor de um café
+        if (!req.user.isGestor) { 
+            return res.status(403).json({ error: "Apenas gestores podem adicionar jogos." });
+        }
+
         const gestor = await Gestor.findOne({
             where: { ID_Utilizador: req.user.id }
         });
 
         if (!gestor) { 
-            return res.status(403).json({ error: "Apenas gestores podem adicionar jogos." });
+            return res.status(403).json({ error: "Ainda não tens um café a gerir." });
         }
+
+
+        const cafe = await Cafes.findByPk(gestor.ID_Cafe);
+
+
+        if (cafe.Tipo_Cafe == 1) { 
+            return res.status(403).json({ error: "Altere o tipo de café" });
+        }
+
 
         // Criar o jogo associado ao café do gestor autenticado
         const novoJogo = await Jogos.create({

@@ -40,14 +40,18 @@ exports.mostrarMesasID = async (req, res) => {
 exports.criarMesa = async (req, res) => {
     try {
         const { lugares } = req.body;
-
+        
         // Verificar se o utilizador autenticado é gestor de um café
+        if (!req.user.isGestor) { 
+            return res.status(403).json({ error: "Apenas gestores podem criar mesas" });
+        }
+
         const gestor = await Gestor.findOne({
             where: { ID_Utilizador: req.user.id }
         });
 
         if (!gestor) {
-            return res.status(403).json({ error: "Apenas gestores podem criar mesas." });
+            return res.status(403).json({ error: "Ainda não tens um café a gerir" });
         }
 
         // Criar a mesa associada ao café do gestor autenticado
