@@ -9,6 +9,8 @@ const Utilizador = require('./models/utilizadorModel')
 const cafesRoutes = require('./routes/cafesRoutes');
 const utilizadoresRoutes = require('./routes/utilizadoresRoutes');
 const gestorRoutes = require('./routes/gestorRoutes');
+const mesasRoutes = require('./routes/mesasRoutes');
+
 
 
 //const reservasRoutes = require('./routes/reservasRoutes');
@@ -42,6 +44,8 @@ app.use(cookieParser())
 app.use('/cafes', cafesRoutes);
 app.use('/autenticar', utilizadoresRoutes);
 app.use('/gestor', gestorRoutes);
+app.use('/mesas', mesasRoutes);
+
 
 
 //app.use('/reservas', reservasRoutes);

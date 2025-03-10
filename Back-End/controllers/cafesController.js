@@ -52,7 +52,7 @@ exports.criarCafe = async (req, res) => {
         });
 
         await Gestor.create({
-            ID_Cafe: novoCafe.id,
+            ID_Cafe: novoCafe.ID_Cafe,
             ID_Utilizador: req.user.id
         });
 

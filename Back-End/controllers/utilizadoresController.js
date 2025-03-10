@@ -10,6 +10,18 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // Verificar se já existe um token na cookie
+        const tokenExistente = req.cookies.Authorization;
+        if (tokenExistente) {
+            try {
+                const decoded = jwt.verify(tokenExistente, secretKey);
+                if (decoded.email === email) {
+                    return res.status(400).json({ error: 'Utilizador já autenticado!' });
+                }
+            } catch (error) {
+                console.error("Erro ao verificar token existente:", error.message);            }
+        }
+
         const utilizador = await Utilizador.findOne({ where: { Email: email } });
 
         if (!utilizador) {
@@ -55,7 +67,7 @@ exports.logout = (req, res) => {
 exports.mostrarUtilizadores = async (req, res) => {
     try {
         const utilizadores = await Utilizador.findAll({
-            attributes: ['ID_Utilizador', 'Nome', 'Email'] // Evita expor senhas
+            attributes: ['ID_Utilizador', 'Nome', 'Email']
         });
         res.json(utilizadores);
     } catch (err) {
