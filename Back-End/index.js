@@ -12,29 +12,25 @@ const utilizadoresRoutes = require('./routes/utilizadoresRoutes');
 const gestorRoutes = require('./routes/gestorRoutes');
 const mesasRoutes = require('./routes/mesasRoutes');
 const jogosRoutes = require('./routes/jogosRoutes');
-
-
-
-
-//const reservasRoutes = require('./routes/reservasRoutes');
+const reservasRoutes = require('./routes/reservasRoutes');
 
 
 /* Criar admin */
 
-async function createAdmin() {
+// async function createAdmin() {
 
-  const hashedPassword = await bcrypt.hash('admin', 10);
+//   const hashedPassword = await bcrypt.hash('admin', 10);
 
-  const novoUtilizador = await Utilizador.create({
-    Nome: 'admin',
-    Email: 'admin@gmail.com',
-    Password: hashedPassword,
-    Cargo: 'Administrador'
-  });
+//   const novoUtilizador = await Utilizador.create({
+//     Nome: 'admin',
+//     Email: 'admin@gmail.com',
+//     Password: hashedPassword,
+//     Cargo: 'Administrador'
+//   });
 
-}
+// }
 
-createAdmin();
+// createAdmin();
 
 /* Fim */
 
@@ -49,26 +45,25 @@ app.use('/autenticar', utilizadoresRoutes);
 app.use('/gestor', gestorRoutes);
 app.use('/mesas', mesasRoutes);
 app.use('/jogos', jogosRoutes);
+app.use('/reservas', reservasRoutes);
 
 
-
-//app.use('/reservas', reservasRoutes);
 
 // Sincronizar Sequelize
-sequelize.query('PRAGMA foreign_keys=off;') // Disable foreign key checks
-  .then(() => {
-    sequelize.sync({ force: true })
-      .then(() => {
-        console.log('Banco de dados sincronizado');
-        sequelize.query('PRAGMA foreign_keys=on;'); // Re-enable foreign key checks
-      })
-      .catch(err => console.error('Erro ao sincronizar BD:', err));
-  });
+// sequelize.query('PRAGMA foreign_keys=off;') // Disable foreign key checks
+//   .then(() => {
+//     sequelize.sync({ force: true })
+//       .then(() => {
+//         console.log('Banco de dados sincronizado');
+//         sequelize.query('PRAGMA foreign_keys=on;'); // Re-enable foreign key checks
+//       })
+//       .catch(err => console.error('Erro ao sincronizar BD:', err));
+//   });
 
 // Sincronizar Sequelize
-// sequelize.sync()
-//    .then(() => console.log('Banco de dados sincronizado'))
-//    .catch(err => console.error('Erro ao sincronizar BD:', err));
+sequelize.sync()
+   .then(() => console.log('Banco de dados sincronizado'))
+   .catch(err => console.error('Erro ao sincronizar BD:', err));
 
 
 const PORT = process.env.PORT || 3000;
