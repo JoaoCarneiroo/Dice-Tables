@@ -1,9 +1,25 @@
 const Cafe = require('../models/cafeModel');
 const Gestor = require('../models/gestorModel');
 const multer = require('multer');
+const path = require('path')
 
 // Configuração do multer para upload de imagens
-const storage = multer.memoryStorage();
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        console.log(req.baseUrl)
+        cb(null, path.resolve(path.join(__dirname, "..", "uploads", req.baseUrl)));
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        const extension = file.mimetype.split('/')[1]; // Extensão do ficheiro
+        const fileName = `${file.fieldname}-${uniqueSuffix}.${extension}`
+        req.fileName = fileName // Adicionar o nome do ficheiro guardado a request para depois guardar na base de dados
+        cb(null, fileName)
+    }
+})
+
+
 const upload = multer({ storage: storage });
 
 // Obter todos os cafés
@@ -30,10 +46,10 @@ exports.mostrarCafeID = async (req, res) => {
 // Criar um novo café
 exports.criarCafe = async (req, res) => {
     try {
-        if(!req.user.isGestor) return res.status(401).send({ error: 'Função restrita a gestor'})
+        if (!req.user.isGestor) return res.status(401).send({ error: 'Função restrita a gestor' })
 
         const { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
-        const imagem_cafe = req.file ? req.file.buffer : null;
+        const imagem_cafe = req.file ? req.fileName : 'default.png';
 
         // Verifique se o gestor já tem um café
         const gestorExistente = await Gestor.findOne({ where: { ID_Utilizador: req.user.id } });
@@ -79,8 +95,8 @@ exports.atualizarCafe = async (req, res) => {
         }
 
         const { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
-        const imagem_cafe = req.file ? req.file.buffer : cafe.Imagem_Cafe; 
-        
+        const imagem_cafe = req.file ? req.fileName : cafe.Imagem_Cafe;
+
         // Atualizar o café com as novas informações
         await cafe.update({
             Nome_Cafe: nome_cafe || cafe.Nome_Cafe,
@@ -118,4 +134,4 @@ exports.apagarCafe = async (req, res) => {
 };
 
 // Exportar o middleware de upload
-exports.upload = upload.single('imagem_cafe');
+exports.upload = upload;

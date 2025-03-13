@@ -1,4 +1,6 @@
 require('dotenv').config();
+require('./middlewares/jogosStock');
+
 const express = require('express');
 const sequelize = require('./Database/sequelize');
 const cors = require('cors');

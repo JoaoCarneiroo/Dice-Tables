@@ -3,6 +3,9 @@ const Reservas = require('../models/reservasModel');
 const Cafes = require('../models/cafeModel');
 const Mesas = require('../models/mesasModel');
 const Utilizadores = require('../models/utilizadorModel');
+const Jogos = require('../models/jogosModel');
+
+const { Op } = require('sequelize');
 
 // Obter todas as reservas
 exports.mostrarReservas = async (req, res) => {
@@ -40,27 +43,61 @@ exports.mostrarReservasUtilizador = async (req, res) => {
 };
 
 
-// Criar uma nova reserva
 exports.criarReserva = async (req, res) => {
     try {
-        const { ID_Mesa, Data_Hora } = req.body;
-        const ID_Utilizador = req.user.id; // Utilizador autenticado
+        const { ID_Mesa, ID_Jogo, Hora_Inicio, Hora_Fim } = req.body;
+        const ID_Utilizador = req.user.id;
 
-        // Verificar se a mesa existe
+        // Verificar se a mesa existe e obter o ID_Cafe associado
         const mesa = await Mesas.findByPk(ID_Mesa);
         if (!mesa) {
-            return res.status(404).json({ error: "Mesa não encontrada." });
+            return res.status(404).json({ error: 'Mesa não encontrada.' });
+        }
+        const ID_Cafe = mesa.ID_Cafe;
+
+        // Verificar se já existe uma reserva na mesma mesa no horário escolhido
+        const reservaExistente = await Reservas.findOne({
+            where: {
+                ID_Mesa,
+                [Op.or]: [
+                    { Hora_Inicio: { [Op.between]: [Hora_Inicio, Hora_Fim] } },
+                    { Hora_Fim: { [Op.between]: [Hora_Inicio, Hora_Fim] } }
+                ]
+            }
+        });
+
+        if (reservaExistente) {
+            return res.status(400).json({ error: 'Esta mesa já está reservada neste horário.' });
+        }
+
+        // Verificar se o jogo pertence ao café da mesa e tem stock disponível
+        const jogo = await Jogos.findOne({
+            where: { ID_Jogo, ID_Cafe }
+        });
+
+        if (!jogo) {
+            return res.status(404).json({ error: 'Este jogo não pertence a este café.' });
+        }
+
+        if (jogo.Quantidade < 1) {
+            return res.status(400).json({ error: 'Este jogo está sem stock no momento.' });
         }
 
         // Criar a reserva
         const novaReserva = await Reservas.create({
-            ID_Cafe: mesa.ID_Cafe,
+            ID_Cafe,
             ID_Mesa,
             ID_Utilizador,
-            Data_Hora
+            ID_Jogo,
+            Hora_Inicio,
+            Hora_Fim
         });
 
-        res.status(201).json(novaReserva);
+        // Reduzir o stock do jogo
+        await jogo.update({ Quantidade: jogo.Quantidade - 1 });
+
+        res.status(201).json({ message: 'Reserva criada com sucesso!', reserva: novaReserva });
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -69,34 +106,78 @@ exports.criarReserva = async (req, res) => {
 // Atualizar uma reserva (Apenas o utilizador que reservou pode alterar)
 exports.atualizarReserva = async (req, res) => {
     try {
-        const { id } = req.params; // ID da reserva a ser alterada
-        const { ID_Mesa, Data_Hora } = req.body;
-        const ID_Utilizador = req.user.id; // Utilizador autenticado
+        const ID_Reserva = req.params.id;
+        const { ID_Mesa, ID_Jogo, Hora_Inicio, Hora_Fim } = req.body;
+        const ID_Utilizador = req.user.id;
 
-        // Verificar se a reserva pertence ao utilizador autenticado
+        // Verificar se a reserva existe e pertence ao utilizador autenticado
         const reserva = await Reservas.findOne({
-            where: { ID_Reserva: id, ID_Utilizador }
+            where: { ID_Reserva, ID_Utilizador }
         });
 
         if (!reserva) {
-            return res.status(404).json({ error: "Reserva não encontrada ou não pertence a este utilizador." });
+            return res.status(404).json({ error: 'Reserva não encontrada ou não pertence ao utilizador.' });
         }
 
-        // Verificar se a nova mesa pertence ao mesmo café da reserva original
-        if (ID_Mesa) {
-            const novaMesa = await Mesas.findOne({ where: { ID_Mesa } });
+        // Verificar se a nova mesa existe e pertence ao mesmo café
+        if (ID_Mesa && ID_Mesa !== reserva.ID_Mesa) {
+            const novaMesa = await Mesas.findByPk(ID_Mesa);
             if (!novaMesa || novaMesa.ID_Cafe !== reserva.ID_Cafe) {
-                return res.status(400).json({ error: "A mesa escolhida não pertence ao mesmo café da reserva." });
+                return res.status(400).json({ error: 'A mesa selecionada não existe ou não pertence ao mesmo café.' });
             }
+
+            // Verificar se a nova mesa já está reservada no horário selecionado
+            const reservaExistente = await Reservas.findOne({
+                where: {
+                    ID_Mesa,
+                    [Op.or]: [
+                        { Hora_Inicio: { [Op.between]: [Hora_Inicio, Hora_Fim] } },
+                        { Hora_Fim: { [Op.between]: [Hora_Inicio, Hora_Fim] } }
+                    ]
+                }
+            });
+
+            if (reservaExistente) {
+                return res.status(400).json({ error: 'A nova mesa já está reservada neste horário.' });
+            }
+
+            reserva.ID_Mesa = ID_Mesa;
         }
 
-        // Atualizar a reserva com a nova mesa e/ou data
-        await reserva.update({
-            ID_Mesa: ID_Mesa || reserva.ID_Mesa, // Manter o valor anterior se não for enviado um novo
-            Data_Hora: Data_Hora || reserva.Data_Hora
-        });
+        // Verificar se o novo jogo pertence ao mesmo café e tem stock disponível
+        if (ID_Jogo && ID_Jogo !== reserva.ID_Jogo) {
+            const novoJogo = await Jogos.findOne({
+                where: { ID_Jogo, ID_Cafe: reserva.ID_Cafe }
+            });
 
-        res.json({ message: "Reserva atualizada com sucesso!", reserva });
+            if (!novoJogo) {
+                return res.status(400).json({ error: 'O jogo selecionado não existe ou não pertence a este café.' });
+            }
+
+            if (novoJogo.Quantidade < 1) {
+                return res.status(400).json({ error: 'O jogo selecionado está sem stock.' });
+            }
+
+            // Restaurar o stock do jogo anterior
+            const jogoAntigo = await Jogos.findByPk(reserva.ID_Jogo);
+            if (jogoAntigo) {
+                await jogoAntigo.update({ Quantidade: jogoAntigo.Quantidade + 1 });
+            }
+
+            // Reduzir o stock do novo jogo
+            await novoJogo.update({ Quantidade: novoJogo.Quantidade - 1 });
+
+            reserva.ID_Jogo = ID_Jogo;
+        }
+
+        // Atualizar horários se forem fornecidos
+        if (Hora_Inicio) reserva.Hora_Inicio = Hora_Inicio;
+        if (Hora_Fim) reserva.Hora_Fim = Hora_Fim;
+
+        await reserva.save();
+
+        res.status(200).json({ message: 'Reserva atualizada com sucesso!', reserva });
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

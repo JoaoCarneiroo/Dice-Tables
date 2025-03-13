@@ -14,7 +14,7 @@ const Cafe = sequelize.define('Cafe', {
         unique: true 
     },
     Imagem_Cafe: { 
-        type: DataTypes.BLOB('long') 
+        type: DataTypes.TEXT
     },
     Local: { 
         type: DataTypes.STRING, 

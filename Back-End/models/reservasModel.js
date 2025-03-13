@@ -4,6 +4,7 @@ const sequelize = require('../Database/sequelize');
 const Cafes = require('../models/cafeModel');
 const Mesas = require('../models/mesasModel');
 const Utilizadores = require('../models/utilizadorModel');
+const Jogos = require('../models/jogosModel');
 
 
 const Reservas = sequelize.define('Reservas', {
@@ -39,7 +40,20 @@ const Reservas = sequelize.define('Reservas', {
         },
         onDelete: 'CASCADE'
     },
-    Data_Hora: {
+    ID_Jogo: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Jogos,
+            key: 'ID_Jogo'
+        },
+        onDelete: 'CASCADE'
+    },
+    Hora_Inicio: { 
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    Hora_Fim: { 
         type: DataTypes.DATE,
         allowNull: false
     }
@@ -52,5 +66,6 @@ const Reservas = sequelize.define('Reservas', {
 Reservas.belongsTo(Cafes, { foreignKey: 'ID_Cafe' });
 Reservas.belongsTo(Mesas, { foreignKey: 'ID_Mesa' });
 Reservas.belongsTo(Utilizadores, { foreignKey: 'ID_Utilizador' });
+Reservas.belongsTo(Jogos, { foreignKey: 'ID_Jogo' }); 
 
 module.exports = Reservas;
