@@ -1,7 +1,7 @@
 const Utilizador = require('../models/utilizadorModel');
 
 // Promover um utilizador a gestor
-const promoverParaGestor = async (req, res) => {
+exports.promoverParaGestor = async (req, res) => {
     try {
         if(!req.user.isAdmin) return res.status(401).send({ error: 'Função restrita a admin'})
 
@@ -29,7 +29,7 @@ const promoverParaGestor = async (req, res) => {
 };
 
 // Buscar todos os gestores
-const mostrarGestores = async (req, res) => {
+exports.mostrarGestores = async (req, res) => {
     try {
         if(!req.user.isAdmin) return res.status(401).send({ error: 'Função restrita a admin'})
 
@@ -41,7 +41,7 @@ const mostrarGestores = async (req, res) => {
 };
 
 // Buscar um gestor por ID
-const mostrarGestorID = async (req, res) => {
+exports.mostrarGestorID = async (req, res) => {
     try {
         if(!req.user.isAdmin) return res.status(401).send({ error: 'Função restrita a admin'})
 
@@ -59,7 +59,7 @@ const mostrarGestorID = async (req, res) => {
 };
 
 // Remover um gestor (Rebaixar para utilizador comum)
-const despromoverGestor = async (req, res) => {
+exports.despromoverGestor = async (req, res) => {
     try {
         if(!req.user.isAdmin) return res.status(401).send({ error: 'Função restrita a admin'})
 
@@ -80,9 +80,3 @@ const despromoverGestor = async (req, res) => {
     }
 };
 
-module.exports = {
-    promoverParaGestor,
-    mostrarGestores,
-    mostrarGestorID,
-    despromoverGestor
-};

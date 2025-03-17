@@ -3,12 +3,7 @@ const router = express.Router();
 const cafesController = require('../controllers/cafesController');
 const checkAuth = require('../middlewares/authentication');
 
-/**
- * @swagger
- * tags:
- *   - name: Cafés
- *     description: Endpoints relacionados aos cafés
- */
+
 
 /**
  * @swagger
@@ -136,7 +131,7 @@ router.post('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafesC
  *       401:
  *         description: Acesso não autorizado
  *       403:
- *         description: Usuário não tem permissão para alterar este café
+ *         description: Utilizador não tem permissão para alterar este café
  *       404:
  *         description: Café não encontrado
  *       500:
@@ -166,7 +161,7 @@ router.patch('/:id', checkAuth, cafesController.upload.single('imagem_cafe'), ca
  *       401:
  *         description: Acesso não autorizado
  *       403:
- *         description: Usuário não tem permissão para remover este café
+ *         description: Utilizador não tem permissão para remover este café
  *       404:
  *         description: Café não encontrado
  *       500:
