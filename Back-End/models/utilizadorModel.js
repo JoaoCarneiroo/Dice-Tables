@@ -11,27 +11,28 @@ const Utilizador = sequelize.define('Utilizador', {
     Nome: { 
         type: DataTypes.STRING, 
         allowNull: false,
-        unique: true,
         validate: {
             is: {
                 args: /^[A-Za-zÀ-ÿ\s]+$/i,
-                msg: 'Nome deve conter apenas letras e espaços'
-            }
+                msg: 'O nome deve conter apenas letras e espaços.'
+            },
         }
     },
     Email: { 
         type: DataTypes.STRING, 
         allowNull: false, 
-        unique: true,
+        unique: {
+            msg: 'Este email já está registado. Tente outro email.'
+        },
         validate: {
             isEmail: {
-                msg: 'Email inválido'
-            }
+                msg: 'O email fornecido é inválido.'
+            },
         }
     },
     Password: { 
         type: DataTypes.STRING, 
-        allowNull: false 
+        allowNull: false,
     },
     Cargo: {
         type: DataTypes.ENUM,
@@ -41,7 +42,7 @@ const Utilizador = sequelize.define('Utilizador', {
         validate: {
             isIn: {
                 args: [['Utilizador', 'Gestor', 'Administrador']],
-                msg: 'Cargo inválido. Valores válidos são: Utilizador, Gestor, Administrador.'
+                msg: 'Cargo inválido. Os valores válidos são: Utilizador, Gestor, Administrador.'
             }
         }
     }
@@ -49,5 +50,6 @@ const Utilizador = sequelize.define('Utilizador', {
     tableName: 'Utilizadores', 
     timestamps: false 
 });
+
 
 module.exports = Utilizador;

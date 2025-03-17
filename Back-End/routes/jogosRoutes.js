@@ -3,6 +3,8 @@ const router = express.Router();
 const jogosController = require('../controllers/jogosController');
 const checkAuth = require('../middlewares/authentication')
 
+router.post('/comprar/:id', checkAuth, jogosController.comprarJogo);
+
 router.get('/', jogosController.mostrarJogos);
 router.get('/:id', jogosController.mostrarJogosID);
 router.post('/', checkAuth, jogosController.criarJogo);

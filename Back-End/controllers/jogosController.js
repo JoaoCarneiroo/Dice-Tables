@@ -2,6 +2,33 @@ const Jogos = require('../models/jogosModel');
 const Gestor = require('../models/gestorModel');
 const Cafes = require('../models/cafeModel');
 
+// Comprar um jogo
+exports.comprarJogo = async (req, res) => {
+    try {
+        const { id } = req.params; // ID do jogo
+
+        // Procurar o Jogo
+        const jogo = await Jogos.findByPk(id);
+        if (!jogo) {
+            return res.status(404).json({ error: "Jogo não encontrado." });
+        }
+
+        // Verificar se o jogo tem stock disponível
+        if (jogo.Quantidade < 1) {
+            return res.status(400).json({ error: "Este jogo está sem stock." });
+        }
+
+        // Reduzir o stock do jogo
+        await jogo.update({ Quantidade: jogo.Quantidade - 1 });
+
+
+        res.status(200).json({ message: "Compra efetuada com sucesso!", jogo });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 // Obter todos os jogos
 exports.mostrarJogos = async (req, res) => {
