@@ -43,6 +43,35 @@ exports.mostrarCafeID = async (req, res) => {
     }
 };
 
+// Obter o café do gestor autenticado
+exports.mostrarCafeGestor = async (req, res) => {
+    try {
+        // Verificar se o utilizador autenticado é um gestor
+        if (!req.user.isGestor) {
+            return res.status(403).json({ error: "Função restrita a Gestor" });
+        }
+
+        // Buscar o gestor e o café associado a ele
+        const gestor = await Gestor.findOne({
+            where: { ID_Utilizador: req.user.id },
+            include: {
+                model: Cafe,
+                attributes: ['ID_Cafe', 'Nome_Cafe', 'Local', 'Tipo_Cafe', 'Horario_Abertura', 'Horario_Fecho', 'Imagem_Cafe']
+            }
+        });
+
+        // Verificar se o gestor possui um café atribuído
+        if (!gestor || !gestor.Cafe) {
+            return res.status(404).json({ error: "Nenhum café encontrado para este gestor." });
+        }
+
+        res.json(gestor.Cafe);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 // Criar um novo café
 exports.criarCafe = async (req, res) => {
     try {

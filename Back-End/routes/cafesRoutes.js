@@ -5,7 +5,8 @@ const checkAuth = require('../middlewares/authentication')
 
 
 router.get('/', cafesController.mostrarCafes);
-router.get('/:id', cafesController.mostrarCafeID);
+router.get('/porID/:id', cafesController.mostrarCafeID);
+router.get('/gestor', checkAuth, cafesController.mostrarCafeGestor);
 router.post('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafesController.criarCafe); 
 router.patch('/:id', checkAuth, cafesController.upload.single('imagem_cafe'), cafesController.atualizarCafe);
 router.delete('/:id', checkAuth, cafesController.apagarCafe);
