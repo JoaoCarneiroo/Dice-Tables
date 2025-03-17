@@ -1,14 +1,177 @@
 const express = require('express');
 const router = express.Router();
 const cafesController = require('../controllers/cafesController');
-const checkAuth = require('../middlewares/authentication')
+const checkAuth = require('../middlewares/authentication');
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Cafés
+ *     description: Endpoints relacionados aos cafés
+ */
 
+/**
+ * @swagger
+ * /cafes:
+ *   get:
+ *     summary: Obtém todos os cafés
+ *     tags: [Cafés]
+ *     description: Retorna uma lista de todos os cafés cadastrados.
+ *     responses:
+ *       200:
+ *         description: Lista de cafés retornada com sucesso
+ *       500:
+ *         description: Erro interno do servidor
+ */
 router.get('/', cafesController.mostrarCafes);
-router.get('/porID/:id', cafesController.mostrarCafeID);
-router.get('/gestor', checkAuth, cafesController.mostrarCafeGestor);
-router.post('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafesController.criarCafe); 
+
+/**
+ * @swagger
+ * /cafes/{id}:
+ *   get:
+ *     summary: Obtém um café pelo ID
+ *     tags: [Cafés]
+ *     description: Retorna os detalhes de um café específico.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do café
+ *     responses:
+ *       200:
+ *         description: Dados do café retornados com sucesso
+ *       404:
+ *         description: Café não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/:id', cafesController.mostrarCafeID);
+
+/**
+ * @swagger
+ * /cafes:
+ *   post:
+ *     summary: Cria um novo café
+ *     tags: [Cafés]
+ *     description: Permite que um gestor cadastrado crie um novo café.
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome_cafe:
+ *                 type: string
+ *               local:
+ *                 type: string
+ *               tipo_cafe:
+ *                 type: string
+ *               horario_abertura:
+ *                 type: string
+ *                 format: time
+ *               horario_fecho:
+ *                 type: string
+ *                 format: time
+ *               imagem_cafe:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Café criado com sucesso
+ *       401:
+ *         description: Acesso não autorizado
+ *       403:
+ *         description: Gestor já possui um café cadastrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.post('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafesController.criarCafe);
+
+/**
+ * @swagger
+ * /cafes/{id}:
+ *   patch:
+ *     summary: Atualiza um café existente
+ *     tags: [Cafés]
+ *     description: Permite que um gestor autenticado atualize as informações do seu café.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do café
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome_cafe:
+ *                 type: string
+ *               local:
+ *                 type: string
+ *               tipo_cafe:
+ *                 type: string
+ *               horario_abertura:
+ *                 type: string
+ *                 format: time
+ *               horario_fecho:
+ *                 type: string
+ *                 format: time
+ *               imagem_cafe:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Café atualizado com sucesso
+ *       401:
+ *         description: Acesso não autorizado
+ *       403:
+ *         description: Usuário não tem permissão para alterar este café
+ *       404:
+ *         description: Café não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
 router.patch('/:id', checkAuth, cafesController.upload.single('imagem_cafe'), cafesController.atualizarCafe);
+
+/**
+ * @swagger
+ * /cafes/{id}:
+ *   delete:
+ *     summary: Remove um café
+ *     tags: [Cafés]
+ *     description: Permite que um gestor autenticado remova um café que lhe pertence.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do café a ser removido
+ *     responses:
+ *       200:
+ *         description: Café removido com sucesso
+ *       401:
+ *         description: Acesso não autorizado
+ *       403:
+ *         description: Usuário não tem permissão para remover este café
+ *       404:
+ *         description: Café não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
 router.delete('/:id', checkAuth, cafesController.apagarCafe);
 
 module.exports = router;

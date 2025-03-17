@@ -8,6 +8,11 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const Utilizador = require('./models/utilizadorModel')
 
+const swaggerjsdoc = require('swagger-jsdoc')
+const swaggerUi = require('swagger-ui-express')
+const swaggerOptions = require('./swaggerConfig')
+
+
 // Todas as Rotas
 const cafesRoutes = require('./routes/cafesRoutes');
 const utilizadoresRoutes = require('./routes/utilizadoresRoutes');
@@ -19,22 +24,23 @@ const reservasRoutes = require('./routes/reservasRoutes');
 
 /* Criar admin */
 
-async function createAdmin() {
+// async function createAdmin() {
 
-  const hashedPassword = await bcrypt.hash('admin', 10);
+//   const hashedPassword = await bcrypt.hash('admin', 10);
 
-  const novoUtilizador = await Utilizador.create({
-    Nome: 'admin',
-    Email: 'admin@gmail.com',
-    Password: hashedPassword,
-    Cargo: 'Administrador'
-  });
+//   const novoUtilizador = await Utilizador.create({
+//     Nome: 'admin',
+//     Email: 'admin@gmail.com',
+//     Password: hashedPassword,
+//     Cargo: 'Administrador'
+//   });
 
-}
+// }
 
-createAdmin();
+// createAdmin();
 
 /* Fim */
+
 
 
 const app = express();
@@ -50,22 +56,25 @@ app.use('/jogos', jogosRoutes);
 app.use('/reservas', reservasRoutes);
 
 
+const swaggerDocs = swaggerjsdoc(swaggerOptions)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+
 
 // Sincronizar Sequelize
-sequelize.query('PRAGMA foreign_keys=off;') // Disable foreign key checks
-  .then(() => {
-    sequelize.sync({ force: true })
-      .then(() => {
-        console.log('Banco de dados sincronizado');
-        sequelize.query('PRAGMA foreign_keys=on;'); // Re-enable foreign key checks
-      })
-      .catch(err => console.error('Erro ao sincronizar BD:', err));
-  });
+// sequelize.query('PRAGMA foreign_keys=off;') // Disable foreign key checks
+//   .then(() => {
+//     sequelize.sync({ force: true })
+//       .then(() => {
+//         console.log('Banco de dados sincronizado');
+//         sequelize.query('PRAGMA foreign_keys=on;'); // Re-enable foreign key checks
+//       })
+//       .catch(err => console.error('Erro ao sincronizar BD:', err));
+//   });
 
 // Sincronizar Sequelize
-// sequelize.sync()
-//    .then(() => console.log('Banco de dados sincronizado'))
-//    .catch(err => console.error('Erro ao sincronizar BD:', err));
+sequelize.sync()
+   .then(() => console.log('Banco de dados sincronizado'))
+   .catch(err => console.error('Erro ao sincronizar BD:', err));
 
 
 const PORT = process.env.PORT || 3000;
