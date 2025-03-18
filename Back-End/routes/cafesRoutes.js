@@ -52,7 +52,7 @@ router.get('/:id', cafesController.mostrarCafeID);
  *     tags: [Cafés]
  *     description: Permite que um gestor cadastrado crie um novo café.
  *     security:
- *       - BearerAuth: []
+ *       - CookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -95,7 +95,7 @@ router.post('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafesC
  *     tags: [Cafés]
  *     description: Permite que um gestor autenticado atualize as informações do seu café.
  *     security:
- *       - BearerAuth: []
+ *       - CookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -147,7 +147,7 @@ router.patch('/:id', checkAuth, cafesController.upload.single('imagem_cafe'), ca
  *     tags: [Cafés]
  *     description: Permite que um gestor autenticado remova um café que lhe pertence.
  *     security:
- *       - BearerAuth: []
+ *       - CookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id

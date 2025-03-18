@@ -17,7 +17,10 @@ const swaggerOptions = {
             {name: "Utilizadores", description: "Endpoints para Utilizadores"},
             {name: "Gestores", description: "Endpoints para Gestores"},
             {name: "Cafés", description: "Endpoints para Cafés"},
+            {name: "Reservas", description: "Endpoints para as Reservas"},
             {name: "Mesas", description: "Endpoints para gerenciar Mesas dos Cafés"},
+            {name: "Jogos", description: "Endpoints para gerenciar Jogos dos Cafés"},
+
         ],
         components: {
             securitySchemes: {

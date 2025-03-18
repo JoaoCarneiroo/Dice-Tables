@@ -8,12 +8,12 @@ const checkAuth = require('../middlewares/authentication');
  * @swagger
  * /mesas:
  *   get:
- *     summary: Retorna todas as mesas
+ *     summary: Mostra todas as mesas
  *     tags: [Mesas]
  *     description: Obtém a lista de todas as mesas disponíveis.
  *     responses:
  *       200:
- *         description: Lista de mesas retornada com sucesso
+ *         description: Lista de mesas mostrada com sucesso
  *       500:
  *         description: Erro interno do servidor
  */
@@ -23,7 +23,7 @@ router.get('/', mesasController.mostrarMesas);
  * @swagger
  * /mesas/{id}:
  *   get:
- *     summary: Retorna mesas de um café específico
+ *     summary: Mostra as mesas de um café específico
  *     tags: [Mesas]
  *     description: Obtém todas as mesas associadas a um determinado café.
  *     parameters:
@@ -35,7 +35,7 @@ router.get('/', mesasController.mostrarMesas);
  *           type: integer
  *     responses:
  *       200:
- *         description: Lista de mesas do café retornada com sucesso
+ *         description: Lista de mesas do café mostrada com sucesso
  *       404:
  *         description: Café não encontrado
  *       500:
@@ -51,7 +51,7 @@ router.get('/:id', mesasController.mostrarMesasID);
  *     tags: [Mesas]
  *     description: Permite que um gestor autenticado crie uma nova mesa para seu café.
  *     security:
- *       - bearerAuth: []
+ *       - CookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -80,7 +80,7 @@ router.post('/', checkAuth, mesasController.criarMesa);
  *     tags: [Mesas]
  *     description: Permite que um gestor autenticado atualize uma mesa do seu café.
  *     security:
- *       - bearerAuth: []
+ *       - CookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
