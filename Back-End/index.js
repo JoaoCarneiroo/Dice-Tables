@@ -2,6 +2,7 @@ require('dotenv').config();
 require('./middlewares/jogosStock');
 
 const express = require('express');
+const path = require('path');
 const sequelize = require('./Database/sequelize');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -44,9 +45,14 @@ const reservasRoutes = require('./routes/reservasRoutes');
 
 
 const app = express();
-app.use(cors());
+app.use(cors({
+   origin: 'http://localhost:5173'
+}));
 app.use(express.json());
 app.use(cookieParser())
+
+// Middleware para servir arquivos estáticos (imagens)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/cafes', cafesRoutes);
 app.use('/autenticar', utilizadoresRoutes);

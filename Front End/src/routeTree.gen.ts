@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
+import { Route as CafesImport } from './routes/cafes'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -19,6 +20,12 @@ import { Route as IndexImport } from './routes/index'
 const LoginRoute = LoginImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CafesRoute = CafesImport.update({
+  id: '/cafes',
+  path: '/cafes',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,6 +46,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/cafes': {
+      id: '/cafes'
+      path: '/cafes'
+      fullPath: '/cafes'
+      preLoaderRoute: typeof CafesImport
+      parentRoute: typeof rootRoute
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -53,36 +67,41 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
+  fullPaths: '/' | '/cafes' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login'
-  id: '__root__' | '/' | '/login'
+  to: '/' | '/cafes' | '/login'
+  id: '__root__' | '/' | '/cafes' | '/login'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CafesRoute: typeof CafesRoute
   LoginRoute: typeof LoginRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CafesRoute: CafesRoute,
   LoginRoute: LoginRoute,
 }
 
@@ -97,11 +116,15 @@ export const routeTree = rootRoute
       "filePath": "__root.jsx",
       "children": [
         "/",
+        "/cafes",
         "/login"
       ]
     },
     "/": {
       "filePath": "index.jsx"
+    },
+    "/cafes": {
+      "filePath": "cafes.jsx"
     },
     "/login": {
       "filePath": "login.jsx"
