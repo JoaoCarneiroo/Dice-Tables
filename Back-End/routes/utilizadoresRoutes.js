@@ -39,7 +39,30 @@ router.get('/', utilizadoresController.mostrarUtilizadores);
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/:id', utilizadoresController.mostrarUtilizadorID);
+router.get('/utilizador/:id', utilizadoresController.mostrarUtilizadorID);
+
+/**
+ * @swagger
+ * /autenticar/{id}:
+ *   get:
+ *     summary: Obtém um utilizador pelo ID
+ *     tags: [Utilizadores]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do utilizador
+ *     responses:
+ *       200:
+ *         description: Utilizador encontrado
+ *       404:
+ *         description: Utilizador não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/utilizador', utilizadoresController.mostrarUtilizadorAutenticado);
 
 /**
  * @swagger

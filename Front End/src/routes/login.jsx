@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { createFileRoute } from '@tanstack/react-router';
+import Cookies from 'js-cookie';
 
 export const Route = createFileRoute('/login')({
     component: Login,
@@ -12,7 +13,24 @@ function Login() {
     const [password, setPassword] = useState('');
 
     const mutation = useMutation({
-        mutationFn: (loginData) => axios.post('http://localhost:3000/autenticar/login', loginData),
+        mutationFn: (loginData) => axios.post('http://localhost:3000/autenticar/login', loginData, {
+            withCredentials: true,  // Enviar o cookie em cada requisição
+        }),
+        onSuccess: (response) => {
+            const token = response.data.token;
+            if (token) {
+                // Armazenando o token no cookie
+                Cookies.set('Authorization', token, { 
+                    expires: 1,  // O cookie vai expirar em 1 dia
+                    secure: process.env.NODE_ENV === 'production',  // Somente em produção o cookie será seguro
+                    sameSite: 'Strict',  // Restrição para cross-site
+                    httpOnly: true,  // Não será acessível via JavaScript
+                });
+                console.log('Token armazenado no cookie:', token);
+            } else {
+                console.error('Nenhum token recebido');
+            }
+        }
     });
 
     const handleSubmit = (e) => {
@@ -29,7 +47,7 @@ function Login() {
                     alt="Your Company"
                 />
                 <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-white">
-                    Sign in to your account
+                    Entra na tua Conta
                 </h2>
             </div>
 
@@ -37,7 +55,7 @@ function Login() {
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                            Email address
+                            Email
                         </label>
                         <div className="mt-2">
                             <input
@@ -83,7 +101,7 @@ function Login() {
                             type="submit"
                             className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
-                            {mutation.isLoading ? 'Signing in...' : 'Sign in'}
+                            {mutation.isLoading ? 'Acedendo...' : 'Login'}
                         </button>
                     </div>
                 </form>
@@ -93,15 +111,8 @@ function Login() {
                 )}
 
                 {mutation.isSuccess && (
-                    <p className="mt-2 text-center text-sm text-green-500">Login successful!</p>
+                    <p className="mt-2 text-center text-sm text-green-500">Login realizado com sucesso!</p>
                 )}
-
-                <p className="mt-10 text-center text-sm text-gray-400">
-                    Not a member?{' '}
-                    <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                        Start a 14-day free trial
-                    </a>
-                </p>
             </div>
         </div>
     );

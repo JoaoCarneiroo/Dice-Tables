@@ -10,7 +10,9 @@ export const Route = createRootRoute({
         <div className="flex space-x-4">
           <Link to="/" className="text-gray-300 hover:text-blue-400 font-medium">Home</Link>
           <Link to="/login" className="text-gray-300 hover:text-blue-400 font-medium">Login</Link>
+          <Link to="/registar" className="text-gray-300 hover:text-blue-400 font-medium">Registar</Link>
           <Link to="/cafes" className="text-gray-300 hover:text-blue-400 font-medium">Cafés</Link>
+          <Link to="/perfil" className="text-gray-300 hover:text-blue-400 font-medium">Perfil</Link>
 
         </div>
       </nav>

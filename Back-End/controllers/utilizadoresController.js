@@ -43,9 +43,9 @@ exports.login = async (req, res) => {
         // Gerar o token JWT
         const token = jwt.sign({ id: utilizador.ID_Utilizador, nome: utilizador.Nome, email: utilizador.Email, isAdmin: isAdmin, isGestor: isGestor }, secretKey, { expiresIn: '1h' });
 
-        res.cookie('Authorization', token, { httpOnly: true, secure: true, sameSite: 'Strict' });
-        res.status(200).send({ message: 'Utilizador autenticado com sucesso!' });
-
+        res.cookie('Authorization', token, { httpOnly: false, secure: false, sameSite: 'Lax' });
+        
+        res.status(200).json({message: 'Utilizador autenticado com sucesso!', token, });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -94,6 +94,45 @@ exports.mostrarUtilizadorID = async (req, res) => {
 };
 
 
+// Endpoint para verificar o token JWT e retornar as informações do utilizador autenticado
+exports.mostrarUtilizadorAutenticado = async (req, res) => {
+    try {
+        // Pegar o token do cookie
+        const token = req.cookies.Authorization;
+        
+        // Verificar se o token está presente
+        if (!token) {
+            return res.status(401).json({ error: 'Token não fornecido ou inválido' });
+        }
+
+        // Verificar o token JWT
+        const decoded = jwt.verify(token, secretKey);  // Verifica a validade do token
+
+        // Agora temos as informações do utilizador decodificadas
+        const utilizadorId = decoded.id;
+
+        // Buscar o utilizador no banco de dados com base no ID
+        const utilizador = await Utilizador.findByPk(utilizadorId, {
+            attributes: ['ID_Utilizador', 'Nome', 'Email', 'Cargo'] // Atributos que você deseja retornar
+        });
+
+        // Verificar se o utilizador existe
+        if (!utilizador) {
+            return res.status(404).json({ error: 'Utilizador não encontrado' });
+        }
+
+        // Retornar as informações do utilizador
+        res.json(utilizador);
+    } catch (err) {
+        // Em caso de erro ao verificar o token ou ao buscar o utilizador
+        if (err.name === 'JsonWebTokenError') {
+            return res.status(401).json({ error: 'Token inválido' });
+        }
+        res.status(500).json({ error: err.message });
+    }
+};
+
+
 // Criar um novo utilizador
 exports.criarUtilizador = async (req, res) => {
     const { nome, email, password } = req.body;
@@ -105,14 +144,23 @@ exports.criarUtilizador = async (req, res) => {
     try {
         // Hash da senha antes de salvar
         const hashedPassword = await bcrypt.hash(password, 10);
-        
+
+        // Criação do novo utilizador
         const novoUtilizador = await Utilizador.create({
             Nome: nome,
             Email: email,
             Password: hashedPassword
         });
 
-        res.status(201).json({ id: novoUtilizador.ID_Utilizador, message: 'Utilizador criado com sucesso!' });
+        // Gerar o token JWT
+        const token = jwt.sign(
+            { id: novoUtilizador.ID_Utilizador, nome: novoUtilizador.Nome, email: novoUtilizador.Email },
+            secretKey,
+            { expiresIn: '1h' }
+        );
+
+        res.status(201).json({ token, message: 'Utilizador criado com sucesso!' });
+
     } catch (err) {
         // Sequelize valida automaticamente os campos Nome e Email
         if (err.name === 'SequelizeValidationError') {

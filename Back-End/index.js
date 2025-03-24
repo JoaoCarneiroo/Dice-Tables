@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const Utilizador = require('./models/utilizadorModel')
 
+// Documentação no Swagger
 const swaggerjsdoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
 const swaggerOptions = require('./swaggerConfig')
@@ -45,9 +46,13 @@ const reservasRoutes = require('./routes/reservasRoutes');
 
 
 const app = express();
+
 app.use(cors({
-   origin: 'http://localhost:5173'
+   origin: 'http://localhost:5173',
+   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+   credentials: true,  
 }));
+
 app.use(express.json());
 app.use(cookieParser())
 

@@ -11,11 +11,25 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as RegistarImport } from './routes/registar'
+import { Route as PerfilImport } from './routes/perfil'
 import { Route as LoginImport } from './routes/login'
 import { Route as CafesImport } from './routes/cafes'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const RegistarRoute = RegistarImport.update({
+  id: '/registar',
+  path: '/registar',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PerfilRoute = PerfilImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const LoginRoute = LoginImport.update({
   id: '/login',
@@ -60,6 +74,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilImport
+      parentRoute: typeof rootRoute
+    }
+    '/registar': {
+      id: '/registar'
+      path: '/registar'
+      fullPath: '/registar'
+      preLoaderRoute: typeof RegistarImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -69,12 +97,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/registar': typeof RegistarRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/registar': typeof RegistarRoute
 }
 
 export interface FileRoutesById {
@@ -82,14 +114,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/registar': typeof RegistarRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cafes' | '/login'
+  fullPaths: '/' | '/cafes' | '/login' | '/perfil' | '/registar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cafes' | '/login'
-  id: '__root__' | '/' | '/cafes' | '/login'
+  to: '/' | '/cafes' | '/login' | '/perfil' | '/registar'
+  id: '__root__' | '/' | '/cafes' | '/login' | '/perfil' | '/registar'
   fileRoutesById: FileRoutesById
 }
 
@@ -97,12 +131,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CafesRoute: typeof CafesRoute
   LoginRoute: typeof LoginRoute
+  PerfilRoute: typeof PerfilRoute
+  RegistarRoute: typeof RegistarRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CafesRoute: CafesRoute,
   LoginRoute: LoginRoute,
+  PerfilRoute: PerfilRoute,
+  RegistarRoute: RegistarRoute,
 }
 
 export const routeTree = rootRoute
@@ -117,7 +155,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/cafes",
-        "/login"
+        "/login",
+        "/perfil",
+        "/registar"
       ]
     },
     "/": {
@@ -128,6 +168,12 @@ export const routeTree = rootRoute
     },
     "/login": {
       "filePath": "login.jsx"
+    },
+    "/perfil": {
+      "filePath": "perfil.jsx"
+    },
+    "/registar": {
+      "filePath": "registar.jsx"
     }
   }
 }
