@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNavigate, createFileRoute } from '@tanstack/react-router';
+import { useUser } from '../context/UserContext'
 
 export const Route = createFileRoute('/perfil')({
     component: Perfil,
@@ -9,54 +10,94 @@ export const Route = createFileRoute('/perfil')({
 
 function Perfil() {
     const navigate = useNavigate();
+    const { logout } = useUser(); 
 
-    // Função para pegar o token do cookie
     const getTokenFromCookie = () => {
         const match = document.cookie.match(/(^| )Authorization=([^;]+)/);
-        const token = match ? match[2] : null;
-        return token;
+        return match ? match[2] : null;
     };
 
-    // Query para buscar os dados do utilizador autenticado
-    const { data, isLoading, isError, error, refetch } = useQuery({
-        queryKey: ['userProfile'], // Chave da query
-        queryFn: async () => {
-            const token = getTokenFromCookie(); // Pegando o token do cookie
-            if (!token) {
-                navigate('/login'); // Redireciona para login se não houver token
-                return;
-            }
-
-            try {
-                // Fazendo a requisição ao backend para obter os dados do utilizador autenticado
-                const response = await axios.get('http://localhost:3000/autenticar/utilizador', {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Passando o token no cabeçalho
-                    },
-                    withCredentials: true, // Certifique-se de que os cookies são enviados com a requisição
-                });
-                return response.data; // Retorna os dados do utilizador
-            } catch (error) {
-                console.error('Erro ao obter dados do utilizador:', error);
-                throw error; // Lança o erro para ser capturado pelo React Query
-            }
-        },
-        enabled: !!getTokenFromCookie(), // Habilita a query apenas se o token estiver presente
-    });
+    const token = getTokenFromCookie();
 
     useEffect(() => {
-        if (data) {
-            // O `data` é atualizado com as informações do utilizador autenticado
+        if (!token) {
+            setTimeout(() => {
+                navigate({ to: '/login' });
+            }, 100);
         }
-    }, [data]);
+    }, [token, navigate]);
 
-    const handleEdit = () => {
-        // Lógica para redirecionar para uma página de edição ou exibir modal de edição
-        navigate('/editar-perfil');
+    const [formData, setFormData] = useState({ nome: '', email: '', password: '' });
+    const [showForm, setShowForm] = useState(false);
+
+    // Obter Informações do Utilizador Autenticado
+    const { data, isLoading, isError, error, refetch } = useQuery({
+        queryKey: ['userProfile'],
+        queryFn: async () => {
+            if (!token) return;
+            const response = await axios.get('http://localhost:3000/autenticar/utilizador', {
+                withCredentials: true,
+            });
+            return response.data;
+        },
+        enabled: !!token,
+        onSuccess: (data) => {
+            setFormData({
+                nome: data?.Nome || '',
+                email: data?.Email || '',
+                password: '',
+            });
+        },
+    });
+
+    // Atualizar Utilizador
+    const updateUserMutation = useMutation({
+        mutationFn: async (updatedData) => {
+            await axios.patch('http://localhost:3000/autenticar', updatedData, {
+                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true,
+            });
+        },
+        onSuccess: () => {
+            refetch();
+            alert('Perfil atualizado com sucesso!');
+            setShowForm(false);
+        },
+        onError: (err) => {
+            alert(`Erro ao atualizar perfil: ${err.response?.data?.error || err.message}`);
+        },
+    });
+
+    // Apagar Utilizador
+    const deleteUserMutation = useMutation({
+        mutationFn: async () => {
+            await axios.delete('http://localhost:3000/autenticar', {
+                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true,
+            });
+        },
+        onSuccess: () => {
+            logout();
+            alert('Conta apagada com sucesso!');
+            navigate({ to: '/login' });
+        },
+        onError: (err) => {
+            alert(`Erro ao apagar conta: ${err.response?.data?.error || err.message}`);
+        },
+    });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        updateUserMutation.mutate(formData);
+    };
+
+    if (!token) return null;
     if (isLoading) return <p className="text-center text-white">Carregando...</p>;
-    if (isError) return <p className="text-center text-red-500">Erro ao carregar dados do perfil: {error.message}</p>;
+    if (isError) return <p className="text-center text-red-500">Erro ao carregar perfil: {error.message}</p>;
 
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-12 px-6 lg:px-8">
@@ -83,10 +124,54 @@ function Perfil() {
 
                 <div className="flex justify-center mt-6">
                     <button
-                        onClick={handleEdit}
+                        onClick={() => setShowForm(!showForm)}
                         className="w-full bg-indigo-600 px-4 py-2 text-white rounded-md hover:bg-indigo-500"
                     >
-                        Editar Perfil
+                        {showForm ? 'Cancelar' : 'Editar Perfil'}
+                    </button>
+                </div>
+
+                {showForm && (
+                    <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+                        <div>
+                            <label className="block text-gray-400">Nome</label>
+                            <input
+                                type="text"
+                                name="nome"
+                                value={formData.nome}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-400">Email</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-400">Nova Senha</label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <button type="submit" className="w-full bg-indigo-600 px-4 py-2 text-white rounded-md hover:bg-indigo-500">
+                            {updateUserMutation.isLoading ? 'Salvando...' : 'Salvar Alterações'}
+                        </button>
+                    </form>
+                )}
+
+                <div className="flex justify-center mt-6">
+                    <button onClick={() => deleteUserMutation.mutate()} className="w-full bg-red-600 px-4 py-2 text-white rounded-md hover:bg-red-500">
+                        Apagar Conta
                     </button>
                 </div>
             </div>

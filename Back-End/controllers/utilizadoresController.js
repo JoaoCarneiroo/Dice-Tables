@@ -55,11 +55,11 @@ exports.login = async (req, res) => {
 // Logout de Utilizador
 exports.logout = (req, res) => {
     res.clearCookie('Authorization', {
-        httpOnly: true,  
-        secure: process.env.NODE_ENV === 'production', 
-        sameSite: 'Strict'
+        httpOnly: false,  
+        secure: false, 
+        sameSite: 'Lax'
     });
-
+    console.log("Logged out user")
     // Retorna uma resposta informando que o usuário foi desconectado
     res.status(200).json({ message: 'Desconectado com sucesso!' });
 };
@@ -219,9 +219,9 @@ exports.apagarUtilizador = async (req, res) => {
 
         // Limpeza da Cookie
         res.clearCookie('Authorization', {
-            httpOnly: true,  
-            secure: process.env.NODE_ENV === 'production',  
-            sameSite: 'Strict' 
+            httpOnly: false,  
+            secure: false, 
+            sameSite: 'Lax'
         });
 
         res.json({ message: 'Utilizador removido com sucesso!' });

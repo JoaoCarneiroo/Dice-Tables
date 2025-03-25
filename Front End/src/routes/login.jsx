@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { createFileRoute } from '@tanstack/react-router';
-import Cookies from 'js-cookie';
+import { useUser } from '../context/UserContext'
 
 export const Route = createFileRoute('/login')({
     component: Login,
@@ -11,25 +11,16 @@ export const Route = createFileRoute('/login')({
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
+    const { login } = useUser();
+    
     const mutation = useMutation({
         mutationFn: (loginData) => axios.post('http://localhost:3000/autenticar/login', loginData, {
             withCredentials: true,  // Enviar o cookie em cada requisição
         }),
         onSuccess: (response) => {
-            const token = response.data.token;
-            if (token) {
-                // Armazenando o token no cookie
-                Cookies.set('Authorization', token, { 
-                    expires: 1,  // O cookie vai expirar em 1 dia
-                    secure: process.env.NODE_ENV === 'production',  // Somente em produção o cookie será seguro
-                    sameSite: 'Strict',  // Restrição para cross-site
-                    httpOnly: true,  // Não será acessível via JavaScript
-                });
-                console.log('Token armazenado no cookie:', token);
-            } else {
-                console.error('Nenhum token recebido');
-            }
+            const nome = response.data.nome;
+            const cargos = { isAdmin: response.data.isAdmin, isGestor: response.data.isGestor};
+            login(nome,cargos)
         }
     });
 
@@ -39,7 +30,7 @@ function Login() {
     };
 
     return (
-        <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-gray-900 text-gray-200">
+        <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-gray-900 text-gray-200 rounded-lg">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 <img
                     className="mx-auto h-10 w-auto"
