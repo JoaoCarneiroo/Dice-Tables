@@ -74,7 +74,7 @@ router.get('/utilizador/:id', utilizadoresController.mostrarUtilizadorID);
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/utilizador', utilizadoresController.mostrarUtilizadorAutenticado);
+router.get('/utilizador', checkAuth, utilizadoresController.mostrarUtilizadorAutenticado);
 
 /**
  * @swagger

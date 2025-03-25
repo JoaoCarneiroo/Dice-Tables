@@ -69,7 +69,7 @@ exports.logout = (req, res) => {
 exports.mostrarUtilizadores = async (req, res) => {
     try {
         const utilizadores = await Utilizador.findAll({
-            attributes: ['ID_Utilizador', 'Nome', 'Email']
+            attributes: ['ID_Utilizador', 'Nome', 'Email', 'Cargo']
         });
         res.json(utilizadores);
     } catch (err) {
@@ -82,7 +82,7 @@ exports.mostrarUtilizadores = async (req, res) => {
 exports.mostrarUtilizadorID = async (req, res) => {
     try {
         const utilizador = await Utilizador.findByPk(req.params.id, {
-            attributes: ['ID_Utilizador', 'Nome', 'Email']
+            attributes: ['ID_Utilizador', 'Nome', 'Email', 'Cargo']
         });
         if (!utilizador) {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
@@ -94,43 +94,27 @@ exports.mostrarUtilizadorID = async (req, res) => {
 };
 
 
-// Endpoint para verificar o token JWT e retornar as informações do utilizador autenticado
+// Obter o Utilizador Autenticado
 exports.mostrarUtilizadorAutenticado = async (req, res) => {
     try {
-        // Pegar o token do cookie
-        const token = req.cookies.Authorization;
-        
-        // Verificar se o token está presente
-        if (!token) {
-            return res.status(401).json({ error: 'Token não fornecido ou inválido' });
+        if (!req.user) {
+            return res.status(401).json({ error: 'Utilizador não autenticado' });
         }
 
-        // Verificar o token JWT
-        const decoded = jwt.verify(token, secretKey);  // Verifica a validade do token
-
-        // Agora temos as informações do utilizador decodificadas
-        const utilizadorId = decoded.id;
-
-        // Buscar o utilizador no banco de dados com base no ID
-        const utilizador = await Utilizador.findByPk(utilizadorId, {
-            attributes: ['ID_Utilizador', 'Nome', 'Email', 'Cargo'] // Atributos que você deseja retornar
+        const utilizador = await Utilizador.findByPk(req.user.id, {
+            attributes: ['ID_Utilizador', 'Nome', 'Email', 'Cargo']
         });
 
-        // Verificar se o utilizador existe
         if (!utilizador) {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
         }
 
-        // Retornar as informações do utilizador
         res.json(utilizador);
     } catch (err) {
-        // Em caso de erro ao verificar o token ou ao buscar o utilizador
-        if (err.name === 'JsonWebTokenError') {
-            return res.status(401).json({ error: 'Token inválido' });
-        }
         res.status(500).json({ error: err.message });
     }
 };
+
 
 
 // Criar um novo utilizador
