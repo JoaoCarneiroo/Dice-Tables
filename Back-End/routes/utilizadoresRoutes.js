@@ -43,22 +43,34 @@ router.get('/utilizador/:id', utilizadoresController.mostrarUtilizadorID);
 
 /**
  * @swagger
- * /autenticar/{id}:
+ * /autenticar/utilizador:
  *   get:
- *     summary: Obtém um utilizador pelo ID
+ *     summary: Obtém informações do utilizador autenticado
  *     tags: [Utilizadores]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID do utilizador
+ *     security:
+ *       - CookieAuth: []
  *     responses:
  *       200:
- *         description: Utilizador encontrado
- *       404:
- *         description: Utilizador não encontrado
+ *         description: Dados do utilizador autenticado retornados com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 nome:
+ *                   type: string
+ *                   example: "João Silva"
+ *                 email:
+ *                   type: string
+ *                   example: "joao@email.com"
+ *                 cargo:
+ *                   type: string
+ *                   example: "Administrador"
+ *       401:
+ *         description: Não autorizado (token inválido ou ausente)
  *       500:
  *         description: Erro interno do servidor
  */

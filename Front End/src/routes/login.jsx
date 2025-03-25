@@ -15,7 +15,7 @@ function Login() {
     
     const mutation = useMutation({
         mutationFn: (loginData) => axios.post('http://localhost:3000/autenticar/login', loginData, {
-            withCredentials: true,  // Enviar o cookie em cada requisição
+            withCredentials: true,
         }),
         onSuccess: (response) => {
             const nome = response.data.nome;

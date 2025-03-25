@@ -1,10 +1,10 @@
 import { createContext, useContext, useState } from 'react';
 import axios from 'axios';
 
-// Create the UserContext
+// Criar UserContext
 const UserContext = createContext(null);
 
-// UserProvider component to manage user state
+// Componente UserProvider para gerir User State
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState({
     nome: '',
@@ -15,12 +15,12 @@ export const UserProvider = ({ children }) => {
     isLoggedIn: false,
   });
 
-  // Function to log in the user
+  // Função Login do Utilizador
   const login = (name, cargos) => {
     setUser({ nome: name, cargos: cargos, isLoggedIn: true });
   };
 
-  // Function to log out the user
+  // Função Logout do Utilizador
 const logout = () => {
   axios.post('http://localhost:3000/autenticar/logout', {}, { withCredentials: true })
     .then(() => {
@@ -36,7 +36,7 @@ const logout = () => {
   );
 };
 
-//Custom hook to use UserContext
+
 export const useUser = () => {
   return useContext(UserContext);
 };
