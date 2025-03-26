@@ -5,8 +5,6 @@ const { Op } = require('sequelize');
 
 // Executa a cada 1 minuto para atualizar o stock
 cron.schedule('* * * * *', async () => {
-    console.log('Verificando reservas expiradas...');
-
     try {
         const agora = new Date();
 

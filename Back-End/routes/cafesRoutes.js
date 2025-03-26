@@ -42,8 +42,32 @@ router.get('/', cafesController.mostrarCafes);
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/:id', cafesController.mostrarCafeID);
 
+router.get('/porID/:id', cafesController.mostrarCafeID);
+/**
+ * @swagger
+ * /cafes/{id}:
+ *   get:
+ *     summary: Obtém um café pelo ID
+ *     tags: [Cafés]
+ *     description: Retorna os detalhes de um café específico.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do café
+ *     responses:
+ *       200:
+ *         description: Dados do café retornados com sucesso
+ *       404:
+ *         description: Café não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+
+router.get('/gestor', checkAuth, cafesController.mostrarCafeGestor);
 /**
  * @swagger
  * /cafes:

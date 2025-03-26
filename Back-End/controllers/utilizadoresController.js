@@ -59,7 +59,6 @@ exports.logout = (req, res) => {
         secure: false, 
         sameSite: 'Lax'
     });
-    console.log("Logged out user")
     // Retorna uma resposta informando que o usuário foi desconectado
     res.status(200).json({ message: 'Desconectado com sucesso!' });
 };

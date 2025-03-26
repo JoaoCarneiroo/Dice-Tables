@@ -122,6 +122,17 @@ function Perfil() {
                     </div>
                 </div>
 
+                {data?.Cargo === 'Gestor' && (
+                    <div className="flex justify-center mt-6">
+                        <button
+                            onClick={() => navigate({ to: '/painelGestor' })}
+                            className="w-full bg-green-600 px-4 py-2 text-white rounded-md hover:bg-green-500"
+                        >
+                            Painel de Gestão
+                        </button>
+                    </div>
+                )}
+
                 <div className="flex justify-center mt-6">
                     <button
                         onClick={() => setShowForm(!showForm)}
