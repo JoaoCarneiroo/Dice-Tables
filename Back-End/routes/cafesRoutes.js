@@ -44,30 +44,56 @@ router.get('/', cafesController.mostrarCafes);
  */
 
 router.get('/porID/:id', cafesController.mostrarCafeID);
+
 /**
  * @swagger
- * /cafes/{id}:
+ * /cafes/gestor:
  *   get:
- *     summary: Obtém um café pelo ID
+ *     summary: Obtém o café gerenciado pelo usuário autenticado (gestor)
  *     tags: [Cafés]
- *     description: Retorna os detalhes de um café específico.
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: ID do café
+ *     description: Retorna os detalhes do café associado ao gestor autenticado. Acesso restrito a gestores.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Dados do café retornados com sucesso
+ *         description: Detalhes do café retornados com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ID_Cafe:
+ *                   type: integer
+ *                   description: ID do café
+ *                 Nome_Cafe:
+ *                   type: string
+ *                   description: Nome do café
+ *                 Local:
+ *                   type: string
+ *                   description: Localização do café
+ *                 Tipo_Cafe:
+ *                   type: string
+ *                   description: Tipo de café (Sem Jogos ou Com Jogos)
+ *                 Horario_Abertura:
+ *                   type: string
+ *                   description: Horário de abertura do café
+ *                 Horario_Fecho:
+ *                   type: string
+ *                   description: Horário de fechamento do café
+ *                 Imagem_Cafe:
+ *                   type: string
+ *                   description: URL da imagem do café
+ *       403:
+ *         description: Função restrita a gestores - O usuário não tem permissão para acessar este recurso
  *       404:
- *         description: Café não encontrado
+ *         description: Nenhum café encontrado para este gestor
  *       500:
  *         description: Erro interno do servidor
  */
 
+
 router.get('/gestor', checkAuth, cafesController.mostrarCafeGestor);
+
 /**
  * @swagger
  * /cafes:

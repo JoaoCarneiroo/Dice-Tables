@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNavigate, createFileRoute } from '@tanstack/react-router';
 import { useUser } from '../context/UserContext'
+import { toast, Bounce } from 'react-toastify';
 
 export const Route = createFileRoute('/perfil')({
     component: Perfil,
@@ -10,7 +11,7 @@ export const Route = createFileRoute('/perfil')({
 
 function Perfil() {
     const navigate = useNavigate();
-    const { logout } = useUser(); 
+    const { logout } = useUser();
 
     const getTokenFromCookie = () => {
         const match = document.cookie.match(/(^| )Authorization=([^;]+)/);
@@ -54,17 +55,36 @@ function Perfil() {
     const updateUserMutation = useMutation({
         mutationFn: async (updatedData) => {
             await axios.patch('http://localhost:3000/autenticar', updatedData, {
-                headers: { Authorization: `Bearer ${token}` },
                 withCredentials: true,
             });
         },
         onSuccess: () => {
             refetch();
-            alert('Perfil atualizado com sucesso!');
+            toast.success('Conta Atualizada com Sucesso', {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
             setShowForm(false);
         },
         onError: (err) => {
-            alert(`Erro ao atualizar perfil: ${err.response?.data?.error || err.message}`);
+            toast.error(`Erro ao atualizar perfil: ${err.response?.data?.error || err.message}`, {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
         },
     });
 
@@ -78,12 +98,31 @@ function Perfil() {
         },
         onSuccess: () => {
             logout();
-            alert('Conta apagada com sucesso!');
+            toast.success('Conta Apagada com Sucesso', {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
             navigate({ to: '/login' });
         },
         onError: (err) => {
-            alert(`Erro ao apagar conta: ${err.response?.data?.error || err.message}`);
-        },
+            toast.error(`Erro ao apagar perfil: ${err.response?.data?.error || err.message}`, {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });         },
     });
 
     const handleChange = (e) => {

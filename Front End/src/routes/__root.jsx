@@ -1,6 +1,7 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import Header from '../components/header';
+import { ToastContainer } from 'react-toastify';
 
 
 export const Route = createRootRoute({
@@ -12,6 +13,7 @@ export const Route = createRootRoute({
       {/* Content */}
       <div className="flex-grow p-6 bg-gray-800">
         <Outlet />
+        <ToastContainer />
       </div>
       
       {/* Footer */}
