@@ -9,14 +9,20 @@ export const Route = createFileRoute('/cafes')({
 // Cada quadrado de um Café
 function CardCafe({ cafe }) {
   return (
-    <div className="bg-gray-800 p-4 rounded-md shadow-md">
+    <div className="bg-gray-800 p-4 rounded-md shadow-md hover:scale-[102%] transition-all">
       <h2 className="text-xl font-semibold text-indigo-600">{cafe.Nome_Cafe}</h2>
+      <div className='flex flex-row '>
+        {cafe.Tipo_Cafe === 0 ?
+          <div className='bg-indigo-700 p-1.5 font-semibold'>Café com Jogos</div>
+          :
+          <div className='bg-teal-800 rounded-md p-1.5 my-1.5 font-semibold'>Café sem Jogos</div>
+        }
+      </div>
       {cafe.Imagem_Cafe ? (
         <img
           src={`http://localhost:3000/uploads/cafes/${cafe.Imagem_Cafe}`}
           alt={cafe.Nome_Cafe}
-          className="mt-2 mb-4 w-full h-48 object-contain rounded-md"
-          style={{ maxHeight: '200px', objectFit: 'contain' }}
+          className="mt-2 mb-4 h-48 object-cover rounded-lg aspect-21/9 mx-auto"
         />
       ) : (
         <div className="mt-2 mb-4 w-full rounded-md bg-gray-500 text-center text-gray-200 p-2">
@@ -24,9 +30,9 @@ function CardCafe({ cafe }) {
         </div>
       )}
       <p className="text-gray-300">Local: {cafe.Local}</p>
-      <p className="text-gray-300">Tipo: {cafe.Tipo_Cafe === 0 ? 'Café com Jogos' : 'Café sem Jogos'}</p>
-      <p className="text-gray-300">Horário de Abertura: {cafe.Horario_Abertura}:00</p>
-      <p className="text-gray-300">Horário de Fecho: {cafe.Horario_Fecho}:00</p>
+
+      <p className="text-gray-300">Horário: {cafe.Horario_Abertura}:00 - {cafe.Horario_Fecho}:00</p>
+
       <div className="mt-4">
         <Link
           to={`/cafes/${cafe.ID_Cafe}`}
