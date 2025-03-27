@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { createFileRoute } from '@tanstack/react-router';
+import { toast, Bounce } from 'react-toastify';
 
 export const Route = createFileRoute('/registar')({
     component: Registar,
@@ -14,15 +15,37 @@ function Registar() {
 
     const mutation = useMutation({
         mutationFn: (registerData) => axios.post('http://localhost:3000/autenticar', registerData, {
-            withCredentials: true,  // Enviar o cookie em cada requisição
+            withCredentials: true,
         }),
         onSuccess: (response) => {
-            // Redirecionar para a página de login após o registro ser bem-sucedido
-            console.log('Usuário registrado com sucesso!');
-            window.location.href = '/login';  // Redirecionamento para o login
+            toast.success('Conta criada com Sucesso, por favor realize o login', {
+                position: "bottom-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2100);
         },
-        onError: (error) => {
-            console.error('Erro ao registrar usuário:', error.message);
+        onError: (err) => {
+            toast.error(`Erro ao fazer login: ${err.response?.data?.error || err.message}`, {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
+            
         }
     });
 
@@ -89,10 +112,6 @@ function Registar() {
                         </button>
                     </div>
                 </form>
-
-                {mutation.isError && (
-                    <p className="mt-2 text-center text-sm text-red-500">Error: {mutation.error.message}</p>
-                )}
             </div>
         </div>
     );

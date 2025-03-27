@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { createFileRoute } from '@tanstack/react-router';
 import { useUser } from '../context/UserContext'
+import { toast, Bounce } from 'react-toastify';
 
 export const Route = createFileRoute('/login')({
     component: Login,
@@ -21,7 +22,31 @@ function Login() {
             const nome = response.data.nome;
             const cargos = { isAdmin: response.data.isAdmin, isGestor: response.data.isGestor};
             login(nome,cargos)
-        }
+            toast.success('Login realizado com Sucesso', {
+                position: "bottom-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
+        },
+        onError: (err) => {
+            toast.error(`Erro ao fazer login: ${err.response?.data?.error || err.message}`, {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
+        },
     });
 
     const handleSubmit = (e) => {
@@ -97,13 +122,7 @@ function Login() {
                     </div>
                 </form>
 
-                {mutation.isError && (
-                    <p className="mt-2 text-center text-sm text-red-500">Error: {mutation.error.message}</p>
-                )}
 
-                {mutation.isSuccess && (
-                    <p className="mt-2 text-center text-sm text-green-500">Login realizado com sucesso!</p>
-                )}
             </div>
         </div>
     );

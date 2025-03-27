@@ -101,7 +101,6 @@ exports.criarCafe = async (req, res) => {
         });
 
 
-
         res.json({ id: novoCafe.id, message: 'Café criado com sucesso!' });
     } catch (error) {
         res.status(500).json({ error: error.message });

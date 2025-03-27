@@ -27,14 +27,14 @@ exports.login = async (req, res) => {
         const utilizador = await Utilizador.findOne({ where: { Email: email } });
 
         if (!utilizador) {
-            return res.status(404).json({ error: 'Utilizador não encontrado' });
+            return res.status(404).json({ error: 'Email ou Password incorretos' });
         }
 
         // Comparar a senha fornecida com o hash da senha no banco de dados
         const match = await bcrypt.compare(password, utilizador.Password);
         
         if (!match) {
-            return res.status(401).json({ error: 'Senha incorreta' });
+            return res.status(401).json({ error: 'Email ou Password incorretos' });
         }
 
         var isAdmin = utilizador.Cargo == 'Administrador'
