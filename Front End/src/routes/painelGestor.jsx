@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { createFileRoute } from '@tanstack/react-router';
+import { toast, Bounce } from 'react-toastify';
 
 export const Route = createFileRoute('/painelGestor')({
     component: PainelGestor,
@@ -24,7 +25,7 @@ function PainelGestor() {
 
     const token = getTokenFromCookie();
 
-    const { data: cafeData, isLoading, error } = useQuery({
+    const { data: cafeData, isLoading, error, refetch } = useQuery({
         queryKey: ['cafeData'],
         queryFn: async () => {
             const response = await axios.get('http://localhost:3000/cafes/gestor', {
@@ -35,7 +36,7 @@ function PainelGestor() {
         enabled: !!token,
     });
 
-    const mutation = useMutation({
+    const createMutation = useMutation({
         mutationFn: async (newCafe) => {
             const response = await axios.post('http://localhost:3000/cafes', newCafe, {
                 withCredentials: true,
@@ -43,16 +44,45 @@ function PainelGestor() {
             });
             return response.data;
         },
-        onSuccess: (data) => {
-            setForm({
-                nome_cafe: data.Nome_Cafe,
-                imagem_cafe: null,
-                local: data.Local,
-                tipo_cafe: data.Tipo_Cafe,
-                horario_abertura: data.Horario_Abertura,
-                horario_fecho: data.Horario_Fecho,
+        onSuccess: () => {
+            toast.success('Café criado com Sucesso', { theme: "dark", transition: Bounce }); 
+            refetch();
+        },
+        onError: (err) => {
+            toast.error(`Erro ao criar o café: ${err.response?.data?.error || err.message}`, { theme: "dark", transition: Bounce }); 
+        }
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: async (updatedCafe) => {
+            const response = await axios.patch(`http://localhost:3000/cafes/${cafeData.id}`, updatedCafe, {
+                withCredentials: true,
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            return response.data;
+        },
+        onSuccess: () => {
+            toast.success('Café atualizado com Sucesso', { theme: "dark", transition: Bounce }); 
+            refetch();
+        },
+        onError: (err) => {
+            toast.error(`Erro ao atualizar o café: ${err.response?.data?.error || err.message}`, { theme: "dark", transition: Bounce }); 
+        }
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async () => {
+            await axios.delete(`http://localhost:3000/cafes`, {
+                withCredentials: true,
             });
         },
+        onSuccess: () => {
+            toast.success('Café apagado com Sucesso', { theme: "dark", transition: Bounce }); 
+            refetch();
+        },
+        onError: (err) => {
+            toast.error(`Erro ao apagar o café: ${err.response?.data?.error || err.message}`, { theme: "dark", transition: Bounce }); 
+        }
     });
 
     const handleChange = (e) => {
@@ -63,7 +93,7 @@ function PainelGestor() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleUpdate = (e) => {
         e.preventDefault();
     
         const formData = new FormData();
@@ -76,13 +106,12 @@ function PainelGestor() {
             formData.append("imagem_cafe", form.imagem_cafe);
         }
     
-        mutation.mutate(formData);
+        updateMutation.mutate(formData);
     };
 
     if (!token) return <p className="text-center text-white">Acesso negado. Faça login.</p>;
     if (isLoading) return <p className="text-center text-white">Carregando informações do café...</p>;
     if (error) return <p className="text-center text-red-500">{error.message}</p>;
-
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-12 px-6 lg:px-8">
             <div className="max-w-3xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
@@ -105,25 +134,112 @@ function PainelGestor() {
                                 Imagem não disponível
                             </div>
                         )}
+                        {/* Botões de Atualizar e Apagar */}
+                        <div className="mt-6 flex gap-4">
+                            <button 
+                                className="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
+                                onClick={handleUpdate}
+                            >
+                                Atualizar
+                            </button>
+                            <button 
+                                className="w-full bg-red-600 hover:bg-red-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
+                                onClick={() => deleteMutation.mutate()}
+                            >
+                                Apagar
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <div className="mt-8 p-6 bg-gray-700 rounded-lg">
                         <h2 className="text-xl font-medium text-gray-300">Criar um novo Café</h2>
-                        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-                            <input type="text" name="nome_cafe" placeholder="Nome do Café" onChange={handleChange} required className="w-full p-2 rounded-md bg-gray-600 text-white" />
-                            <input type="file" name="imagem_cafe" onChange={handleChange} accept="image/*" className="w-full p-2 rounded-md bg-gray-600 text-white" />
-                            <input type="text" name="local" placeholder="Local" onChange={handleChange} required className="w-full p-2 rounded-md bg-gray-600 text-white" />
-                            <select name="tipo_cafe" onChange={handleChange} required className="w-full p-2 rounded-md bg-gray-600 text-white">
-                                <option value={0}>Café com Jogos</option>
-                                <option value={1}>Café sem Jogos</option>
-                            </select>
-                            <input type="number" name="horario_abertura" placeholder="Horário de Abertura" onChange={handleChange} required className="w-full p-2 rounded-md bg-gray-600 text-white" />
-                            <input type="number" name="horario_fecho" placeholder="Horário de Fecho" onChange={handleChange} required className="w-full p-2 rounded-md bg-gray-600 text-white" />
-                            <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 p-2 rounded-md text-white font-semibold" disabled={mutation.isLoading}>
-                                {mutation.isLoading ? 'Criando...' : 'Criar Café'}
-                            </button>
+                        <form onSubmit={handleSubmit} className="mt-4 space-y-6">
+                            <div className="space-y-4">
+                                <div>
+                                    <input
+                                        type="text"
+                                        name="nome_cafe"
+                                        placeholder="Nome do Café"
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                    />
+                                </div>
+    
+                                <div>
+                                    <label
+                                        htmlFor="imagem_cafe"
+                                        className="w-full p-1.5 rounded-lg cursor-pointer bg-gray-600 text-white text-center border-2 border-dashed border-gray-500 hover:bg-gray-700"
+                                    >
+                                        {form.imagem_cafe ? 'Imagem escolhida' : 'Escolher imagem'}
+                                    </label>
+                                    <input
+                                        type="file"
+                                        name="imagem_cafe"
+                                        onChange={handleChange}
+                                        accept="image/*"
+                                        id="imagem_cafe"
+                                        className="hidden"
+                                    />
+                                </div>
+    
+                                <div>
+                                    <input
+                                        type="text"
+                                        name="local"
+                                        placeholder="Local"
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                    />
+                                </div>
+    
+                                <div>
+                                    <select
+                                        name="tipo_cafe"
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                    >
+                                        <option value="">Selecione o Tipo de Café</option>
+                                        <option value={0}>Café com Jogos</option>
+                                        <option value={1}>Café sem Jogos</option>
+                                    </select>
+                                </div>
+    
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <input
+                                            type="number"
+                                            name="horario_abertura"
+                                            placeholder="Horário de Abertura"
+                                            onChange={handleChange}
+                                            required
+                                            className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        />
+                                    </div>
+    
+                                    <div>
+                                        <input
+                                            type="number"
+                                            name="horario_fecho"
+                                            placeholder="Horário de Fecho"
+                                            onChange={handleChange}
+                                            required
+                                            className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+    
+                                <button
+                                    type="submit"
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 p-4 rounded-lg text-white font-semibold mt-4 focus:outline-none transition duration-300 transform hover:scale-105"
+                                    disabled={mutation.isLoading}
+                                >
+                                    {mutation.isLoading ? 'Criando...' : 'Criar Café'}
+                                </button>
+                            </div>
                         </form>
-                        {mutation.error && <p className="text-center text-red-500">{mutation.error.message}</p>}
                     </div>
                 )}
             </div>

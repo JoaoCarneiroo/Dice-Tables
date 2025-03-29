@@ -11,7 +11,9 @@ const Cafe = sequelize.define('Cafe', {
     Nome_Cafe: { 
         type: DataTypes.STRING, 
         allowNull: false,
-        unique: true 
+        unique: {
+            msg: 'O nome do café já existe.'
+        }
     },
     Imagem_Cafe: {
         type: DataTypes.STRING,
@@ -35,7 +37,7 @@ const Cafe = sequelize.define('Cafe', {
                 msg: 'O valor tem de ser entre 0 e 1' // 1 é o café que nao tem jogos mas permite jogar
             },
             isInt: {
-                msg: 'Tem de ser um número entre 0 e 1.'
+                msg: 'O tipo tem de ser um número entre 0 e 1.'
             }
         }
     },
@@ -76,8 +78,8 @@ const Cafe = sequelize.define('Cafe', {
     
 }, { 
     tableName: 'Cafes', 
-    timestamps: false 
+    timestamps: false,
+    
 });
-
 
 module.exports = Cafe;

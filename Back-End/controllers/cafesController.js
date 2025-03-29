@@ -1,8 +1,18 @@
 const Cafe = require('../models/cafeModel');
 const Gestor = require('../models/gestorModel');
 const multer = require('multer');
+const fs = require('fs');
 const path = require('path')
 
+const filePath = 'C:\\Users\\joaom\\Desktop\\Dice-Tables\\Back-End\\uploads\\cafes';
+
+function deleteFile(fileName) {
+    fs.unlink(filePath + "\\" + fileName, (err) => {
+        if (err) {
+            console.error("Error deleting file:", err);
+        }
+    });
+}
 
 // Configuração do multer para upload de imagens
 const storage = multer.diskStorage({
@@ -71,7 +81,7 @@ exports.mostrarCafeGestor = async (req, res) => {
 
         // Verificar se o gestor possui um café atribuído
         if (!gestor || !gestor.Cafe) {
-            return res.status(200).json(null);
+            return res.status(204).json(null);
         }
 
         res.json(gestor.Cafe);
@@ -84,21 +94,39 @@ exports.mostrarCafeGestor = async (req, res) => {
 // Criar um novo café
 exports.criarCafe = async (req, res) => {
     try {
-        if (!req.user.isGestor) return res.status(401).send({ error: 'Função restrita a gestor' })
+        if (!req.user.isGestor) return res.status(401).send({ error: 'Função restrita a gestor' });
 
-        const { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
-        const imagem_cafe = req.file ? req.fileName : 'default.png';
+        // Usar let para permitir reatribuição das variáveis
+        let { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
+
+        // Definindo imagem padrão inicialmente
+        const imagem_cafe = req.file ? req.file.filename : 'default.png';
+
+        // Garantir que horario_abertura e horario_fecho sejam convertidos para inteiros
+        horario_abertura = parseInt(horario_abertura, 10);
+        horario_fecho = parseInt(horario_fecho, 10);
+
+        // Verificação se o horário de abertura é menor que o de fecho
+        if (horario_abertura >= horario_fecho) {
+            if (req.file.filename) {
+                deleteFile(req.file.filename);
+            }    
+            return res.status(400).json({ error: 'O horário de abertura deve ser menor que o horário de fecho.' });
+        }
 
         // Verifique se o gestor já tem um café
         const gestorExistente = await Gestor.findOne({ where: { ID_Utilizador: req.user.id } });
         if (gestorExistente) {
+            if (req.file.filename) {
+                deleteFile(req.file.filename);
+            }
             return res.status(403).json({ message: 'Este gestor já tem um café atribuído.' });
         }
 
         // Criação do novo café com o ID_Gestor atribuído
         const novoCafe = await Cafe.create({
             Nome_Cafe: nome_cafe,
-            Imagem_Cafe: imagem_cafe,
+            Imagem_Cafe: imagem_cafe,  // Usando a imagem carregada ou a imagem padrão
             Local: local,
             Tipo_Cafe: tipo_cafe,
             Horario_Abertura: horario_abertura,
@@ -109,60 +137,130 @@ exports.criarCafe = async (req, res) => {
             ID_Cafe: novoCafe.ID_Cafe,
             ID_Utilizador: req.user.id
         });
-
-
+        
         res.json({ id: novoCafe.id, message: 'Café criado com sucesso!' });
+
     } catch (error) {
+        if (error.name === 'SequelizeValidationError') {
+            const validationErrors = error.errors.map(err => err.message);
+            return res.status(400).json({ error: validationErrors });
+        }
         res.status(500).json({ error: error.message });
     }
 };
 
-// Atualizar um café
+// Atualizar o café associado ao Gestor
 exports.atualizarCafe = async (req, res) => {
     try {
-        if (!req.user.isGestor) return res.status(401).send({ error: 'Função restrita a gestor' });
-
-        const cafe = await Cafe.findByPk(req.params.id);
-        if (!cafe) return res.status(404).json({ error: 'Café não encontrado' });
-
-        // Verifique se o café pertence ao gestor autenticado
-        const gestorExistente = await Gestor.findOne({ where: { ID_Cafe: cafe.ID_Cafe, ID_Utilizador: req.user.id } });
-        if (!gestorExistente) {
-            return res.status(403).json({ message: 'Você não tem permissão para alterar este café.' });
+        // Verificar se o utilizador autenticado é um gestor
+        if (!req.user.isGestor) {
+            return res.status(403).json({ error: "Função restrita a Gestor" });
         }
 
-        const { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
-        const imagem_cafe = req.file ? req.fileName : cafe.Imagem_Cafe;
-
-        // Atualizar o café com as novas informações
-        await cafe.update({
-            Nome_Cafe: nome_cafe || cafe.Nome_Cafe,
-            Imagem_Cafe: imagem_cafe,
-            Local: local || cafe.Local,
-            Tipo_Cafe: tipo_cafe || cafe.Tipo_Cafe,
-            Horario_Abertura: horario_abertura || cafe.Horario_Abertura,
-            Horario_Fecho: horario_fecho || cafe.Horario_Fecho,
+        // Buscar o gestor e o café associado a ele
+        const gestor = await Gestor.findOne({
+            where: { ID_Utilizador: req.user.id },
+            include: {
+                model: Cafe,
+                attributes: ['ID_Cafe', 'Nome_Cafe', 'Local', 'Tipo_Cafe', 'Horario_Abertura', 'Horario_Fecho', 'Imagem_Cafe']
+            }
         });
 
-        res.json({ message: 'Café atualizado com sucesso!' });
+        // Verificar se o gestor possui um café atribuído
+        if (!gestor || !gestor.Cafe) {
+            return res.status(404).json({ error: "Você não tem um café associado para atualizar." });
+        }
+
+        const cafe = gestor.Cafe;
+        
+        // Extraindo os dados da requisição
+        let { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
+        const imagem_cafe = req.file ? req.fileName : cafe.Imagem_Cafe;
+
+
+        horario_abertura = parseInt(horario_abertura, 10);
+        horario_fecho = parseInt(horario_fecho, 10);
+        
+        // Verificação se o horário de abertura é menor que o de fecho
+        if (horario_abertura >= horario_fecho) {
+             return res.status(400).json({ error: 'O horário de abertura deve ser menor que o horário de fecho.' });
+        }
+        
+        // Se a imagem foi atualizada, remover a imagem anterior
+        if (req.file && cafe.Imagem_Cafe !== 'default.png') {
+            const oldImagePath = path.resolve(path.join(__dirname, "..", "uploads", "cafes", cafe.Imagem_Cafe));
+            
+            fs.unlink(oldImagePath, (err) => {
+                if (err) {
+                    console.error('Erro ao remover a imagem anterior:', err);
+                }
+            });
+        }
+
+        // Atualizar o café com os novos dados
+        try {
+            await cafe.update({
+                Nome_Cafe: nome_cafe || cafe.Nome_Cafe,
+                Imagem_Cafe: imagem_cafe,
+                Local: local || cafe.Local,
+                Tipo_Cafe: tipo_cafe || cafe.Tipo_Cafe,
+                Horario_Abertura: horario_abertura || cafe.Horario_Abertura,
+                Horario_Fecho: horario_fecho || cafe.Horario_Fecho,
+            });
+
+            res.json({ message: 'Café atualizado com sucesso!' });
+        } catch (error) {
+            if (error.name === 'SequelizeValidationError') {
+                const validationErrors = error.errors.map(err => err.message);
+                return res.status(400).json({ error: validationErrors });
+            }
+            res.status(500).json({ error: error.message });
+        }
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// Remover um café
+// Apagar o café associado ao Gestor
 exports.apagarCafe = async (req, res) => {
     try {
-        const cafe = await Cafe.findByPk(req.params.id);
-        if (!cafe) return res.status(404).json({ error: 'Café não encontrado' });
 
-        // Verifique se o café pertence ao gestor autenticado
-        const gestorId = req.user.ID_Gestor;
-        if (cafe.ID_Gestor !== gestorId) {
-            return res.status(403).json({ message: 'Você não tem permissão para remover este café.' });
+        // Verificar se o utilizador autenticado é um gestor
+        if (!req.user.isGestor) {
+            return res.status(403).json({ error: "Função restrita a Gestor" });
         }
 
-        // Apagar o café
+
+        // Buscar o gestor associado ao utilizador autenticado
+        const gestor = await Gestor.findOne({
+            where: { ID_Utilizador: req.user.id },
+            include: {
+                model: Cafe,
+                attributes: ['ID_Cafe', 'Nome_Cafe', 'Imagem_Cafe', 'Local', 'Tipo_Cafe', 'Horario_Abertura', 'Horario_Fecho']
+            }
+        });
+
+        // Verificar se o gestor tem um café associado
+        if (!gestor || !gestor.Cafe) {
+            return res.status(404).json({ error: 'Você não tem um café associado para remover.' });
+        }
+
+        const cafe = gestor.Cafe;  // O café associado ao gestor
+
+        // Se o café possui uma imagem associada e não for a imagem padrão
+        if (cafe.Imagem_Cafe !== 'default.png') {
+            const oldImagePath = path.resolve(path.join(__dirname, "..", "uploads", "cafes", cafe.Imagem_Cafe));
+            
+            // Verificar se a imagem existe e removê-la
+            fs.unlink(oldImagePath, (err) => {
+                if (err) {
+                    console.error('Erro ao remover a imagem do café:', err);
+                }
+            });
+        }
+
+        // Apagar o café da base de dados
         await cafe.destroy();
         res.json({ message: 'Café removido com sucesso!' });
     } catch (error) {

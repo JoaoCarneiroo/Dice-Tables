@@ -6,14 +6,14 @@ export const Route = createFileRoute('/cafes')({
   component: Cafes,
 });
 
-// Cada quadrado de um Café
+// Cada Café
 function CardCafe({ cafe }) {
   return (
     <div className="bg-gray-800 p-4 rounded-md shadow-md hover:scale-[102%] transition-all">
       <h2 className="text-xl font-semibold text-indigo-600">{cafe.Nome_Cafe}</h2>
       <div className='flex flex-row '>
         {cafe.Tipo_Cafe === 0 ?
-          <div className='bg-indigo-700 p-1.5 font-semibold'>Café com Jogos</div>
+          <div className='bg-indigo-700 rounded-md p-1.5 my-1.5 font-semibold'>Café com Jogos</div>
           :
           <div className='bg-teal-800 rounded-md p-1.5 my-1.5 font-semibold'>Café sem Jogos</div>
         }

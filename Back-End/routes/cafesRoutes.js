@@ -84,7 +84,7 @@ router.get('/porID/:id', cafesController.mostrarCafeID);
  *                   description: URL da imagem do café
  *       403:
  *         description: Função restrita a gestores - O usuário não tem permissão para acessar este recurso
- *       202:
+ *       204:
  *         description: Nenhum café encontrado para este gestor
  *       500:
  *         description: Erro interno do servidor
@@ -186,7 +186,7 @@ router.post('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafesC
  *       500:
  *         description: Erro interno do servidor
  */
-router.patch('/:id', checkAuth, cafesController.upload.single('imagem_cafe'), cafesController.atualizarCafe);
+router.patch('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafesController.atualizarCafe);
 
 /**
  * @swagger
@@ -216,6 +216,6 @@ router.patch('/:id', checkAuth, cafesController.upload.single('imagem_cafe'), ca
  *       500:
  *         description: Erro interno do servidor
  */
-router.delete('/:id', checkAuth, cafesController.apagarCafe);
+router.delete('/', checkAuth, cafesController.apagarCafe);
 
 module.exports = router;
