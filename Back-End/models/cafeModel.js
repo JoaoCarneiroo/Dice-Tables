@@ -13,8 +13,10 @@ const Cafe = sequelize.define('Cafe', {
         allowNull: false,
         unique: true 
     },
-    Imagem_Cafe: { 
-        type: DataTypes.TEXT
+    Imagem_Cafe: {
+        type: DataTypes.STRING,
+        allowNull: false, 
+        defaultValue: 'default.png',
     },
     Local: { 
         type: DataTypes.STRING, 

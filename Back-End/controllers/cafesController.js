@@ -3,23 +3,33 @@ const Gestor = require('../models/gestorModel');
 const multer = require('multer');
 const path = require('path')
 
-// Configuração do multer para upload de imagens
 
+// Configuração do multer para upload de imagens
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.resolve(path.join(__dirname, "..", "uploads", req.baseUrl)));
+        cb(null, path.resolve(path.join(__dirname, "..", "uploads", "cafes")));
     },
     filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        const extension = file.mimetype.split('/')[1]; // Extensão do ficheiro
-        const fileName = `${file.fieldname}-${uniqueSuffix}.${extension}`
-        req.fileName = fileName // Adicionar o nome do ficheiro guardado a request para depois guardar na base de dados
-        cb(null, fileName)
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const extension = path.extname(file.originalname).toLowerCase(); // Pega a extensão corretamente
+        const fileName = `${file.fieldname}-${uniqueSuffix}${extension}`;
+        req.fileName = fileName;
+        cb(null, fileName);
     }
-})
+});
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png'];
+        if (!allowedTypes.includes(file.mimetype)) {
+            return cb(new Error("Apenas imagens JPEG ou PNG são permitidas"), false);
+        }
+        cb(null, true);
+    }
+});
 
 
-const upload = multer({ storage: storage });
 
 // Obter todos os cafés
 exports.mostrarCafes = async (req, res) => {
@@ -61,7 +71,7 @@ exports.mostrarCafeGestor = async (req, res) => {
 
         // Verificar se o gestor possui um café atribuído
         if (!gestor || !gestor.Cafe) {
-            return res.status(404).json({ error: "Nenhum café encontrado para este gestor." });
+            return res.status(200).json(null);
         }
 
         res.json(gestor.Cafe);

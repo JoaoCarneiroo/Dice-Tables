@@ -4,7 +4,6 @@ const cafesController = require('../controllers/cafesController');
 const checkAuth = require('../middlewares/authentication');
 
 
-
 /**
  * @swagger
  * /cafes:
@@ -53,7 +52,7 @@ router.get('/porID/:id', cafesController.mostrarCafeID);
  *     tags: [Cafés]
  *     description: Retorna os detalhes do café associado ao gestor autenticado. Acesso restrito a gestores.
  *     security:
- *       - bearerAuth: []
+ *       - CookieAuth: []
  *     responses:
  *       200:
  *         description: Detalhes do café retornados com sucesso
@@ -85,7 +84,7 @@ router.get('/porID/:id', cafesController.mostrarCafeID);
  *                   description: URL da imagem do café
  *       403:
  *         description: Função restrita a gestores - O usuário não tem permissão para acessar este recurso
- *       404:
+ *       202:
  *         description: Nenhum café encontrado para este gestor
  *       500:
  *         description: Erro interno do servidor
