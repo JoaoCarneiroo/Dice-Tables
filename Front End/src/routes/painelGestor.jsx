@@ -17,6 +17,7 @@ function PainelGestor() {
         horario_abertura: '',
         horario_fecho: '',
     });
+    const [showEditForm, setShowEditForm] = useState(false);
 
     const getTokenFromCookie = () => {
         const match = document.cookie.match(/(^| )Authorization=([^;]+)/);
@@ -25,6 +26,7 @@ function PainelGestor() {
 
     const token = getTokenFromCookie();
 
+    // Função para Visualizar Café
     const { data: cafeData, isLoading, error, refetch } = useQuery({
         queryKey: ['cafeData'],
         queryFn: async () => {
@@ -36,6 +38,7 @@ function PainelGestor() {
         enabled: !!token,
     });
 
+    // Função para Criar Café
     const createMutation = useMutation({
         mutationFn: async (newCafe) => {
             const response = await axios.post('http://localhost:3000/cafes', newCafe, {
@@ -53,9 +56,10 @@ function PainelGestor() {
         }
     });
 
+    // Função para Atualizar Café
     const updateMutation = useMutation({
         mutationFn: async (updatedCafe) => {
-            const response = await axios.patch(`http://localhost:3000/cafes/${cafeData.id}`, updatedCafe, {
+            const response = await axios.patch(`http://localhost:3000/cafes`, updatedCafe, {
                 withCredentials: true,
                 headers: { "Content-Type": "multipart/form-data" },
             });
@@ -70,6 +74,7 @@ function PainelGestor() {
         }
     });
 
+    // Função para Apagar Café
     const deleteMutation = useMutation({
         mutationFn: async () => {
             await axios.delete(`http://localhost:3000/cafes`, {
@@ -84,13 +89,24 @@ function PainelGestor() {
             toast.error(`Erro ao apagar o café: ${err.response?.data?.error || err.message}`, { theme: "dark", transition: Bounce }); 
         }
     });
-
+    
     const handleChange = (e) => {
-        if (e.target.name === "imagem_cafe") {
-            setForm({ ...form, imagem_cafe: e.target.files[0] });
-        } else {
-            setForm({ ...form, [e.target.name]: e.target.value });
-        }
+        const { name, value, type, files } = e.target;
+        setForm(prevForm => ({
+            ...prevForm,
+            [name]: type === "file" ? files[0] : value
+        }));
+    };
+
+    const handleEditClick = () => {
+        setForm({
+            nome_cafe: cafeData.Nome_Cafe,
+            local: cafeData.Local,
+            tipo_cafe: cafeData.Tipo_Cafe,
+            horario_abertura: cafeData.Horario_Abertura,
+            horario_fecho: cafeData.Horario_Fecho,
+        });
+        setShowEditForm(true);
     };
 
     const handleUpdate = (e) => {
@@ -107,11 +123,30 @@ function PainelGestor() {
         }
     
         updateMutation.mutate(formData);
+        setShowEditForm(false);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+    
+        const formData = new FormData();
+        formData.append("nome_cafe", form.nome_cafe);
+        formData.append("local", form.local);
+        formData.append("tipo_cafe", form.tipo_cafe);
+        formData.append("horario_abertura", form.horario_abertura);
+        formData.append("horario_fecho", form.horario_fecho);
+        if (form.imagem_cafe) {
+            formData.append("imagem_cafe", form.imagem_cafe);
+        }
+    
+        createMutation.mutate(formData);
     };
 
     if (!token) return <p className="text-center text-white">Acesso negado. Faça login.</p>;
     if (isLoading) return <p className="text-center text-white">Carregando informações do café...</p>;
     if (error) return <p className="text-center text-red-500">{error.message}</p>;
+
+    
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-12 px-6 lg:px-8">
             <div className="max-w-3xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
@@ -136,12 +171,14 @@ function PainelGestor() {
                         )}
                         {/* Botões de Atualizar e Apagar */}
                         <div className="mt-6 flex gap-4">
-                            <button 
-                                className="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
-                                onClick={handleUpdate}
-                            >
-                                Atualizar
-                            </button>
+                            <div className="flex justify-center w-full">
+                                <button
+                                    onClick={() => setShowEditForm(!showEditForm)} // Alterna entre mostrar e esconder o formulário
+                                    className="w-full bg-indigo-600 px-4 py-2 text-white rounded-md hover:bg-indigo-500 transition duration-300 transform hover:scale-105"
+                                >
+                                    {showEditForm ? 'Cancelar' : 'Atualizar'}
+                                </button>
+                            </div>
                             <button 
                                 className="w-full bg-red-600 hover:bg-red-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
                                 onClick={() => deleteMutation.mutate()}
@@ -149,10 +186,102 @@ function PainelGestor() {
                                 Apagar
                             </button>
                         </div>
+    
+                        {/* Formulário para Atualizar Café */}
+                        {showEditForm && cafeData && (
+                            <form onSubmit={handleUpdate} className="mt-6 space-y-6">
+                                <div className="space-y-4">
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="nome_cafe"
+                                            placeholder="Nome do Café"
+                                            value={form.nome_cafe}
+                                            onChange={handleChange}
+                                            className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        />
+                                    </div>
+    
+                                    <div>
+                                        <label
+                                            htmlFor="imagem_cafe"
+                                            className="w-full p-1.5 rounded-lg cursor-pointer bg-gray-600 text-white text-center border-2 border-dashed border-gray-500 hover:bg-gray-700"
+                                        >
+                                            {form.imagem_cafe ? 'Imagem escolhida' : 'Escolher imagem'}
+                                        </label>
+                                        <input
+                                            type="file"
+                                            name="imagem_cafe"
+                                            onChange={handleChange}
+                                            accept="image/*"
+                                            id="imagem_cafe"
+                                            className="hidden"
+                                        />
+                                    </div>
+    
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="local"
+                                            placeholder="Local"
+                                            value={form.local}
+                                            onChange={handleChange}
+                                            className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        />
+                                    </div>
+    
+                                    <div>
+                                        <select
+                                            name="tipo_cafe"
+                                            value={form.tipo_cafe}
+                                            onChange={handleChange}
+                                            className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        >
+                                            <option value="">Selecione o Tipo de Café</option>
+                                            <option value={0}>Café com Jogos</option>
+                                            <option value={1}>Café sem Jogos</option>
+                                        </select>
+                                    </div>
+    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <input
+                                                type="number"
+                                                name="horario_abertura"
+                                                placeholder="Horário de Abertura"
+                                                value={form.horario_abertura}
+                                                onChange={handleChange}
+                                                className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+    
+                                        <div>
+                                            <input
+                                                type="number"
+                                                name="horario_fecho"
+                                                placeholder="Horário de Fecho"
+                                                value={form.horario_fecho}
+                                                onChange={handleChange}
+                                                className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+    
+                                    <button
+                                        type="submit"
+                                        className="w-full bg-green-600 hover:bg-green-700 p-4 rounded-lg text-white font-semibold mt-4 focus:outline-none transition duration-300 transform hover:scale-105"
+                                    >
+                                        Atualizar Café
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </div>
                 ) : (
                     <div className="mt-8 p-6 bg-gray-700 rounded-lg">
                         <h2 className="text-xl font-medium text-gray-300">Criar um novo Café</h2>
+                        
+                        {/* Formulário para Criar Café */}
                         <form onSubmit={handleSubmit} className="mt-4 space-y-6">
                             <div className="space-y-4">
                                 <div>
@@ -234,9 +363,9 @@ function PainelGestor() {
                                 <button
                                     type="submit"
                                     className="w-full bg-indigo-600 hover:bg-indigo-700 p-4 rounded-lg text-white font-semibold mt-4 focus:outline-none transition duration-300 transform hover:scale-105"
-                                    disabled={mutation.isLoading}
+                                    disabled={createMutation.isLoading}
                                 >
-                                    {mutation.isLoading ? 'Criando...' : 'Criar Café'}
+                                    {createMutation.isLoading ? 'Criando...' : 'Criar Café'}
                                 </button>
                             </div>
                         </form>

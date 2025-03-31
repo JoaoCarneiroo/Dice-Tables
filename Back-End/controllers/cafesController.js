@@ -126,7 +126,7 @@ exports.criarCafe = async (req, res) => {
         // Criação do novo café com o ID_Gestor atribuído
         const novoCafe = await Cafe.create({
             Nome_Cafe: nome_cafe,
-            Imagem_Cafe: imagem_cafe,  // Usando a imagem carregada ou a imagem padrão
+            Imagem_Cafe: imagem_cafe,
             Local: local,
             Tipo_Cafe: tipo_cafe,
             Horario_Abertura: horario_abertura,
@@ -149,15 +149,13 @@ exports.criarCafe = async (req, res) => {
     }
 };
 
-// Atualizar o café associado ao Gestor
 exports.atualizarCafe = async (req, res) => {
     try {
-        // Verificar se o utilizador autenticado é um gestor
         if (!req.user.isGestor) {
+            deleteFile(req.file.filename);
             return res.status(403).json({ error: "Função restrita a Gestor" });
         }
 
-        // Buscar o gestor e o café associado a ele
         const gestor = await Gestor.findOne({
             where: { ID_Utilizador: req.user.id },
             include: {
@@ -166,42 +164,33 @@ exports.atualizarCafe = async (req, res) => {
             }
         });
 
-        // Verificar se o gestor possui um café atribuído
         if (!gestor || !gestor.Cafe) {
+            deleteFile(req.file.filename);
             return res.status(404).json({ error: "Você não tem um café associado para atualizar." });
         }
 
         const cafe = gestor.Cafe;
-        
-        // Extraindo os dados da requisição
         let { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
-        const imagem_cafe = req.file ? req.fileName : cafe.Imagem_Cafe;
-
+        const novaImagem = req.file ? req.file.filename : cafe.Imagem_Cafe;
 
         horario_abertura = parseInt(horario_abertura, 10);
         horario_fecho = parseInt(horario_fecho, 10);
-        
-        // Verificação se o horário de abertura é menor que o de fecho
+
         if (horario_abertura >= horario_fecho) {
-             return res.status(400).json({ error: 'O horário de abertura deve ser menor que o horário de fecho.' });
-        }
-        
-        // Se a imagem foi atualizada, remover a imagem anterior
-        if (req.file && cafe.Imagem_Cafe !== 'default.png') {
-            const oldImagePath = path.resolve(path.join(__dirname, "..", "uploads", "cafes", cafe.Imagem_Cafe));
-            
-            fs.unlink(oldImagePath, (err) => {
-                if (err) {
-                    console.error('Erro ao remover a imagem anterior:', err);
-                }
-            });
+            if (req.file) {
+                deleteFile(req.file.filename);
+            }
+            return res.status(400).json({ error: 'O horário de abertura deve ser menor que o horário de fecho.' });
         }
 
-        // Atualizar o café com os novos dados
+        if (req.file && cafe.Imagem_Cafe !== 'default.png') {
+            deleteFile(cafe.Imagem_Cafe);
+        }
+
         try {
             await cafe.update({
                 Nome_Cafe: nome_cafe || cafe.Nome_Cafe,
-                Imagem_Cafe: imagem_cafe,
+                Imagem_Cafe: novaImagem,
                 Local: local || cafe.Local,
                 Tipo_Cafe: tipo_cafe || cafe.Tipo_Cafe,
                 Horario_Abertura: horario_abertura || cafe.Horario_Abertura,
@@ -216,7 +205,6 @@ exports.atualizarCafe = async (req, res) => {
             }
             res.status(500).json({ error: error.message });
         }
-
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
