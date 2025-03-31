@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { toast, Bounce } from 'react-toastify';
 
 export const Route = createFileRoute('/painelGestor')({
@@ -9,6 +9,8 @@ export const Route = createFileRoute('/painelGestor')({
 });
 
 function PainelGestor() {
+    const navigate = useNavigate();
+
     const [form, setForm] = useState({
         nome_cafe: '',
         imagem_cafe: null,
@@ -174,7 +176,7 @@ function PainelGestor() {
                             <div className="flex justify-center w-full">
                                 <button
                                     onClick={() => setShowEditForm(!showEditForm)} // Alterna entre mostrar e esconder o formulário
-                                    className="w-full bg-indigo-600 px-4 py-2 text-white rounded-md hover:bg-indigo-500 transition duration-300 transform hover:scale-105"
+                                    className="w-full bg-indigo-600 px-4 py-2 text-white rounded-md hover:bg-indigo-700 transition duration-300 transform hover:scale-105"
                                 >
                                     {showEditForm ? 'Cancelar' : 'Atualizar'}
                                 </button>
@@ -184,6 +186,12 @@ function PainelGestor() {
                                 onClick={() => deleteMutation.mutate()}
                             >
                                 Apagar
+                            </button>
+                            <button 
+                                className="w-full bg-green-600 hover:bg-green-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
+                                onClick={() => navigate('/painelGestorCafes')}
+                            >
+                                Mais Detalhes
                             </button>
                         </div>
     
@@ -233,7 +241,6 @@ function PainelGestor() {
                                     <div>
                                         <select
                                             name="tipo_cafe"
-                                            value={form.tipo_cafe}
                                             onChange={handleChange}
                                             className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                         >
@@ -280,7 +287,7 @@ function PainelGestor() {
                 ) : (
                     <div className="mt-8 p-6 bg-gray-700 rounded-lg">
                         <h2 className="text-xl font-medium text-gray-300">Criar um novo Café</h2>
-                        
+
                         {/* Formulário para Criar Café */}
                         <form onSubmit={handleSubmit} className="mt-4 space-y-6">
                             <div className="space-y-4">
