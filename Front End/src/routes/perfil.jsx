@@ -171,6 +171,16 @@ function Perfil() {
                         </button>
                     </div>
                 )}
+                {data?.Cargo === 'Administrador' && (
+                    <div className="flex justify-center mt-6">
+                        <button
+                            onClick={() => navigate({ to: '/painelAdmin' })}
+                            className="w-full bg-green-600 px-4 py-2 text-white rounded-md hover:bg-green-500"
+                        >
+                            Painel de Admin
+                        </button>
+                    </div>
+                )}
 
                 <div className="flex justify-center mt-6">
                     <button

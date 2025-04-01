@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as RegistarImport } from './routes/registar'
 import { Route as PerfilImport } from './routes/perfil'
 import { Route as PainelGestorImport } from './routes/painelGestor'
+import { Route as PainelAdminImport } from './routes/painelAdmin'
 import { Route as LoginImport } from './routes/login'
 import { Route as CafesImport } from './routes/cafes'
 import { Route as IndexImport } from './routes/index'
@@ -35,6 +36,12 @@ const PerfilRoute = PerfilImport.update({
 const PainelGestorRoute = PainelGestorImport.update({
   id: '/painelGestor',
   path: '/painelGestor',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PainelAdminRoute = PainelAdminImport.update({
+  id: '/painelAdmin',
+  path: '/painelAdmin',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -81,6 +88,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/painelAdmin': {
+      id: '/painelAdmin'
+      path: '/painelAdmin'
+      fullPath: '/painelAdmin'
+      preLoaderRoute: typeof PainelAdminImport
+      parentRoute: typeof rootRoute
+    }
     '/painelGestor': {
       id: '/painelGestor'
       path: '/painelGestor'
@@ -111,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
+  '/painelAdmin': typeof PainelAdminRoute
   '/painelGestor': typeof PainelGestorRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
@@ -120,6 +135,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
+  '/painelAdmin': typeof PainelAdminRoute
   '/painelGestor': typeof PainelGestorRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
@@ -130,6 +146,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
+  '/painelAdmin': typeof PainelAdminRoute
   '/painelGestor': typeof PainelGestorRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
@@ -141,16 +158,25 @@ export interface FileRouteTypes {
     | '/'
     | '/cafes'
     | '/login'
+    | '/painelAdmin'
     | '/painelGestor'
     | '/perfil'
     | '/registar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cafes' | '/login' | '/painelGestor' | '/perfil' | '/registar'
+  to:
+    | '/'
+    | '/cafes'
+    | '/login'
+    | '/painelAdmin'
+    | '/painelGestor'
+    | '/perfil'
+    | '/registar'
   id:
     | '__root__'
     | '/'
     | '/cafes'
     | '/login'
+    | '/painelAdmin'
     | '/painelGestor'
     | '/perfil'
     | '/registar'
@@ -161,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CafesRoute: typeof CafesRoute
   LoginRoute: typeof LoginRoute
+  PainelAdminRoute: typeof PainelAdminRoute
   PainelGestorRoute: typeof PainelGestorRoute
   PerfilRoute: typeof PerfilRoute
   RegistarRoute: typeof RegistarRoute
@@ -170,6 +197,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CafesRoute: CafesRoute,
   LoginRoute: LoginRoute,
+  PainelAdminRoute: PainelAdminRoute,
   PainelGestorRoute: PainelGestorRoute,
   PerfilRoute: PerfilRoute,
   RegistarRoute: RegistarRoute,
@@ -188,6 +216,7 @@ export const routeTree = rootRoute
         "/",
         "/cafes",
         "/login",
+        "/painelAdmin",
         "/painelGestor",
         "/perfil",
         "/registar"
@@ -201,6 +230,9 @@ export const routeTree = rootRoute
     },
     "/login": {
       "filePath": "login.jsx"
+    },
+    "/painelAdmin": {
+      "filePath": "painelAdmin.jsx"
     },
     "/painelGestor": {
       "filePath": "painelGestor.jsx"

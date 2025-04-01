@@ -175,7 +175,7 @@ function PainelGestor() {
                         <div className="mt-6 flex gap-4">
                             <div className="flex justify-center w-full">
                                 <button
-                                    onClick={() => setShowEditForm(!showEditForm)} // Alterna entre mostrar e esconder o formulário
+                                    onClick={() => setShowEditForm(!showEditForm)}
                                     className="w-full bg-indigo-600 px-4 py-2 text-white rounded-md hover:bg-indigo-700 transition duration-300 transform hover:scale-105"
                                 >
                                     {showEditForm ? 'Cancelar' : 'Atualizar'}
