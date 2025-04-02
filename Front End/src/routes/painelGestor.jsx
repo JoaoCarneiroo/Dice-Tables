@@ -28,7 +28,7 @@ function PainelGestor() {
 
     const token = getTokenFromCookie();
 
-    // Função para Visualizar Café
+    // Visualizar o café do gestor autenticado
     const { data: cafeData, isLoading, error, refetch } = useQuery({
         queryKey: ['cafeData'],
         queryFn: async () => {
