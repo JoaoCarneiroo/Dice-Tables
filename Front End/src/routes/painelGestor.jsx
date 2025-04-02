@@ -50,11 +50,31 @@ function PainelGestor() {
             return response.data;
         },
         onSuccess: () => {
-            toast.success('Café criado com Sucesso', { theme: "dark", transition: Bounce }); 
+            toast.success('Café criado com Sucesso', {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
             refetch();
         },
         onError: (err) => {
-            toast.error(`Erro ao criar o café: ${err.response?.data?.error || err.message}`, { theme: "dark", transition: Bounce }); 
+            toast.error(`Erro ao criar o café: ${err.response?.data?.error || err.message}`, {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
         }
     });
 
@@ -68,11 +88,31 @@ function PainelGestor() {
             return response.data;
         },
         onSuccess: () => {
-            toast.success('Café atualizado com Sucesso', { theme: "dark", transition: Bounce }); 
+            toast.success('Café atualizado com Sucesso', {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
             refetch();
         },
         onError: (err) => {
-            toast.error(`Erro ao atualizar o café: ${err.response?.data?.error || err.message}`, { theme: "dark", transition: Bounce }); 
+            toast.error(`Erro ao atualizar o café: ${err.response?.data?.error || err.message}`, {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });         
         }
     });
 
@@ -84,11 +124,31 @@ function PainelGestor() {
             });
         },
         onSuccess: () => {
-            toast.success('Café apagado com Sucesso', { theme: "dark", transition: Bounce }); 
+            toast.success('Café apagado com Sucesso', {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            }); 
             refetch();
         },
         onError: (err) => {
-            toast.error(`Erro ao apagar o café: ${err.response?.data?.error || err.message}`, { theme: "dark", transition: Bounce }); 
+            toast.error(`Erro ao apagar o café: ${err.response?.data?.error || err.message}`, {
+                position: "bottom-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });         
         }
     });
     
@@ -188,8 +248,8 @@ function PainelGestor() {
                                 Apagar
                             </button>
                             <button 
+                                onClick={() => navigate({ to: '/painelGestorCafes' })}
                                 className="w-full bg-green-600 hover:bg-green-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
-                                onClick={() => navigate('/painelGestorCafes')}
                             >
                                 Mais Detalhes
                             </button>
