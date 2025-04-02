@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import axios from 'axios';
 
-// Definindo a rota
 export const Route = createFileRoute('/painelAdmin')({
   component: PainelAdmin,
 });
@@ -28,8 +27,9 @@ function CardUtilizador({ utilizador, onPromover }) {
 
 // Cada Gestor
 function CardGestor({ gestor, onDespromover }) {
+  
   return (
-    <div className="bg-gray-800 p-4 rounded-md shadow-md hover:scale-[102%] transition-all">
+    <div className="bg-gray-800 p-4 rounded-md shadow-md">
       <h2 className="text-xl font-semibold text-indigo-600">{gestor.Nome}</h2>
       <p className="text-gray-300">Email: {gestor.Email}</p>
       <p className="text-gray-300">Cargo: {gestor.Cargo}</p>
@@ -64,8 +64,8 @@ function PainelAdmin() {
       const gestores = allUtilizadores.filter((utilizador) => utilizador.Cargo === 'Gestor');
       const outrosUtilizadores = allUtilizadores.filter((utilizador) => utilizador.Cargo !== 'Gestor' && utilizador.Cargo !== 'Administrador');
 
-      setGestores(gestores); // Atualiza a lista de gestores
-      setUtilizadores(outrosUtilizadores); // Atualiza a lista de outros utilizadores
+      setGestores(gestores);
+      setUtilizadores(outrosUtilizadores);
     } catch (err) {
       setError('Erro ao carregar utilizadores');
     } finally {
@@ -96,16 +96,16 @@ function PainelAdmin() {
     try {
       console.log(`ID do gestor a ser despromovido: ${gestorToDespromover.ID_Utilizador}`);
       await axios.delete(`http://localhost:3000/gestor/${gestorToDespromover.ID_Utilizador}`, { withCredentials: true });
-      fetchUtilizadores(); // Atualiza a lista após despromoção
-      setShowModal(false); // Fecha o modal
+      fetchUtilizadores();
+      setShowModal(false);
     } catch (err) {
       setError('Erro ao despromover gestor');
-      setShowModal(false); // Fecha o modal mesmo em erro
+      setShowModal(false);
     }
   };
 
   const cancelDespromover = () => {
-    setShowModal(false); // Fecha o modal sem realizar a ação
+    setShowModal(false);
   };
 
   useEffect(() => {
@@ -126,7 +126,7 @@ function PainelAdmin() {
 
       {/* Modal de Confirmação */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 ">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Confirmação</h3>
             <p className="text-gray-800">Você tem certeza que deseja despromover o gestor? Esta ação removerá o café associado a ele.</p>
@@ -166,5 +166,3 @@ function PainelAdmin() {
     </div>
   );
 }
-
-export default PainelAdmin;

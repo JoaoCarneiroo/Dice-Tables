@@ -83,30 +83,32 @@ router.get('/', checkAuth, gestorController.mostrarGestores);
 router.get('/:id', checkAuth, gestorController.mostrarGestorID);
 
 /**
- * @swagger
- * /gestor/{id}:
- *   delete:
- *     summary: Remove um gestor e rebaixa para utilizador comum
- *     tags: [Gestores]
- *     security:
- *       - CookieAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID do gestor a ser despromovido
- *     responses:
- *       200:
- *         description: Gestor despromovido com sucesso
- *       401:
- *         description: Função restrita a administradores
- *       404:
- *         description: Gestor não encontrado
- *       500:
- *         description: Erro ao despromover gestor
- */
+* @swagger
+* /gestor/{id}:
+*   delete:
+*     summary: Despromove um gestor para utilizador comum e apaga o café associado
+*     tags: [Gestores]
+*     security:
+*       - CookieAuth: []
+*     parameters:
+*       - in: path
+*         name: id
+*         required: true
+*         schema:
+*           type: integer
+*         description: ID do gestor a ser despromovido
+*     responses:
+*       200:
+*         description: Gestor despromovido para utilizador comum. Café associado apagado se existisse.
+*       400:
+*         description: O utilizador não é um gestor.
+*       401:
+*         description: Função restrita a administradores.
+*       404:
+*         description: Utilizador não encontrado.
+*       500:
+*         description: Erro ao despromover gestor.
+*/
 router.delete('/:id', checkAuth, gestorController.despromoverGestor);
 
 module.exports = router;
