@@ -248,11 +248,19 @@ function PainelGestor() {
                                 Apagar
                             </button>
                             <button 
-                                onClick={() => navigate({ to: '/painelGestorCafes' })}
+                                onClick={() => navigate({ to: '/painelGestorMesas' })}
                                 className="w-full bg-green-600 hover:bg-green-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
                             >
-                                Mais Detalhes
+                                Gerir Mesas
                             </button>
+                            {cafeData?.Tipo_Cafe === 0 && (
+                                <button
+                                    onClick={() => navigate({ to: '/painelGestorJogos' })}
+                                    className="w-full bg-yellow-600 hover:bg-yellow-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
+                                >
+                                Gerir Jogos
+                            </button>
+                            )}
                         </div>
     
                         {/* Formulário para Atualizar Café */}

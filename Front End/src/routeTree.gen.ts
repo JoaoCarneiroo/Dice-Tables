@@ -13,7 +13,8 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegistarImport } from './routes/registar'
 import { Route as PerfilImport } from './routes/perfil'
-import { Route as PainelGestorCafesImport } from './routes/painelGestorCafes'
+import { Route as PainelGestorMesasImport } from './routes/painelGestorMesas'
+import { Route as PainelGestorJogosImport } from './routes/painelGestorJogos'
 import { Route as PainelGestorImport } from './routes/painelGestor'
 import { Route as PainelAdminImport } from './routes/painelAdmin'
 import { Route as LoginImport } from './routes/login'
@@ -34,9 +35,15 @@ const PerfilRoute = PerfilImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const PainelGestorCafesRoute = PainelGestorCafesImport.update({
-  id: '/painelGestorCafes',
-  path: '/painelGestorCafes',
+const PainelGestorMesasRoute = PainelGestorMesasImport.update({
+  id: '/painelGestorMesas',
+  path: '/painelGestorMesas',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PainelGestorJogosRoute = PainelGestorJogosImport.update({
+  id: '/painelGestorJogos',
+  path: '/painelGestorJogos',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -109,11 +116,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelGestorImport
       parentRoute: typeof rootRoute
     }
-    '/painelGestorCafes': {
-      id: '/painelGestorCafes'
-      path: '/painelGestorCafes'
-      fullPath: '/painelGestorCafes'
-      preLoaderRoute: typeof PainelGestorCafesImport
+    '/painelGestorJogos': {
+      id: '/painelGestorJogos'
+      path: '/painelGestorJogos'
+      fullPath: '/painelGestorJogos'
+      preLoaderRoute: typeof PainelGestorJogosImport
+      parentRoute: typeof rootRoute
+    }
+    '/painelGestorMesas': {
+      id: '/painelGestorMesas'
+      path: '/painelGestorMesas'
+      fullPath: '/painelGestorMesas'
+      preLoaderRoute: typeof PainelGestorMesasImport
       parentRoute: typeof rootRoute
     }
     '/perfil': {
@@ -141,7 +155,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/painelAdmin': typeof PainelAdminRoute
   '/painelGestor': typeof PainelGestorRoute
-  '/painelGestorCafes': typeof PainelGestorCafesRoute
+  '/painelGestorJogos': typeof PainelGestorJogosRoute
+  '/painelGestorMesas': typeof PainelGestorMesasRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
 }
@@ -152,7 +167,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/painelAdmin': typeof PainelAdminRoute
   '/painelGestor': typeof PainelGestorRoute
-  '/painelGestorCafes': typeof PainelGestorCafesRoute
+  '/painelGestorJogos': typeof PainelGestorJogosRoute
+  '/painelGestorMesas': typeof PainelGestorMesasRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
 }
@@ -164,7 +180,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/painelAdmin': typeof PainelAdminRoute
   '/painelGestor': typeof PainelGestorRoute
-  '/painelGestorCafes': typeof PainelGestorCafesRoute
+  '/painelGestorJogos': typeof PainelGestorJogosRoute
+  '/painelGestorMesas': typeof PainelGestorMesasRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
 }
@@ -177,7 +194,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/painelAdmin'
     | '/painelGestor'
-    | '/painelGestorCafes'
+    | '/painelGestorJogos'
+    | '/painelGestorMesas'
     | '/perfil'
     | '/registar'
   fileRoutesByTo: FileRoutesByTo
@@ -187,7 +205,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/painelAdmin'
     | '/painelGestor'
-    | '/painelGestorCafes'
+    | '/painelGestorJogos'
+    | '/painelGestorMesas'
     | '/perfil'
     | '/registar'
   id:
@@ -197,7 +216,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/painelAdmin'
     | '/painelGestor'
-    | '/painelGestorCafes'
+    | '/painelGestorJogos'
+    | '/painelGestorMesas'
     | '/perfil'
     | '/registar'
   fileRoutesById: FileRoutesById
@@ -209,7 +229,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PainelAdminRoute: typeof PainelAdminRoute
   PainelGestorRoute: typeof PainelGestorRoute
-  PainelGestorCafesRoute: typeof PainelGestorCafesRoute
+  PainelGestorJogosRoute: typeof PainelGestorJogosRoute
+  PainelGestorMesasRoute: typeof PainelGestorMesasRoute
   PerfilRoute: typeof PerfilRoute
   RegistarRoute: typeof RegistarRoute
 }
@@ -220,7 +241,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PainelAdminRoute: PainelAdminRoute,
   PainelGestorRoute: PainelGestorRoute,
-  PainelGestorCafesRoute: PainelGestorCafesRoute,
+  PainelGestorJogosRoute: PainelGestorJogosRoute,
+  PainelGestorMesasRoute: PainelGestorMesasRoute,
   PerfilRoute: PerfilRoute,
   RegistarRoute: RegistarRoute,
 }
@@ -240,7 +262,8 @@ export const routeTree = rootRoute
         "/login",
         "/painelAdmin",
         "/painelGestor",
-        "/painelGestorCafes",
+        "/painelGestorJogos",
+        "/painelGestorMesas",
         "/perfil",
         "/registar"
       ]
@@ -260,8 +283,11 @@ export const routeTree = rootRoute
     "/painelGestor": {
       "filePath": "painelGestor.jsx"
     },
-    "/painelGestorCafes": {
-      "filePath": "painelGestorCafes.jsx"
+    "/painelGestorJogos": {
+      "filePath": "painelGestorJogos.jsx"
+    },
+    "/painelGestorMesas": {
+      "filePath": "painelGestorMesas.jsx"
     },
     "/perfil": {
       "filePath": "perfil.jsx"

@@ -3,11 +3,11 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
-export const Route = createFileRoute('/painelGestorCafes')({
-  component: PainelGestorCafes,
+export const Route = createFileRoute('/painelGestorMesas')({
+  component: PainelGestorMesas,
 })
 
-export default function PainelGestorCafes() {
+export default function PainelGestorMesas() {
   const [lugares, setLugares] = useState("");
   const [editingMesa, setEditingMesa] = useState(null);
   const [newLugares, setNewLugares] = useState("");
@@ -20,6 +20,7 @@ export default function PainelGestorCafes() {
 
   const token = getTokenFromCookie();
 
+  // Procurar Café do Gestor Autenticado
   const { data: cafeData, isLoading: cafeLoading, error: cafeError } = useQuery({
     queryKey: ["cafeGestor"],
     queryFn: async () => {
@@ -31,6 +32,7 @@ export default function PainelGestorCafes() {
     enabled: !!token,
   });
 
+  // Mostrar Mesas do Café
   const { data: mesas, isLoading: mesasLoading, error: mesasError } = useQuery({
     queryKey: ["mesas"],
     queryFn: async () => {
@@ -44,6 +46,7 @@ export default function PainelGestorCafes() {
     enabled: !!cafeData,
   });
 
+  // Criar Mesas do Café
   const createMesaMutation = useMutation({
     mutationFn: async (newMesa) => {
       const response = await axios.post("http://localhost:3000/mesas", newMesa, {
@@ -57,6 +60,7 @@ export default function PainelGestorCafes() {
     },
   });
 
+  // Atualizar Mesas do Café
   const updateMesaMutation = useMutation({
     mutationFn: async ({ id, lugares }) => {
       const response = await axios.patch(`http://localhost:3000/mesas/${id}`, { lugares }, {
@@ -71,6 +75,7 @@ export default function PainelGestorCafes() {
     },
   });
 
+  // Apagar Mesas do Café
   const deleteMesaMutation = useMutation({
     mutationFn: async (id) => {
       await axios.delete(`http://localhost:3000/mesas/${id}`, {

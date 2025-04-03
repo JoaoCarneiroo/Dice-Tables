@@ -107,12 +107,11 @@ exports.criarJogo = async (req, res) => {
 
 // Atualizar um Jogo (apenas se o utilizador for gestor do café)
 exports.atualizarJogo = async (req, res) => {
-    try {
-        const { id } = req.params; // ID do jogo
-        const { nomeJogo, notasJogo, preco, quantidade } = req.body;
+    const { nomeJogo, notasJogo, preco, quantidade } = req.body;
 
-        // Buscar o jogo
-        const jogo = await Jogos.findByPk(id);
+    try {
+        // Buscar o jogo pelo ID
+        const jogo = await Jogos.findByPk(req.params.id);
         if (!jogo) {
             return res.status(404).json({ error: "Jogo não encontrado." });
         }
@@ -126,16 +125,31 @@ exports.atualizarJogo = async (req, res) => {
             return res.status(403).json({ error: "Apenas gestores do café podem atualizar este jogo." });
         }
 
-        // Atualizar o jogo
-        jogo.Nome_Jogo = nomeJogo;
-        jogo.Notas_Jogo = notasJogo;
-        jogo.Preco = preco;
-        jogo.Quantidade = quantidade;
+        // Atualizar apenas os campos enviados
+        if (nomeJogo !== undefined && nomeJogo !== "") {
+            jogo.Nome_Jogo = nomeJogo;
+        }
+        if (notasJogo !== undefined && notasJogo !== "") {
+            jogo.Notas_Jogo = notasJogo;
+        }
+        if (preco !== undefined && preco !== "") {
+            jogo.Preco = preco;
+        }
+        if (quantidade !== undefined && quantidade !== "") {
+            jogo.Quantidade = quantidade;
+        }
+
+        // Salvar as alterações
         await jogo.save();
 
         res.json({ message: "Jogo atualizado com sucesso!", jogo });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+
+    } catch (err) {
+        // Se for um erro de validação do Sequelize, retorna as mensagens específicas
+        if (err.name === "SequelizeValidationError") {
+            return res.status(400).json({ error: err.errors.map(e => e.message) });
+        }
+        res.status(500).json({ error: err.message });
     }
 };
 
@@ -156,7 +170,7 @@ exports.apagarJogo = async (req, res) => {
         });
 
         if (!gestor) {
-            return res.status(403).json({ error: "Apenas gestores do café podem deletar este jogo." });
+            return res.status(403).json({ error: "Apenas gestores do café podem apagar este jogo." });
         }
 
         // Deletar o jogo
