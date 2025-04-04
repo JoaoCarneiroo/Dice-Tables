@@ -2,10 +2,11 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { toast, Bounce } from "react-toastify";
 
 export const Route = createFileRoute('/painelGestorMesas')({
   component: PainelGestorMesas,
-})
+});
 
 export default function PainelGestorMesas() {
   const [lugares, setLugares] = useState("");
@@ -57,7 +58,31 @@ export default function PainelGestorMesas() {
     onSuccess: () => {
       queryClient.invalidateQueries(["mesas"]);
       setLugares("");
+      toast.success('Mesa criada com Sucesso', {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
     },
+    onError: (err) => {
+      toast.error(`Erro ao criar a Mesa: ${err.response?.data?.error || err.message}`, {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+    }
   });
 
   // Atualizar Mesas do Café
@@ -72,7 +97,31 @@ export default function PainelGestorMesas() {
       queryClient.invalidateQueries(["mesas"]);
       setEditingMesa(null);
       setNewLugares("");
+      toast.success('Mesa atualizada com Sucesso', {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
     },
+    onError: (err) => {
+      toast.error(`Erro ao atualizar a Mesa: ${err.response?.data?.error || err.message}`, {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+    }
   });
 
   // Apagar Mesas do Café
@@ -84,7 +133,31 @@ export default function PainelGestorMesas() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["mesas"]);
+      toast.success('Mesa apagada com Sucesso', {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
     },
+    onError: (err) => {
+      toast.error(`Erro ao apagar a Mesa: ${err.response?.data?.error || err.message}`, {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+    }
   });
 
   if (cafeLoading || mesasLoading) return <p className="text-gray-300">Carregando informações...</p>;
@@ -98,11 +171,11 @@ export default function PainelGestorMesas() {
           <h2 className="text-xl font-semibold text-indigo-400">Café: {cafeData.Nome_Cafe}</h2>
           <p className="text-gray-400">Local: {cafeData.Local}</p>
           <div className='flex flex-row '>
-            {cafeData.Tipo_Cafe === 0 ?
+            {cafeData.Tipo_Cafe === 0 ? (
               <div className='bg-indigo-700 rounded-md p-1.5 my-1.5 font-semibold'>Café com Jogos</div>
-              :
+            ) : (
               <div className='bg-teal-800 rounded-md p-1.5 my-1.5 font-semibold'>Café sem Jogos</div>
-            }
+            )}
           </div>
         </div>
       )}

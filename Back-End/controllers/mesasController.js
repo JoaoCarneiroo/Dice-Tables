@@ -2,7 +2,6 @@ const Mesas = require('../models/mesasModel');
 const Gestor = require('../models/gestorModel');
 const Cafes = require('../models/cafeModel');
 
-
 // Obter todas as Mesas
 exports.mostrarMesas = async (req, res) => {
     try {
@@ -22,9 +21,9 @@ exports.mostrarMesasID = async (req, res) => {
             return res.status(404).json({ error: "Café não encontrado." });
         }
 
-        const idCafe = Cafe.ID_Cafe
+        const idCafe = Cafe.ID_Cafe;
         
-        // Buscar todos os jogos do café
+        // Buscar todas as mesas do café
         const mesas = await Mesas.findAll({
             where: { ID_Cafe: idCafe }
         });
@@ -34,7 +33,6 @@ exports.mostrarMesasID = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 // Criar uma nova Mesa (apenas se o utilizador autenticado for gestor do café)
 exports.criarMesa = async (req, res) => {
@@ -54,7 +52,7 @@ exports.criarMesa = async (req, res) => {
             return res.status(403).json({ error: "Ainda não tens um café a gerir" });
         }
 
-        // Criar a mesa associada ao café do gestor autenticado
+        // Criação da mesa associada ao café do gestor autenticado
         const novaMesa = await Mesas.create({
             ID_Cafe: gestor.ID_Cafe,
             Lugares: lugares
@@ -62,6 +60,10 @@ exports.criarMesa = async (req, res) => {
 
         res.status(201).json(novaMesa);
     } catch (error) {
+        if (error.name === 'SequelizeValidationError') {
+            const validationErrors = error.errors.map(err => err.message);
+            return res.status(400).json({ error: validationErrors });
+        }
         res.status(500).json({ error: error.message });
     }
 };
@@ -74,7 +76,6 @@ exports.atualizarMesa = async (req, res) => {
         if (!mesa) return res.status(404).json({ error: 'Mesa não encontrada' });
 
         const { lugares } = req.body;
-
 
         // Verificar se o utilizador autenticado é gestor do café da mesa
         const gestor = await Gestor.findOne({
@@ -91,6 +92,10 @@ exports.atualizarMesa = async (req, res) => {
 
         res.json({ message: "Mesa atualizada com sucesso!", mesa });
     } catch (error) {
+        if (error.name === 'SequelizeValidationError') {
+            const validationErrors = error.errors.map(err => err.message);
+            return res.status(400).json({ error: validationErrors });
+        }
         res.status(500).json({ error: error.message });
     }
 };
@@ -101,7 +106,6 @@ exports.apagarMesa = async (req, res) => {
         // Procurar a Mesa pelo ID
         const mesa = await Mesas.findByPk(req.params.id);
         if (!mesa) return res.status(404).json({ error: 'Mesa não encontrada' });
-
 
         // Verificar se o utilizador autenticado é gestor do café da mesa
         const gestor = await Gestor.findOne({
@@ -117,6 +121,10 @@ exports.apagarMesa = async (req, res) => {
 
         res.json({ message: "Mesa apagada com sucesso!" });
     } catch (error) {
+        if (error.name === 'SequelizeValidationError') {
+            const validationErrors = error.errors.map(err => err.message);
+            return res.status(400).json({ error: validationErrors });
+        }
         res.status(500).json({ error: error.message });
     }
 };

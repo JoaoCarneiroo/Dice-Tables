@@ -21,14 +21,15 @@ exports.comprarJogo = async (req, res) => {
         // Reduzir o stock do jogo
         await jogo.update({ Quantidade: jogo.Quantidade - 1 });
 
-
         res.status(200).json({ message: "Compra efetuada com sucesso!", jogo });
 
     } catch (error) {
+        if (error.name === "SequelizeValidationError") {
+            return res.status(400).json({ error: error.errors.map(e => e.message) });
+        }
         res.status(500).json({ error: error.message });
     }
 };
-
 
 // Obter todos os jogos
 exports.mostrarJogos = async (req, res) => {
@@ -50,7 +51,7 @@ exports.mostrarJogosID = async (req, res) => {
             return res.status(404).json({ error: "Café não encontrado." });
         }
 
-        const idCafe = Cafe.ID_Cafe
+        const idCafe = Cafe.ID_Cafe;
 
         // Buscar todos os jogos do café
         const jogos = await Jogos.findAll({
@@ -81,14 +82,11 @@ exports.criarJogo = async (req, res) => {
             return res.status(403).json({ error: "Ainda não tens um café a gerir." });
         }
 
-
         const cafe = await Cafes.findByPk(gestor.ID_Cafe);
-
 
         if (cafe.Tipo_Cafe == 1) { 
             return res.status(403).json({ error: "Altere o tipo de café" });
         }
-
 
         // Criar o jogo associado ao café do gestor autenticado
         const novoJogo = await Jogos.create({
@@ -101,6 +99,10 @@ exports.criarJogo = async (req, res) => {
 
         res.status(201).json(novoJogo);
     } catch (error) {
+        if (error.name === 'SequelizeValidationError') {
+            const validationErrors = error.errors.map(err => err.message);
+            return res.status(400).json({ error: validationErrors });
+        }
         res.status(500).json({ error: error.message });
     }
 };
@@ -108,7 +110,6 @@ exports.criarJogo = async (req, res) => {
 // Atualizar um Jogo (apenas se o utilizador for gestor do café)
 exports.atualizarJogo = async (req, res) => {
     const { nomeJogo, notasJogo, preco, quantidade } = req.body;
-
     try {
         // Buscar o jogo pelo ID
         const jogo = await Jogos.findByPk(req.params.id);
@@ -145,7 +146,6 @@ exports.atualizarJogo = async (req, res) => {
         res.json({ message: "Jogo atualizado com sucesso!", jogo });
 
     } catch (err) {
-        // Se for um erro de validação do Sequelize, retorna as mensagens específicas
         if (err.name === "SequelizeValidationError") {
             return res.status(400).json({ error: err.errors.map(e => e.message) });
         }
@@ -178,6 +178,10 @@ exports.apagarJogo = async (req, res) => {
 
         res.json({ message: "Jogo apagado com sucesso!" });
     } catch (error) {
+        if (error.name === 'SequelizeValidationError') {
+            const validationErrors = error.errors.map(err => err.message);
+            return res.status(400).json({ error: validationErrors });
+        }
         res.status(500).json({ error: error.message });
     }
 };

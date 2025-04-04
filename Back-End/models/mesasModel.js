@@ -21,6 +21,15 @@ const Mesas = sequelize.define('Mesas', {
     Lugares: { 
         type: DataTypes.INTEGER, 
         allowNull: false,
+        validate: {
+            min: {
+                args: [1],
+                msg: 'Uma mesa deve ter pelo menos 1 lugar.'
+            },
+            isInt: {
+                msg: 'O número de lugares deve ser um inteiro.'
+            }
+        }
     },
     
 }, { 

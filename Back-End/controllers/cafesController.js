@@ -9,7 +9,7 @@ const filePath = 'C:\\Users\\joaom\\Desktop\\Dice-Tables\\Back-End\\uploads\\caf
 function deleteFile(fileName) {
     fs.unlink(filePath + "\\" + fileName, (err) => {
         if (err) {
-            console.error("Error deleting file:", err);
+            console.error("Erro detetando o ficheiro:", err);
         }
     });
 }

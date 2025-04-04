@@ -20,7 +20,11 @@ const Jogos = sequelize.define('Jogos', {
     },
     Nome_Jogo: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: { msg: 'O nome do jogo é obrigatório.' },
+            notEmpty: { msg: 'O nome do jogo não pode estar vazio.' }
+        }
     },
     Notas_Jogo: {
         type: DataTypes.TEXT,
@@ -28,12 +32,28 @@ const Jogos = sequelize.define('Jogos', {
     },
     Preco: {
         type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: { msg: 'O preço é obrigatório.' },
+            isNumeric: { msg: 'O preço deve ser um número.' },
+            min: {
+                args: [0],
+                msg: 'O preço não pode ser negativo.'
+            }
+        }
     },
     Quantidade: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 1
+        defaultValue: 1,
+        validate: {
+            notNull: { msg: 'A quantidade é obrigatória.' },
+            isInt: { msg: 'A quantidade deve ser um número inteiro.' },
+            min: {
+                args: [1],
+                msg: 'A quantidade deve ser pelo menos 1.'
+            }
+        }
     }
 }, {
     tableName: 'Jogos',
