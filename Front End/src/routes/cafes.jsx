@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import axios from 'axios';
 
 export const Route = createFileRoute('/cafes')({
@@ -8,6 +8,8 @@ export const Route = createFileRoute('/cafes')({
 
 // Cada Café
 function CardCafe({ cafe }) {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-gray-800 p-4 rounded-md shadow-md hover:scale-[102%] transition-all">
       <h2 className="text-xl font-semibold text-indigo-600">{cafe.Nome_Cafe}</h2>
@@ -34,12 +36,17 @@ function CardCafe({ cafe }) {
       <p className="text-gray-300">Horário: {cafe.Horario_Abertura}:00 - {cafe.Horario_Fecho}:00</p>
 
       <div className="mt-4">
-        <Link
-          to={`/cafes/${cafe.ID_Cafe}`}
+        <button
+          onClick={() =>
+            navigate({
+              to: '/$cafeId',
+              params: { cafeId: cafe.ID_Cafe },
+            })
+          }
           className="inline-block text-center px-4 py-2 text-sm font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
         >
           Ver Detalhes
-        </Link>
+        </button>
       </div>
     </div>
   );

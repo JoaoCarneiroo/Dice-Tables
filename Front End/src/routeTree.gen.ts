@@ -19,6 +19,7 @@ import { Route as PainelGestorImport } from './routes/painelGestor'
 import { Route as PainelAdminImport } from './routes/painelAdmin'
 import { Route as LoginImport } from './routes/login'
 import { Route as CafesImport } from './routes/cafes'
+import { Route as CafeIdImport } from './routes/$cafeId'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -71,6 +72,12 @@ const CafesRoute = CafesImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const CafeIdRoute = CafeIdImport.update({
+  id: '/$cafeId',
+  path: '/$cafeId',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -86,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/$cafeId': {
+      id: '/$cafeId'
+      path: '/$cafeId'
+      fullPath: '/$cafeId'
+      preLoaderRoute: typeof CafeIdImport
       parentRoute: typeof rootRoute
     }
     '/cafes': {
@@ -151,6 +165,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$cafeId': typeof CafeIdRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
   '/painelAdmin': typeof PainelAdminRoute
@@ -163,6 +178,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$cafeId': typeof CafeIdRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
   '/painelAdmin': typeof PainelAdminRoute
@@ -176,6 +192,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/$cafeId': typeof CafeIdRoute
   '/cafes': typeof CafesRoute
   '/login': typeof LoginRoute
   '/painelAdmin': typeof PainelAdminRoute
@@ -190,6 +207,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$cafeId'
     | '/cafes'
     | '/login'
     | '/painelAdmin'
@@ -201,6 +219,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$cafeId'
     | '/cafes'
     | '/login'
     | '/painelAdmin'
@@ -212,6 +231,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$cafeId'
     | '/cafes'
     | '/login'
     | '/painelAdmin'
@@ -225,6 +245,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CafeIdRoute: typeof CafeIdRoute
   CafesRoute: typeof CafesRoute
   LoginRoute: typeof LoginRoute
   PainelAdminRoute: typeof PainelAdminRoute
@@ -237,6 +258,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CafeIdRoute: CafeIdRoute,
   CafesRoute: CafesRoute,
   LoginRoute: LoginRoute,
   PainelAdminRoute: PainelAdminRoute,
@@ -258,6 +280,7 @@ export const routeTree = rootRoute
       "filePath": "__root.jsx",
       "children": [
         "/",
+        "/$cafeId",
         "/cafes",
         "/login",
         "/painelAdmin",
@@ -270,6 +293,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.jsx"
+    },
+    "/$cafeId": {
+      "filePath": "$cafeId.jsx"
     },
     "/cafes": {
       "filePath": "cafes.jsx"
