@@ -14,6 +14,18 @@ const isWithinCafeHours = (horaInicio, horaFim, horarioAbertura, horarioFecho) =
     return horaInicioInt >= horarioAbertura && horaFimInt <= horarioFecho;
 };
 
+const isInFuture = (data) => {
+    const agora = new Date();
+    return new Date(data) > agora;
+};
+
+const isDurationValid = (horaInicio, horaFim) => {
+    const inicio = new Date(horaInicio);
+    const fim = new Date(horaFim);
+    const diffHoras = (fim - inicio) / (1000 * 60 * 60); // Máximo 4 Horas
+    return diffHoras > 0 && diffHoras <= 4;
+};
+
 // Obter todas as reservas
 exports.mostrarReservas = async (req, res) => {
     try {
@@ -53,6 +65,19 @@ exports.mostrarReservasUtilizador = async (req, res) => {
 exports.criarReserva = async (req, res) => {
     try {
         const { ID_Mesa, ID_Jogo, Hora_Inicio, Hora_Fim } = req.body;
+
+        // Verificar se a data/hora de início é no futuro
+        if (!isInFuture(Hora_Inicio)) {
+            return res.status(400).json({ error: 'A data/hora de início da reserva deve ser no futuro.' });
+        }
+        if (!isInFuture(Hora_Fim)) {
+            return res.status(400).json({ error: 'A data/hora de fim da reserva deve ser no futuro.' });
+        }
+
+        if (!isDurationValid(Hora_Inicio, Hora_Fim)) {
+            return res.status(400).json({ error: 'A duração da reserva deve ser no máximo 4 horas.' });
+        }
+
         const ID_Utilizador = req.user.id;
 
         // Verificar se a mesa existe e obter o ID_Cafe associado
@@ -201,13 +226,25 @@ exports.atualizarReserva = async (req, res) => {
             return res.status(404).json({ error: 'Café não encontrado.' });
         }
 
+        if (!isInFuture(reserva.Hora_Inicio)) {
+            return res.status(400).json({ error: 'A nova data/hora de início deve ser no futuro.' });
+        }
+
+        if (!isInFuture(reserva.Hora_Fim)) {
+            return res.status(400).json({ error: 'A nova data/hora de fim deve ser no futuro.' });
+        }
+
+        if (!isDurationValid(reserva.Hora_Inicio, reserva.Hora_Fim)) {
+            return res.status(400).json({ error: 'A duração da reserva deve ser no máximo 4 horas.' });
+        }
+
         // Verificar se a reserva está dentro do horário de funcionamento do café
         if (!isWithinCafeHours(reserva.Hora_Inicio, reserva.Hora_Fim, cafe.Horario_Abertura, cafe.Horario_Fecho)) {
             return res.status(400).json({
                 error: `A reserva deve estar entre as ${cafe.Horario_Abertura}h e ${cafe.Horario_Fecho}h, horário de funcionamento do café.`
             });
         }
-        
+
         await reserva.save();
 
         res.status(200).json({ message: 'Reserva atualizada com sucesso!', reserva });
