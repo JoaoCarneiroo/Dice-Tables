@@ -7,6 +7,13 @@ const Jogos = require('../models/jogosModel');
 
 const { Op } = require('sequelize');
 
+const isWithinCafeHours = (horaInicio, horaFim, horarioAbertura, horarioFecho) => {
+    const horaInicioInt = new Date(horaInicio).getHours();
+    const horaFimInt = new Date(horaFim).getHours();
+
+    return horaInicioInt >= horarioAbertura && horaFimInt <= horarioFecho;
+};
+
 // Obter todas as reservas
 exports.mostrarReservas = async (req, res) => {
     try {
@@ -54,6 +61,20 @@ exports.criarReserva = async (req, res) => {
             return res.status(404).json({ error: 'Mesa não encontrada.' });
         }
         const ID_Cafe = mesa.ID_Cafe;
+
+
+        // Obter dados do café para verificar o horário
+        const cafe = await Cafes.findByPk(ID_Cafe);
+        if (!cafe) {
+            return res.status(404).json({ error: 'Café não encontrado.' });
+        }
+
+        // Verificar se a reserva está dentro do horário de funcionamento do café
+        if (!isWithinCafeHours(Hora_Inicio, Hora_Fim, cafe.Horario_Abertura, cafe.Horario_Fecho)) {
+            return res.status(400).json({
+                error: `A reserva deve estar entre as ${cafe.Horario_Abertura}h e ${cafe.Horario_Fecho}h, horário de funcionamento do café.`
+            });
+        }
 
         // Verificar se já existe uma reserva na mesma mesa no horário escolhido
         const reservaExistente = await Reservas.findOne({
@@ -174,6 +195,19 @@ exports.atualizarReserva = async (req, res) => {
         if (Hora_Inicio) reserva.Hora_Inicio = Hora_Inicio;
         if (Hora_Fim) reserva.Hora_Fim = Hora_Fim;
 
+
+        const cafe = await Cafes.findByPk(reserva.ID_Cafe);
+        if (!cafe) {
+            return res.status(404).json({ error: 'Café não encontrado.' });
+        }
+
+        // Verificar se a reserva está dentro do horário de funcionamento do café
+        if (!isWithinCafeHours(reserva.Hora_Inicio, reserva.Hora_Fim, cafe.Horario_Abertura, cafe.Horario_Fecho)) {
+            return res.status(400).json({
+                error: `A reserva deve estar entre as ${cafe.Horario_Abertura}h e ${cafe.Horario_Fecho}h, horário de funcionamento do café.`
+            });
+        }
+        
         await reserva.save();
 
         res.status(200).json({ message: 'Reserva atualizada com sucesso!', reserva });
