@@ -30,11 +30,11 @@ const Cafe = sequelize.define('Cafe', {
         validate: {
             min: {
                 args: [0],
-                msg: 'O valor tem de ser entre 0 e 1.' // 0 é o café que tem jogos
+                msg: 'O valor tem de ser entre 0 e 1.' // 0 (Café com Jogos)
             },
             max: {
                 args: [1],
-                msg: 'O valor tem de ser entre 0 e 1' // 1 é o café que nao tem jogos mas permite jogar
+                msg: 'O valor tem de ser entre 0 e 1' // 1 (Café sem Jogos)
             },
             isInt: {
                 msg: 'O tipo tem de ser um número entre 0 e 1.'

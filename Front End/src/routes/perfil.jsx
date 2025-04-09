@@ -51,6 +51,18 @@ function Perfil() {
         },
     });
 
+    // Obter Reservas do Utilizador
+    const { data: reservas, isLoading: isLoadingReservas, isError: isErrorReservas } = useQuery({
+        queryKey: ['userReservas'],
+        queryFn: async () => {
+            const response = await axios.get('http://localhost:3000/reservas/utilizador', {
+                withCredentials: true,
+            });
+            return response.data;
+        },
+        enabled: !!token,
+    });
+
     // Atualizar Utilizador
     const updateUserMutation = useMutation({
         mutationFn: async (updatedData) => {
@@ -70,7 +82,7 @@ function Perfil() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
             setShowForm(false);
         },
         onError: (err) => {
@@ -84,7 +96,7 @@ function Perfil() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
         },
     });
 
@@ -108,7 +120,7 @@ function Perfil() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
             navigate({ to: '/login' });
         },
         onError: (err) => {
@@ -122,7 +134,8 @@ function Perfil() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            });         },
+            });
+        },
     });
 
     const handleChange = (e) => {
@@ -143,6 +156,7 @@ function Perfil() {
             <div className="max-w-3xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
                 <h1 className="text-3xl font-semibold text-center text-indigo-600 mb-6">Meu Perfil</h1>
 
+                {/* Informações do Perfil */}
                 <div className="mb-6">
                     <h2 className="text-xl font-medium text-gray-300">Informações Pessoais</h2>
                     <div className="mt-4">
@@ -161,6 +175,8 @@ function Perfil() {
                     </div>
                 </div>
 
+
+                {/* Botões do Perfil */}
                 {data?.Cargo === 'Gestor' && (
                     <div className="flex justify-center mt-6">
                         <button
@@ -233,6 +249,33 @@ function Perfil() {
                     <button onClick={() => deleteUserMutation.mutate()} className="w-full bg-red-600 px-4 py-2 text-white rounded-md hover:bg-red-500">
                         Apagar Conta
                     </button>
+                </div>
+
+                {/* Secção de Reservas */}
+                <div className="mt-10">
+                    <h2 className="text-2xl font-semibold text-indigo-500 mb-6 text-center">Minhas Reservas</h2>
+
+                    {isLoadingReservas && <p className="text-gray-400 text-center">Carregando reservas...</p>}
+                    {isErrorReservas && <p className="text-red-500 text-center">Erro ao carregar reservas.</p>}
+
+                    {reservas && reservas.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {reservas.map((reserva) => (
+                                <div
+                                    key={reserva.ID_Reserva}
+                                    className="bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-700 hover:shadow-xl transition duration-300"
+                                >
+                                    <p><span className="font-semibold text-gray-300">Café:</span> {reserva.Cafe?.Nome_Cafe || 'Desconhecido'}</p>
+                                    <p><span className="font-semibold text-gray-300">Local:</span> {reserva.Cafe?.Local || 'N/A'}</p>
+                                    <p><span className="font-semibold text-gray-300">Lugares:</span> {reserva.Mesa?.Lugares || 'N/A'}</p>
+                                    <p><span className="font-semibold text-gray-300">Início:</span> {new Date(reserva.Hora_Inicio).toLocaleString()}</p>
+                                    <p><span className="font-semibold text-gray-300">Fim:</span> {new Date(reserva.Hora_Fim).toLocaleString()}</p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-gray-400 text-center">Não tens reservas registradas.</p>
+                    )}
                 </div>
             </div>
         </div>

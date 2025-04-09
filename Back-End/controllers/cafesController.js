@@ -142,6 +142,9 @@ exports.criarCafe = async (req, res) => {
 
     } catch (error) {
         if (error.name === 'SequelizeValidationError') {
+            if (req.file.filename) {
+                deleteFile(req.file.filename);
+            }
             const validationErrors = error.errors.map(err => err.message);
             return res.status(400).json({ error: validationErrors });
         }
