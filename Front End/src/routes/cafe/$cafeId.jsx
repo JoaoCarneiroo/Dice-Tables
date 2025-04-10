@@ -8,10 +8,7 @@ export const Route = createFileRoute('/cafe/$cafeId')({
 });
 
 function CafeDetalhes() {
-  console.log('Renderizando CafeDetalhes');
-
   const { cafeId } = useParams('/$cafeId');
-  console.log('cafeId:', cafeId);
 
   const navigate = useNavigate();
 
@@ -56,7 +53,18 @@ function CafeDetalhes() {
     e.preventDefault();
 
     try {
-      await axios.post('http://localhost:3000/reservas', formData, { withCredentials: true });
+      const toUTCISOString = (localDateTime) => {
+        const [date, time] = localDateTime.split('T');
+        return new Date(`${date}T${time}:00.000Z`).toISOString();
+      };
+      
+      const payload = {
+        ...formData,
+        Hora_Inicio: toUTCISOString(formData.Hora_Inicio),
+        Hora_Fim: toUTCISOString(formData.Hora_Fim)
+      };
+
+      await axios.post('http://localhost:3000/reservas', payload, { withCredentials: true });
       toast.success('Reserva criada com sucesso!', {
         position: 'bottom-center',
         theme: 'dark',

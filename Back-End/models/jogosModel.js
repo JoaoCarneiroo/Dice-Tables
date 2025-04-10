@@ -49,10 +49,6 @@ const Jogos = sequelize.define('Jogos', {
         validate: {
             notNull: { msg: 'A quantidade é obrigatória.' },
             isInt: { msg: 'A quantidade deve ser um número inteiro.' },
-            min: {
-                args: [1],
-                msg: 'A quantidade deve ser pelo menos 1.'
-            }
         }
     }
 }, {

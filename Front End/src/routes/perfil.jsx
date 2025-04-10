@@ -52,7 +52,7 @@ function Perfil() {
     });
 
     // Obter Reservas do Utilizador
-    const { data: reservas, isLoading: isLoadingReservas, isError: isErrorReservas } = useQuery({
+    const { data: reservas, isLoading: isLoadingReservas, isError: isErrorReservas, refetch: refetchReservas } = useQuery({
         queryKey: ['userReservas'],
         queryFn: async () => {
             const response = await axios.get('http://localhost:3000/reservas/utilizador', {
@@ -147,6 +147,178 @@ function Perfil() {
         updateUserMutation.mutate(formData);
     };
 
+
+    // Estados para edição de reserva
+    const [editingReservaId, setEditingReservaId] = useState(null);
+    const [editingData, setEditingData] = useState({
+        ID_Mesa: '',
+        ID_Jogo: '',
+        Hora_Inicio: '',
+        Hora_Fim: ''
+    });
+
+    // Atualizar Reserva
+    const updateReservaMutation = useMutation({
+        mutationFn: async ({ id, updatedData }) => {
+            console.log(updatedData)
+            await axios.patch(`http://localhost:3000/reservas/${id}`, updatedData, {
+                withCredentials: true,
+            });
+        },
+        onSuccess: () => {
+            toast.success('Reserva atualizada com sucesso!', {
+                position: 'bottom-center',
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+                transition: Bounce,
+            });
+            setEditingReservaId(null);
+            refetchReservas(); // Atualiza a lista de reservas
+        },
+        onError: (err) => {
+            toast.error(`Erro ao atualizar reserva: ${err.response?.data?.error || err.message}`, {
+                position: 'bottom-center',
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+                transition: Bounce,
+            });
+        },
+    });
+
+    // Apagar Reserva
+    const deleteReservaMutation = useMutation({
+        mutationFn: async (id) => {
+            await axios.delete(`http://localhost:3000/reservas/${id}`, {
+                withCredentials: true,
+            });
+        },
+        onSuccess: () => {
+            toast.success('Reserva apagada com sucesso!', {
+                position: 'bottom-center',
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+                transition: Bounce,
+            });
+            refetchReservas();
+        },
+        onError: (err) => {
+            toast.error(`Erro ao apagar reserva: ${err.response?.data?.error || err.message}`, {
+                position: 'bottom-center',
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+                transition: Bounce,
+            });
+        },
+    });
+
+    // Converte a data para o formato necessário para o datetime-local
+    const formatDateTimeForInput = (isoDateStr) => {
+        const date = new Date(isoDateStr);
+
+        // Ajustar a data para o formato que o datetime-local precisa
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    // Converte a data no formato datetime-local de volta para UTC
+    const convertToUTC = (localDateStr) => {
+        const localDate = new Date(localDateStr);
+
+        // Ajustar a data para UTC com a diferença de fuso horário
+        const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+
+        return utcDate.toISOString(); // Retorna em formato UTC completo
+    };
+
+    const formatDate = (date) => {
+        const formattedDate = new Date(date);
+        return formattedDate.toISOString(); // Converte para o formato ISO 8601 (YYYY-MM-DDTHH:mm:00.000Z)
+    };
+
+    const formatDateForDisplay = (isoDateStr) => {
+        const date = new Date(isoDateStr);
+
+        // Ajustar a data para o fuso horário local do navegador
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+        // Formatar a data como DD-MM-YYYY HH:mm
+        return `${day}-${month}-${year} ${hours}:${minutes}`;
+    };
+
+    // Função para editar a reserva
+    const handleEditReserva = (reserva) => {
+        setEditingReservaId(reserva.ID_Reserva);
+        setEditingData({
+            ID_Mesa: reserva.ID_Mesa,
+            ID_Jogo: reserva.ID_Jogo,
+            Hora_Inicio: formatDateTimeForInput(reserva.Hora_Inicio),
+            Hora_Fim: formatDateTimeForInput(reserva.Hora_Fim),
+        });
+    };
+
+    // Função para submeter a edição da reserva
+    const handleEditSubmit = async (e, reservaId) => {
+        e.preventDefault();
+
+        const updatedData = {
+            Hora_Inicio: convertToUTC(editingData.Hora_Inicio),
+            Hora_Fim: convertToUTC(editingData.Hora_Fim),
+            ID_Mesa: editingData.ID_Mesa,
+            ID_Jogo: editingData.ID_Jogo,
+        };
+
+        updateReservaMutation.mutate({ id: reservaId, updatedData });
+    };
+
+    // Função para cancelar a edição
+    const handleCancelEdit = () => {
+        setEditingReservaId(null);
+        setEditingData({
+            ID_Mesa: '',
+            ID_Jogo: '',
+            Hora_Inicio: '',
+            Hora_Fim: ''
+        });
+    };
+
+    // Função para editar o valor dos campos
+    const handleEditChange = (e) => {
+        setEditingData({
+            ...editingData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    // Função para apagar a reserva
+    const handleDeleteReserva = (reservaId) => {
+        deleteReservaMutation.mutate(reservaId);
+    };
+
     if (!token) return null;
     if (isLoading) return <p className="text-center text-white">Carregando...</p>;
     if (isError) return <p className="text-center text-red-500">Erro ao carregar perfil: {error.message}</p>;
@@ -174,7 +346,6 @@ function Perfil() {
                         </div>
                     </div>
                 </div>
-
 
                 {/* Botões do Perfil */}
                 {data?.Cargo === 'Gestor' && (
@@ -268,13 +439,73 @@ function Perfil() {
                                     <p><span className="font-semibold text-gray-300">Café:</span> {reserva.Cafe?.Nome_Cafe || 'Desconhecido'}</p>
                                     <p><span className="font-semibold text-gray-300">Local:</span> {reserva.Cafe?.Local || 'N/A'}</p>
                                     <p><span className="font-semibold text-gray-300">Lugares:</span> {reserva.Mesa?.Lugares || 'N/A'}</p>
-                                    <p><span className="font-semibold text-gray-300">Início:</span> {new Date(reserva.Hora_Inicio).toLocaleString()}</p>
-                                    <p><span className="font-semibold text-gray-300">Fim:</span> {new Date(reserva.Hora_Fim).toLocaleString()}</p>
+                                    <p><span className="font-semibold text-gray-300">Início:</span> {formatDateForDisplay(reserva.Hora_Inicio)}</p>
+                                    <p><span className="font-semibold text-gray-300">Fim:</span> {formatDateForDisplay(reserva.Hora_Fim)}</p>
+
+                                    <div className="flex gap-2 mt-4">
+                                        <button
+                                            onClick={() => handleEditReserva(reserva)}
+                                            className="bg-yellow-600 text-white px-4 py-1 rounded hover:bg-yellow-500"
+                                        >
+                                            Atualizar
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteReserva(reserva.ID_Reserva)}
+                                            className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-500"
+                                        >
+                                            Apagar
+                                        </button>
+                                    </div>
+
+                                    {/* Formulário de edição */}
+                                    {editingReservaId === reserva.ID_Reserva && (
+                                        <form onSubmit={(e) => handleEditSubmit(e, reserva.ID_Reserva)}>
+                                            <div className="mt-4">
+                                                <label className="block text-sm font-semibold text-gray-400">Hora de Início</label>
+                                                <input
+                                                    type="datetime-local"
+                                                    name="Hora_Inicio"
+                                                    value={editingData.Hora_Inicio}
+                                                    onChange={handleEditChange}
+                                                    className="mt-2 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div className="mt-4">
+                                                <label className="block text-sm font-semibold text-gray-400">Hora de Fim</label>
+                                                <input
+                                                    type="datetime-local"
+                                                    name="Hora_Fim"
+                                                    value={editingData.Hora_Fim}
+                                                    onChange={handleEditChange}
+                                                    className="mt-2 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div className="flex gap-2 mt-4">
+                                                <button
+                                                    type="submit"
+                                                    className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-500"
+                                                >
+                                                    Salvar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCancelEdit}
+                                                    className="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-500"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </form>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <p className="text-gray-400 text-center">Não tens reservas registradas.</p>
+                        <p className="text-center text-gray-500">Você não tem reservas.</p>
                     )}
                 </div>
             </div>
