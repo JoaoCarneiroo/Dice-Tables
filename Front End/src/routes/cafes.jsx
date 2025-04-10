@@ -39,7 +39,7 @@ function CardCafe({ cafe }) {
         <button
           onClick={() =>
             navigate({
-              to: '/$cafeId',
+              to: '/cafe/$cafeId',
               params: { cafeId: cafe.ID_Cafe },
             })
           }

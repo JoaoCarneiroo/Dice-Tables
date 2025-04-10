@@ -3,7 +3,7 @@ import { createFileRoute, useParams, useNavigate } from '@tanstack/react-router'
 import axios from 'axios';
 import { toast, Bounce } from 'react-toastify';
 
-export const Route = createFileRoute('/$cafeId')({
+export const Route = createFileRoute('/cafe/$cafeId')({
   component: CafeDetalhes,
 });
 
