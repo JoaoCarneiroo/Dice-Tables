@@ -64,6 +64,25 @@ exports.mostrarJogosID = async (req, res) => {
     }
 };
 
+// Obter um Jogo por ID de um Jogo
+exports.mostrarJogoPorID = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Procurar o Jogo pelo ID
+        const jogo = await Jogos.findByPk(id);
+
+        if (!jogo) {
+            return res.status(404).json({ error: "Jogo não encontrado." });
+        }
+
+        res.json(jogo);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Criar um novo Jogo (apenas se o utilizador autenticado for gestor do café)
 exports.criarJogo = async (req, res) => {
     try {

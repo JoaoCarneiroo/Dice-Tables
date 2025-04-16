@@ -12,6 +12,25 @@ exports.mostrarMesas = async (req, res) => {
     }
 };
 
+// Obter um Jogo por ID de um Jogo
+exports.mostrarMesaPorID = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Procurar o Jogo pelo ID
+        const mesa = await Mesas.findByPk(id);
+
+        if (!mesa) {
+            return res.status(404).json({ error: "Mesa não encontrada." });
+        }
+
+        res.json(mesa);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Obter todas as Mesas de um café
 exports.mostrarMesasID = async (req, res) => {
     try {

@@ -21,6 +21,30 @@ router.get('/', mesasController.mostrarMesas);
 
 /**
  * @swagger
+ * /mesas/porID/{id}:
+ *   get:
+ *     summary: Mostra a mesa pelo ID
+ *     tags: [Mesas]
+ *     description: Obtém a mesa consoante o ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da Mesa
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Mesa mostrada com sucesso
+ *       404:
+ *         description: Mesa não encontrada
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/porID/:id', mesasController.mostrarMesaPorID);
+
+/**
+ * @swagger
  * /mesas/{id}:
  *   get:
  *     summary: Mostra as mesas de um café específico

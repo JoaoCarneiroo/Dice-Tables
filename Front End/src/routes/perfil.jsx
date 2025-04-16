@@ -58,7 +58,41 @@ function Perfil() {
             const response = await axios.get('http://localhost:3000/reservas/utilizador', {
                 withCredentials: true,
             });
-            return response.data;
+
+            const reservas = await Promise.all(
+                response.data.map(async (reserva) => {
+                    const responseCafe = await axios.get(`http://localhost:3000/cafes/porID/${reserva.ID_Cafe}`, {
+                        withCredentials: true,
+                    });
+
+                    const responseMesa = await axios.get(`http://localhost:3000/mesas/porID/${reserva.ID_Mesa}`, {
+                        withCredentials: true,
+                    });
+
+
+                    if (reserva.ID_Jogo) {
+                        const responseJogo = await axios.get(`http://localhost:3000/jogos/porID/${reserva.ID_Jogo}`, {
+                            withCredentials: true,
+                        });
+
+                        return {
+                            ...reserva,
+                            Jogo: responseJogo.data,
+                            Cafe: responseCafe.data,
+                            Mesa: responseMesa.data,
+                        };
+                    }
+
+                    return {
+                        ...reserva,
+                        Cafe: responseCafe.data,
+                        Mesa: responseMesa.data,
+
+                    };
+                })
+            );
+
+            return reservas;
         },
         enabled: !!token,
     });
@@ -104,7 +138,6 @@ function Perfil() {
     const deleteUserMutation = useMutation({
         mutationFn: async () => {
             await axios.delete('http://localhost:3000/autenticar', {
-                headers: { Authorization: `Bearer ${token}` },
                 withCredentials: true,
             });
         },
@@ -177,7 +210,7 @@ function Perfil() {
                 transition: Bounce,
             });
             setEditingReservaId(null);
-            refetchReservas(); // Atualiza a lista de reservas
+            refetchReservas();
         },
         onError: (err) => {
             toast.error(`Erro ao atualizar reserva: ${err.response?.data?.error || err.message}`, {
@@ -249,11 +282,6 @@ function Perfil() {
         const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
 
         return utcDate.toISOString(); // Retorna em formato UTC completo
-    };
-
-    const formatDate = (date) => {
-        const formattedDate = new Date(date);
-        return formattedDate.toISOString(); // Converte para o formato ISO 8601 (YYYY-MM-DDTHH:mm:00.000Z)
     };
 
     const formatDateForDisplay = (isoDateStr) => {
@@ -432,12 +460,18 @@ function Perfil() {
                     {reservas && reservas.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {reservas.map((reserva) => (
+
                                 <div
                                     key={reserva.ID_Reserva}
                                     className="bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-700 hover:shadow-xl transition duration-300"
                                 >
                                     <p><span className="font-semibold text-gray-300">Café:</span> {reserva.Cafe?.Nome_Cafe || 'Desconhecido'}</p>
                                     <p><span className="font-semibold text-gray-300">Local:</span> {reserva.Cafe?.Local || 'N/A'}</p>
+                                    {reserva.Jogo ?
+                                        <p><span className="font-semibold text-gray-300">Jogo:</span> {reserva.Jogo?.Nome_Jogo || 'N/A'}</p>
+                                        :
+                                        <></>
+                                    }
                                     <p><span className="font-semibold text-gray-300">Lugares:</span> {reserva.Mesa?.Lugares || 'N/A'}</p>
                                     <p><span className="font-semibold text-gray-300">Início:</span> {formatDateForDisplay(reserva.Hora_Inicio)}</p>
                                     <p><span className="font-semibold text-gray-300">Fim:</span> {formatDateForDisplay(reserva.Hora_Fim)}</p>

@@ -50,8 +50,9 @@ exports.mostrarReservasUtilizador = async (req, res) => {
         const reservas = await Reservas.findAll({
             where: { ID_Utilizador },
             include: [
-                { model: Cafes, attributes: ['Nome_Cafe', 'Local'] },
-                { model: Mesas, attributes: ['Lugares'] }
+                // { model: Cafes, attributes: ['Nome_Cafe', 'Local'] },
+                // { model: Mesas, attributes: ['Lugares'] },
+                // { model: Jogos, attributes: ['Nome_Jogo'] }
             ]
         });
 

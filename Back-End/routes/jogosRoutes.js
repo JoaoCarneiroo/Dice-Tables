@@ -44,6 +44,30 @@ router.get('/:id', jogosController.mostrarJogosID);
 
 /**
  * @swagger
+ * /jogos/porID/{id}:
+ *   get:
+ *     summary: Mostra o jogo pelo ID
+ *     tags: [Jogos]
+ *     description: Obtém o jogo consoante o ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do Jogo
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Jogo mostrado com sucesso
+ *       404:
+ *         description: Jogo não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/porID/:id', jogosController.mostrarJogoPorID);
+
+/**
+ * @swagger
  * /jogos:
  *   post:
  *     summary: Cria um novo jogo
