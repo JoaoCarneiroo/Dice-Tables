@@ -45,7 +45,7 @@ exports.mostrarReservas = async (req, res) => {
 // Obter reservas do utilizador autenticado
 exports.mostrarReservasUtilizador = async (req, res) => {
     try {
-        const ID_Utilizador = req.user.id; // ID do utilizador autenticado
+        const ID_Utilizador = req.user.id;
 
         const reservas = await Reservas.findAll({
             where: { ID_Utilizador },
@@ -61,7 +61,7 @@ exports.mostrarReservasUtilizador = async (req, res) => {
     }
 };
 
-
+// Criação de uma Reserva
 exports.criarReserva = async (req, res) => {
     try {
         const { ID_Mesa, ID_Jogo, Hora_Inicio, Hora_Fim } = req.body;
@@ -87,8 +87,7 @@ exports.criarReserva = async (req, res) => {
         }
         const ID_Cafe = mesa.ID_Cafe;
 
-
-        // Obter dados do café para verificar o horário
+        // Obter dados do café para verificar o horário e tipo
         const cafe = await Cafes.findByPk(ID_Cafe);
         if (!cafe) {
             return res.status(404).json({ error: 'Café não encontrado.' });
@@ -116,17 +115,26 @@ exports.criarReserva = async (req, res) => {
             return res.status(400).json({ error: 'Esta mesa já está reservada neste horário.' });
         }
 
-        // Verificar se o jogo pertence ao café da mesa e tem stock disponível
-        const jogo = await Jogos.findOne({
-            where: { ID_Jogo, ID_Cafe }
-        });
+        let jogo = null;
 
-        if (!jogo) {
-            return res.status(404).json({ error: 'Este jogo não pertence a este café.' });
-        }
+        if (cafe.Tipo_Cafe === 0) {
+            // Café com jogos — jogo é opcional
+            if (ID_Jogo) {
+                jogo = await Jogos.findOne({ where: { ID_Jogo, ID_Cafe } });
 
-        if (jogo.Quantidade < 1) {
-            return res.status(400).json({ error: 'Este jogo está sem stock no momento.' });
+                if (!jogo) {
+                    return res.status(404).json({ error: 'Este jogo não pertence a este café.' });
+                }
+
+                if (jogo.Quantidade < 1) {
+                    return res.status(400).json({ error: 'Este jogo está sem stock no momento.' });
+                }
+            }
+        } else {
+            // Café sem jogos — não pode ter jogo associado
+            if (ID_Jogo) {
+                return res.status(400).json({ error: 'Este café não permite reservas com jogos.' });
+            }
         }
 
         // Criar a reserva
@@ -134,13 +142,15 @@ exports.criarReserva = async (req, res) => {
             ID_Cafe,
             ID_Mesa,
             ID_Utilizador,
-            ID_Jogo,
+            ID_Jogo: jogo ? jogo.ID_Jogo : null,
             Hora_Inicio,
             Hora_Fim
         });
 
-        // Reduzir o stock do jogo
-        await jogo.update({ Quantidade: jogo.Quantidade - 1 });
+        // Reduzir o stock do jogo se necessário
+        if (jogo) {
+            await jogo.update({ Quantidade: jogo.Quantidade - 1 });
+        }
 
         res.status(201).json({ message: 'Reserva criada com sucesso!', reserva: novaReserva });
 

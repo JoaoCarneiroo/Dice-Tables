@@ -57,12 +57,16 @@ function CafeDetalhes() {
         const [date, time] = localDateTime.split('T');
         return new Date(`${date}T${time}:00.000Z`).toISOString();
       };
-      
+
       const payload = {
         ...formData,
         Hora_Inicio: toUTCISOString(formData.Hora_Inicio),
         Hora_Fim: toUTCISOString(formData.Hora_Fim)
       };
+
+      if (cafe.Tipo_Cafe === 0 && formData.ID_Jogo) {
+        payload.ID_Jogo = formData.ID_Jogo;
+      }
 
       await axios.post('http://localhost:3000/reservas', payload, { withCredentials: true });
       toast.success('Reserva criada com sucesso!', {
@@ -108,23 +112,24 @@ function CafeDetalhes() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-gray-400">Jogo</label>
-            <select
-              name="ID_Jogo"
-              value={formData.ID_Jogo}
-              onChange={handleChange}
-              className="w-full p-2 bg-gray-700 rounded"
-              required
-            >
-              <option value="">Seleciona um jogo</option>
-              {jogos.map((jogo) => (
-                <option key={jogo.ID_Jogo} value={jogo.ID_Jogo}>
-                  {jogo.Titulo} ({jogo.Quantidade} disponíveis)
-                </option>
-              ))}
-            </select>
-          </div>
+          {cafe.Tipo_Cafe === 0 && (
+            <div>
+              <label className="block text-gray-400">Jogo</label>
+              <select
+                name="ID_Jogo"
+                value={formData.ID_Jogo}
+                onChange={handleChange}
+                className="w-full p-2 bg-gray-700 rounded"
+              >
+                <option value="">Seleciona um jogo</option>
+                {jogos.map((jogo) => (
+                  <option key={jogo.ID_Jogo} value={jogo.ID_Jogo}>
+                    {jogo.Nome_Jogo} ({jogo.Quantidade} disponíveis)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-gray-400">Hora de Início</label>

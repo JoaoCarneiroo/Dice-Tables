@@ -42,7 +42,7 @@ const Reservas = sequelize.define('Reservas', {
     },
     ID_Jogo: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: Jogos,
             key: 'ID_Jogo'
