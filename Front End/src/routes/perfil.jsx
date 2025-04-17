@@ -459,22 +459,45 @@ function Perfil() {
                     {reservas && reservas.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {reservas.map((reserva) => (
-
                                 <div
                                     key={reserva.ID_Reserva}
-                                    className="bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-700 hover:shadow-xl transition duration-300"
+                                    className="bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-700 hover:shadow-xl transition duration-300 space-y-4"
                                 >
-                                    <p><span className="font-semibold text-gray-300">Café:</span> {reserva.Cafe?.Nome_Cafe || 'Desconhecido'}</p>
-                                    <p><span className="font-semibold text-gray-300">Local:</span> {reserva.Cafe?.Local || 'N/A'}</p>
-                                    {reserva.Jogo ?
-                                        <p><span className="font-semibold text-gray-300">Jogo:</span> {reserva.Jogo?.Nome_Jogo || 'N/A'}</p>
-                                        :
-                                        <></>
-                                    }
-                                    <p><span className="font-semibold text-gray-300">Lugares:</span> {reserva.Mesa?.Lugares || 'N/A'}</p>
-                                    <p><span className="font-semibold text-gray-300">Início:</span> {formatDateForDisplay(reserva.Hora_Inicio)}</p>
-                                    <p><span className="font-semibold text-gray-300">Fim:</span> {formatDateForDisplay(reserva.Hora_Fim)}</p>
+                                    <h3 className="text-xl font-bold text-gray-300 border-b border-gray-600 pb-2">
+                                        {reserva.Cafe?.Nome_Cafe || 'Café Desconhecido'}
+                                    </h3>
 
+                                    <p className="text-gray-300">
+                                        <span className="font-semibold">Local:</span> {reserva.Cafe?.Local || 'N/A'}
+                                    </p>
+
+                                    {reserva.Jogo && (
+                                        <div className="mt-4 pt-2 border-t border-gray-700">
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Jogo:</span> {reserva.Jogo?.Nome_Jogo || 'N/A'}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="mt-4 pt-2 border-t border-gray-700">
+                                        <p className="text-gray-300">
+                                            <span className="font-semibold">Nome da Mesa:</span> {reserva.Mesa?.Nome_Mesa || 'N/A'}
+                                        </p>
+                                        <p className="text-gray-300">
+                                            <span className="font-semibold">Lugares:</span> {reserva.Mesa?.Lugares || 'N/A'}
+                                        </p>
+                                    </div>
+
+                                    <div className="mt-4 pt-2 border-t border-gray-700">
+                                        <p className="text-gray-300">
+                                            <span className="font-semibold">Início:</span> {formatDateForDisplay(reserva.Hora_Inicio)}
+                                        </p>
+                                        <p className="text-gray-300">
+                                            <span className="font-semibold">Fim:</span> {formatDateForDisplay(reserva.Hora_Fim)}
+                                        </p>
+                                    </div>
+
+                                    {/* Ações */}
                                     <div className="flex gap-2 mt-4">
                                         <button
                                             onClick={() => handleEditReserva(reserva)}
@@ -492,32 +515,32 @@ function Perfil() {
 
                                     {/* Formulário de edição */}
                                     {editingReservaId === reserva.ID_Reserva && (
-                                        <form onSubmit={(e) => handleEditSubmit(e, reserva.ID_Reserva)}>
-                                            <div className="mt-4">
+                                        <form onSubmit={(e) => handleEditSubmit(e, reserva.ID_Reserva)} className="mt-4 space-y-4 border-t border-gray-600 pt-4">
+                                            <div>
                                                 <label className="block text-sm font-semibold text-gray-400">Hora de Início</label>
                                                 <input
                                                     type="datetime-local"
                                                     name="Hora_Inicio"
                                                     value={editingData.Hora_Inicio}
                                                     onChange={handleEditChange}
-                                                    className="mt-2 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
+                                                    className="mt-1 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
                                                     required
                                                 />
                                             </div>
 
-                                            <div className="mt-4">
+                                            <div>
                                                 <label className="block text-sm font-semibold text-gray-400">Hora de Fim</label>
                                                 <input
                                                     type="datetime-local"
                                                     name="Hora_Fim"
                                                     value={editingData.Hora_Fim}
                                                     onChange={handleEditChange}
-                                                    className="mt-2 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
+                                                    className="mt-1 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
                                                     required
                                                 />
                                             </div>
 
-                                            <div className="flex gap-2 mt-4">
+                                            <div className="flex gap-2">
                                                 <button
                                                     type="submit"
                                                     className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-500"

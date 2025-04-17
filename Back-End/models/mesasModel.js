@@ -18,6 +18,15 @@ const Mesas = sequelize.define('Mesas', {
         },
         onDelete: 'CASCADE' // Se o café for apagado também são apagadas as Mesas
     },
+    Nome_Mesa: { 
+        type: DataTypes.STRING, 
+        allowNull: false,
+        validate: {
+            notEmpty: {
+                msg: 'O nome da mesa não pode estar vazio.'
+            }
+        }
+    },
     Lugares: { 
         type: DataTypes.INTEGER, 
         allowNull: false,

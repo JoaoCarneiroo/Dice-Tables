@@ -9,8 +9,10 @@ export const Route = createFileRoute('/painelGestorMesas')({
 });
 
 export default function PainelGestorMesas() {
+  const [nomeMesa, setNomeMesa] = useState("");
   const [lugares, setLugares] = useState("");
   const [editingMesa, setEditingMesa] = useState(null);
+  const [newNomeMesa, setNewNomeMesa] = useState("");
   const [newLugares, setNewLugares] = useState("");
   const queryClient = useQueryClient();
 
@@ -87,8 +89,8 @@ export default function PainelGestorMesas() {
 
   // Atualizar Mesas do Café
   const updateMesaMutation = useMutation({
-    mutationFn: async ({ id, lugares }) => {
-      const response = await axios.patch(`http://localhost:3000/mesas/${id}`, { lugares }, {
+    mutationFn: async ({ id, nome_mesa, lugares }) => {
+      const response = await axios.patch(`http://localhost:3000/mesas/${id}`, { nome_mesa, lugares }, {
         withCredentials: true,
       });
       return response.data;
@@ -182,6 +184,13 @@ export default function PainelGestorMesas() {
 
       <div className="flex gap-4 mb-6">
         <input
+          type="text"
+          placeholder="Nome da Mesa"
+          value={nomeMesa}
+          onChange={(e) => setNomeMesa(e.target.value)}
+          className="p-3 border border-gray-600 rounded-md w-48 bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <input
           type="number"
           placeholder="Número de lugares"
           value={lugares}
@@ -189,7 +198,10 @@ export default function PainelGestorMesas() {
           className="p-3 border border-gray-600 rounded-md w-48 bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <button
-          onClick={() => createMesaMutation.mutate({ lugares: Number(lugares) })}
+          onClick={() => createMesaMutation.mutate({
+            lugares: Number(lugares),
+            nome_mesa: nomeMesa
+          })}
           className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-500 transition-all"
         >
           Criar Mesa
@@ -199,21 +211,30 @@ export default function PainelGestorMesas() {
       <div className="grid grid-cols-3 gap-4">
         {mesas?.map((mesa) => (
           <div key={mesa.ID_Mesa} className="bg-gray-800 p-4 rounded-lg shadow-md hover:scale-[102%] transition-all">
-            <p className="text-indigo-400 font-semibold">ID: {mesa.ID_Mesa}</p>
+            <p className="text-indigo-400 font-semibold">{mesa.Nome_Mesa}</p>
             <p className="text-gray-400">Lugares: {mesa.Lugares}</p>
             {editingMesa === mesa.ID_Mesa && (
-              <input
-                type="number"
-                placeholder="Número de lugares"
-                onChange={(e) => setNewLugares(e.target.value)}
-                className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
-              />
+              <>
+                <input
+                  type="text"
+                  placeholder="Nome da mesa"
+                  value={newNomeMesa}
+                  onChange={(e) => setNewNomeMesa(e.target.value)}
+                  className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
+                />
+                <input
+                  type="number"
+                  placeholder="Número de lugares"
+                  onChange={(e) => setNewLugares(e.target.value)}
+                  className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
+                />
+              </>
             )}
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => {
                   if (editingMesa === mesa.ID_Mesa) {
-                    updateMesaMutation.mutate({ id: mesa.ID_Mesa, lugares: Number(newLugares) });
+                    updateMesaMutation.mutate({ id: mesa.ID_Mesa, lugares: Number(newLugares), nome_mesa: newNomeMesa });
                   } else {
                     setEditingMesa(mesa.ID_Mesa);
                     setNewLugares(mesa.Lugares);

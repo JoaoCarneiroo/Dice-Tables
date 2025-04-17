@@ -118,7 +118,7 @@ function CafeDetalhes() {
               <option value="">Seleciona uma mesa</option>
               {mesas.map((mesa) => (
                 <option key={mesa.ID_Mesa} value={mesa.ID_Mesa}>
-                  Mesa #{mesa.ID_Mesa} - {mesa.Lugares} lugares
+                  {mesa.Nome_Mesa} - {mesa.Lugares} lugares
                 </option>
               ))}
             </select>

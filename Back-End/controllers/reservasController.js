@@ -282,6 +282,14 @@ exports.apagarReserva = async (req, res) => {
             return res.status(403).json({ error: "Não tem permissão para apagar esta reserva." });
         }
 
+        // Se houver um jogo associado, restaurar o stock
+        if (reserva.ID_Jogo) {
+            const jogo = await Jogos.findByPk(reserva.ID_Jogo);
+            if (jogo) {
+                await jogo.update({ Quantidade: jogo.Quantidade + 1 });
+            }
+        }
+
         await reserva.destroy();
         res.status(200).json({ message: "Reserva apagada com sucesso." });
     } catch (error) {

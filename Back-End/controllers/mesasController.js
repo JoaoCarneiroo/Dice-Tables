@@ -56,7 +56,7 @@ exports.mostrarMesasID = async (req, res) => {
 // Criar uma nova Mesa (apenas se o utilizador autenticado for gestor do café)
 exports.criarMesa = async (req, res) => {
     try {
-        const { lugares } = req.body;
+        const { nome_mesa, lugares } = req.body;
         
         // Verificar se o utilizador autenticado é gestor de um café
         if (!req.user.isGestor) { 
@@ -74,6 +74,7 @@ exports.criarMesa = async (req, res) => {
         // Criação da mesa associada ao café do gestor autenticado
         const novaMesa = await Mesas.create({
             ID_Cafe: gestor.ID_Cafe,
+            Nome_Mesa: nome_mesa,
             Lugares: lugares
         });
 
@@ -106,7 +107,8 @@ exports.atualizarMesa = async (req, res) => {
         }
 
         // Atualizar a mesa
-        mesa.Lugares = lugares;
+        mesa.Lugares = lugares ?? mesa.Lugares;
+        mesa.Nome_Mesa = nome_mesa ?? mesa.Nome_Mesa;
         await mesa.save();
 
         res.json({ message: "Mesa atualizada com sucesso!", mesa });
