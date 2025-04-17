@@ -70,16 +70,28 @@ function CafeDetalhes() {
 
       await axios.post('http://localhost:3000/reservas', payload, { withCredentials: true });
       toast.success('Reserva criada com sucesso!', {
-        position: 'bottom-center',
-        theme: 'dark',
-        transition: Bounce
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
       });
       navigate('/perfil');
     } catch (err) {
-      toast.error(`Erro ao criar reserva: ${err.response?.data?.error || err.message}`, {
-        position: 'bottom-center',
-        theme: 'dark',
-        transition: Bounce
+      toast.error(`Erro ao criar Reserva: ${err.response?.data?.error || err.message}`, {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
       });
     }
   };

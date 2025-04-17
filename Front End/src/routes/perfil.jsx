@@ -294,7 +294,6 @@ function Perfil() {
         const hours = String(date.getUTCHours()).padStart(2, '0');
         const minutes = String(date.getUTCMinutes()).padStart(2, '0');
 
-        // Formatar a data como DD-MM-YYYY HH:mm
         return `${day}-${month}-${year} ${hours}:${minutes}`;
     };
 

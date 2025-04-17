@@ -45,7 +45,6 @@ function Registar() {
                 theme: "dark",
                 transition: Bounce,
             }); 
-            
         }
     });
 
