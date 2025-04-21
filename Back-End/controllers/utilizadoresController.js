@@ -161,6 +161,7 @@ exports.criarUtilizador = async (req, res) => {
     }
 };
 
+// Confirmação de Email
 exports.confirmarEmail = async (req, res) => {
     const { token } = req.params;
 

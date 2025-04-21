@@ -1,5 +1,6 @@
 const Cafe = require('../models/cafeModel');
 const Gestor = require('../models/gestorModel');
+const Jogos = require('../models/jogosModel');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path')
@@ -28,7 +29,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ 
+const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
         const allowedTypes = ['image/jpeg', 'image/png'];
@@ -75,7 +76,7 @@ exports.mostrarCafeGestor = async (req, res) => {
             where: { ID_Utilizador: req.user.id },
             include: {
                 model: Cafe,
-                attributes: ['ID_Cafe', 'Nome_Cafe', 'Local', 'Tipo_Cafe', 'Horario_Abertura', 'Horario_Fecho', 'Imagem_Cafe']
+                attributes: ['ID_Cafe', 'Nome_Cafe', 'Descricao', 'Local', 'Coordenadas', 'Tipo_Cafe', 'Horario_Abertura', 'Horario_Fecho', 'Imagem_Cafe']
             }
         });
 
@@ -97,7 +98,7 @@ exports.criarCafe = async (req, res) => {
         if (!req.user.isGestor) return res.status(401).send({ error: 'Função restrita a gestor' });
 
         // Usar let para permitir reatribuição das variáveis
-        let { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
+        let { nome_cafe, descricao, local, coordenadas, tipo_cafe, horario_abertura, horario_fecho } = req.body;
 
         // Definindo imagem padrão inicialmente
         const imagem_cafe = req.file ? req.file.filename : 'default.png';
@@ -110,7 +111,7 @@ exports.criarCafe = async (req, res) => {
         if (horario_abertura >= horario_fecho) {
             if (req.file.filename) {
                 deleteFile(req.file.filename);
-            }    
+            }
             return res.status(400).json({ error: 'O horário de abertura deve ser menor que o horário de fecho.' });
         }
 
@@ -126,8 +127,10 @@ exports.criarCafe = async (req, res) => {
         // Criação do novo café com o ID_Gestor atribuído
         const novoCafe = await Cafe.create({
             Nome_Cafe: nome_cafe,
+            Descricao: descricao,
             Imagem_Cafe: imagem_cafe,
             Local: local,
+            Coordenadas: coordenadas || null,
             Tipo_Cafe: tipo_cafe,
             Horario_Abertura: horario_abertura,
             Horario_Fecho: horario_fecho,
@@ -137,7 +140,7 @@ exports.criarCafe = async (req, res) => {
             ID_Cafe: novoCafe.ID_Cafe,
             ID_Utilizador: req.user.id
         });
-        
+
         res.json({ id: novoCafe.id, message: 'Café criado com sucesso!' });
 
     } catch (error) {
@@ -173,17 +176,26 @@ exports.atualizarCafe = async (req, res) => {
         }
 
         const cafe = gestor.Cafe;
-        let { nome_cafe, local, tipo_cafe, horario_abertura, horario_fecho } = req.body;
+        const tipoCafeAntigo = cafe.Tipo_Cafe;
+        
+        let { nome_cafe, descricao, local, coordenadas, tipo_cafe, horario_abertura, horario_fecho } = req.body;
         const novaImagem = req.file ? req.file.filename : cafe.Imagem_Cafe;
 
         horario_abertura = parseInt(horario_abertura, 10);
         horario_fecho = parseInt(horario_fecho, 10);
+
+        const novoTipo = parseInt(tipo_cafe, 10);
 
         if (horario_abertura >= horario_fecho) {
             if (req.file) {
                 deleteFile(req.file.filename);
             }
             return res.status(400).json({ error: 'O horário de abertura deve ser menor que o horário de fecho.' });
+        }
+
+        // Apagar jogos se mudar de tipo 0 para 1
+        if (tipoCafeAntigo === 0 && novoTipo === 1) {
+            await Jogo.destroy({ where: { ID_Cafe: cafe.ID_Cafe } });
         }
 
         if (req.file && cafe.Imagem_Cafe !== 'default.png') {
@@ -193,8 +205,10 @@ exports.atualizarCafe = async (req, res) => {
         try {
             await cafe.update({
                 Nome_Cafe: nome_cafe || cafe.Nome_Cafe,
+                Descricao: descricao || cafe.Descricao,
                 Imagem_Cafe: novaImagem,
                 Local: local || cafe.Local,
+                Coordenadas: coordenadas || cafe.Coordenadas,
                 Tipo_Cafe: tipo_cafe || cafe.Tipo_Cafe,
                 Horario_Abertura: horario_abertura || cafe.Horario_Abertura,
                 Horario_Fecho: horario_fecho || cafe.Horario_Fecho,
@@ -242,7 +256,7 @@ exports.apagarCafe = async (req, res) => {
         // Se o café possui uma imagem associada e não for a imagem padrão
         if (cafe.Imagem_Cafe !== 'default.png') {
             const oldImagePath = path.resolve(path.join(__dirname, "..", "uploads", "cafes", cafe.Imagem_Cafe));
-            
+
             // Verificar se a imagem existe e removê-la
             fs.unlink(oldImagePath, (err) => {
                 if (err) {

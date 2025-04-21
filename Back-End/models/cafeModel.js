@@ -15,6 +15,10 @@ const Cafe = sequelize.define('Cafe', {
             msg: 'O nome do café já existe.'
         }
     },
+    Descricao: { 
+        type: DataTypes.STRING, 
+        allowNull: false,
+    },
     Imagem_Cafe: {
         type: DataTypes.STRING,
         allowNull: false, 
@@ -23,6 +27,16 @@ const Cafe = sequelize.define('Cafe', {
     Local: { 
         type: DataTypes.STRING, 
         allowNull: false 
+    },
+    Coordenadas: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+            is: {
+                args: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|(\d{1,2}))(\.\d+)?)$/,
+                msg: 'As coordenadas devem estar no formato "latitude,longitude".'
+            }
+        }
     },
     Tipo_Cafe: {
         type: DataTypes.TINYINT, 

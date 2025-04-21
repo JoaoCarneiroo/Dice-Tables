@@ -13,8 +13,10 @@ function PainelGestor() {
 
     const [form, setForm] = useState({
         nome_cafe: '',
+        descricao: '',
         imagem_cafe: null,
         local: '',
+        coordenadas: '',
         tipo_cafe: 0,
         horario_abertura: '',
         horario_fecho: '',
@@ -60,7 +62,7 @@ function PainelGestor() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
             refetch();
         },
         onError: (err) => {
@@ -74,7 +76,7 @@ function PainelGestor() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
         }
     });
 
@@ -98,7 +100,7 @@ function PainelGestor() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
             refetch();
         },
         onError: (err) => {
@@ -112,7 +114,7 @@ function PainelGestor() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            });         
+            });
         }
     });
 
@@ -134,7 +136,7 @@ function PainelGestor() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
             refetch();
         },
         onError: (err) => {
@@ -148,10 +150,10 @@ function PainelGestor() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            });         
+            });
         }
     });
-    
+
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
         setForm(prevForm => ({
@@ -163,7 +165,9 @@ function PainelGestor() {
     const handleEditClick = () => {
         setForm({
             nome_cafe: cafeData.Nome_Cafe,
+            descricao: cafeData.Descricao || '',
             local: cafeData.Local,
+            coordenadas: cafeData.Coordenadas || '',
             tipo_cafe: cafeData.Tipo_Cafe,
             horario_abertura: cafeData.Horario_Abertura,
             horario_fecho: cafeData.Horario_Fecho,
@@ -173,34 +177,38 @@ function PainelGestor() {
 
     const handleUpdate = (e) => {
         e.preventDefault();
-    
+
         const formData = new FormData();
         formData.append("nome_cafe", form.nome_cafe);
+        formData.append("descricao", form.descricao);
         formData.append("local", form.local);
+        formData.append("coordenadas", form.coordenadas);
         formData.append("tipo_cafe", form.tipo_cafe);
         formData.append("horario_abertura", form.horario_abertura);
         formData.append("horario_fecho", form.horario_fecho);
         if (form.imagem_cafe) {
             formData.append("imagem_cafe", form.imagem_cafe);
         }
-    
+
         updateMutation.mutate(formData);
         setShowEditForm(false);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-    
+
         const formData = new FormData();
         formData.append("nome_cafe", form.nome_cafe);
+        formData.append("descricao", form.descricao);
         formData.append("local", form.local);
+        formData.append("coordenadas", form.coordenadas);
         formData.append("tipo_cafe", form.tipo_cafe);
         formData.append("horario_abertura", form.horario_abertura);
         formData.append("horario_fecho", form.horario_fecho);
         if (form.imagem_cafe) {
             formData.append("imagem_cafe", form.imagem_cafe);
         }
-    
+
         createMutation.mutate(formData);
     };
 
@@ -208,7 +216,7 @@ function PainelGestor() {
     if (isLoading) return <p className="text-center text-white">Carregando informações do café...</p>;
     if (error) return <p className="text-center text-red-500">{error.message}</p>;
 
-    
+
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-12 px-6 lg:px-8">
             <div className="max-w-3xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
@@ -241,13 +249,13 @@ function PainelGestor() {
                                     {showEditForm ? 'Cancelar' : 'Atualizar'}
                                 </button>
                             </div>
-                            <button 
+                            <button
                                 className="w-full bg-red-600 hover:bg-red-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
                                 onClick={() => deleteMutation.mutate()}
                             >
                                 Apagar
                             </button>
-                            <button 
+                            <button
                                 onClick={() => navigate({ to: '/painelGestorMesas' })}
                                 className="w-full bg-green-600 hover:bg-green-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
                             >
@@ -258,11 +266,11 @@ function PainelGestor() {
                                     onClick={() => navigate({ to: '/painelGestorJogos' })}
                                     className="w-full bg-yellow-600 hover:bg-yellow-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
                                 >
-                                Gerir Jogos
-                            </button>
+                                    Gerir Jogos
+                                </button>
                             )}
                         </div>
-    
+
                         {/* Formulário para Atualizar Café */}
                         {showEditForm && cafeData && (
                             <form onSubmit={handleUpdate} className="mt-6 space-y-6">
@@ -277,7 +285,18 @@ function PainelGestor() {
                                             className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                         />
                                     </div>
-    
+
+                                    <div>
+                                        <textarea
+                                            name="descricao"
+                                            placeholder="Descrição do Café"
+                                            value={form.descricao}
+                                            onChange={handleChange}
+                                            rows={3}
+                                            className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
+                                        />
+                                    </div>
+
                                     <div>
                                         <label
                                             htmlFor="imagem_cafe"
@@ -294,7 +313,7 @@ function PainelGestor() {
                                             className="hidden"
                                         />
                                     </div>
-    
+
                                     <div>
                                         <input
                                             type="text"
@@ -305,7 +324,18 @@ function PainelGestor() {
                                             className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                         />
                                     </div>
-    
+
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="coordenadas"
+                                            placeholder="Coordenadas (ex: 38.7169,-9.1399)"
+                                            value={form.coordenadas}
+                                            onChange={handleChange}
+                                            className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        />
+                                    </div>
+                                    
                                     <div>
                                         <select
                                             name="tipo_cafe"
@@ -317,7 +347,7 @@ function PainelGestor() {
                                             <option value={1}>Café sem Jogos</option>
                                         </select>
                                     </div>
-    
+
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <input
@@ -329,7 +359,7 @@ function PainelGestor() {
                                                 className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                             />
                                         </div>
-    
+
                                         <div>
                                             <input
                                                 type="number"
@@ -341,7 +371,7 @@ function PainelGestor() {
                                             />
                                         </div>
                                     </div>
-    
+
                                     <button
                                         type="submit"
                                         className="w-full bg-green-600 hover:bg-green-700 p-4 rounded-lg text-white font-semibold mt-4 focus:outline-none transition duration-300 transform hover:scale-105"
@@ -369,7 +399,18 @@ function PainelGestor() {
                                         className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                     />
                                 </div>
-    
+
+                                <div>
+                                    <textarea
+                                        name="descricao"
+                                        placeholder="Descrição do Café"
+                                        value={form.descricao}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
+                                    />
+                                </div>
+
                                 <div>
                                     <label
                                         htmlFor="imagem_cafe"
@@ -386,7 +427,7 @@ function PainelGestor() {
                                         className="hidden"
                                     />
                                 </div>
-    
+
                                 <div>
                                     <input
                                         type="text"
@@ -397,7 +438,16 @@ function PainelGestor() {
                                         className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                     />
                                 </div>
-    
+                                <div>
+                                    <input
+                                        type="text"
+                                        name="coordenadas"
+                                        placeholder="Coordenadas (ex: 38.7169,-9.1399)"
+                                        value={form.coordenadas}
+                                        onChange={handleChange}
+                                        className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                    />
+                                </div>
                                 <div>
                                     <select
                                         name="tipo_cafe"
@@ -410,7 +460,7 @@ function PainelGestor() {
                                         <option value={1}>Café sem Jogos</option>
                                     </select>
                                 </div>
-    
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <input
@@ -422,7 +472,7 @@ function PainelGestor() {
                                             className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                         />
                                     </div>
-    
+
                                     <div>
                                         <input
                                             type="number"
@@ -434,7 +484,7 @@ function PainelGestor() {
                                         />
                                     </div>
                                 </div>
-    
+
                                 <button
                                     type="submit"
                                     className="w-full bg-indigo-600 hover:bg-indigo-700 p-4 rounded-lg text-white font-semibold mt-4 focus:outline-none transition duration-300 transform hover:scale-105"
