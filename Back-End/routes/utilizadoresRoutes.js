@@ -109,6 +109,8 @@ router.get('/utilizador', checkAuth, utilizadoresController.mostrarUtilizadorAut
  */
 router.post('/', utilizadoresController.criarUtilizador);
 
+router.get('/confirmar-email/:token', utilizadoresController.confirmarEmail);
+
 /**
  * @swagger
  * /autenticar:

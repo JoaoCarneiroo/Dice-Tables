@@ -2,14 +2,14 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../Database/sequelize');
 
 const Utilizador = sequelize.define('Utilizador', {
-    ID_Utilizador: { 
-        type: DataTypes.INTEGER, 
-        primaryKey: true, 
+    ID_Utilizador: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
         autoIncrement: true,
         unique: true
     },
-    Nome: { 
-        type: DataTypes.STRING, 
+    Nome: {
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
             is: {
@@ -18,9 +18,9 @@ const Utilizador = sequelize.define('Utilizador', {
             },
         }
     },
-    Email: { 
-        type: DataTypes.STRING, 
-        allowNull: false, 
+    Email: {
+        type: DataTypes.STRING,
+        allowNull: false,
         unique: {
             msg: 'Este email já está registado. Tente outro email.'
         },
@@ -30,13 +30,13 @@ const Utilizador = sequelize.define('Utilizador', {
             },
         }
     },
-    Password: { 
-        type: DataTypes.STRING, 
+    Password: {
+        type: DataTypes.STRING,
         allowNull: false,
     },
     Cargo: {
         type: DataTypes.ENUM,
-        values: ['Utilizador', 'Gestor', 'Administrador'], 
+        values: ['Utilizador', 'Gestor', 'Administrador'],
         allowNull: false,
         defaultValue: 'Utilizador',
         validate: {
@@ -45,10 +45,18 @@ const Utilizador = sequelize.define('Utilizador', {
                 msg: 'Cargo inválido. Os valores válidos são: Utilizador, Gestor, Administrador.'
             }
         }
-    }
-}, { 
-    tableName: 'Utilizadores', 
-    timestamps: false 
+    },
+    EmailConfirmado: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    TokenConfirmacao: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+}, {
+    tableName: 'Utilizadores',
+    timestamps: false
 });
 
 

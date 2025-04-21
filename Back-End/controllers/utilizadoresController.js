@@ -1,6 +1,8 @@
 const Utilizador = require('../models/utilizadorModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { enviarEmailConfirmacao } = require('../middlewares/email');
 
 const secretKey = 'carneiro_secret';
 
@@ -21,7 +23,8 @@ exports.login = async (req, res) => {
                     return res.status(400).json({ error: 'Utilizador já autenticado com outra conta!' });
                 }
             } catch (error) {
-                console.error("Erro ao verificar token existente:", error.message);            }
+                console.error("Erro ao verificar token existente:", error.message);
+            }
         }
 
         const utilizador = await Utilizador.findOne({ where: { Email: email } });
@@ -30,9 +33,14 @@ exports.login = async (req, res) => {
             return res.status(404).json({ error: 'Email ou Password incorretos' });
         }
 
+        // Confirmação do Email
+        if (!utilizador.EmailConfirmado) {
+            return res.status(403).json({ error: 'É necessário confirmar o email antes de iniciar sessão.' });
+        }
+
         // Comparar a senha fornecida com o hash da senha no banco de dados
         const match = await bcrypt.compare(password, utilizador.Password);
-        
+
         if (!match) {
             return res.status(401).json({ error: 'Email ou Password incorretos' });
         }
@@ -44,8 +52,8 @@ exports.login = async (req, res) => {
         const token = jwt.sign({ id: utilizador.ID_Utilizador, nome: utilizador.Nome, email: utilizador.Email, isAdmin: isAdmin, isGestor: isGestor }, secretKey, { expiresIn: '1h' });
 
         res.cookie('Authorization', token, { httpOnly: false, secure: false, sameSite: 'Lax' });
-        
-        res.status(200).json({message: 'Utilizador autenticado com sucesso!', token, });
+
+        res.status(200).json({ message: 'Utilizador autenticado com sucesso!', token, });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -55,8 +63,8 @@ exports.login = async (req, res) => {
 // Logout de Utilizador
 exports.logout = (req, res) => {
     res.clearCookie('Authorization', {
-        httpOnly: false,  
-        secure: false, 
+        httpOnly: false,
+        secure: false,
         sameSite: 'Lax'
     });
     // Retorna uma resposta informando que o usuário foi desconectado
@@ -128,22 +136,22 @@ exports.criarUtilizador = async (req, res) => {
         // Hash da senha antes de salvar
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const tokenConfirmacao = crypto.randomBytes(32).toString('hex');
+
         // Criação do novo utilizador
         const novoUtilizador = await Utilizador.create({
             Nome: nome,
             Email: email,
-            Password: hashedPassword
+            Password: hashedPassword,
+            TokenConfirmacao: tokenConfirmacao,
+            EmailConfirmado: false
         });
 
-        // Gerar o token JWT
-        const token = jwt.sign(
-            { id: novoUtilizador.ID_Utilizador, nome: novoUtilizador.Nome, email: novoUtilizador.Email },
-            secretKey,
-            { expiresIn: '1h' }
-        );
+        // Enviar e-mail com link de confirmação
+        const urlConfirmacao = `http://localhost:3000/autenticar/confirmar-email/${tokenConfirmacao}`;
+        await enviarEmailConfirmacao(email, urlConfirmacao);
 
-        res.status(201).json({ token, message: 'Utilizador criado com sucesso!' });
-
+        res.status(201).json({ message: 'Utilizador criado! Verifique o seu email para confirmar a conta.' });
     } catch (err) {
         // Sequelize valida automaticamente os campos Nome e Email
         if (err.name === 'SequelizeValidationError') {
@@ -153,6 +161,26 @@ exports.criarUtilizador = async (req, res) => {
     }
 };
 
+exports.confirmarEmail = async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const utilizador = await Utilizador.findOne({ where: { TokenConfirmacao: token } });
+
+        if (!utilizador) {
+            return res.status(400).json({ error: 'Token de confirmação Inválido ou Expirado.' });
+        }
+
+        utilizador.EmailConfirmado = true;
+        utilizador.TokenConfirmacao = null;
+
+        await utilizador.save();
+
+        res.status(200).json({ message: 'Email confirmado com sucesso! Já pode iniciar sessão.' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
 
 // Atualizar um utilizador
 exports.atualizarUtilizador = async (req, res) => {
@@ -196,14 +224,16 @@ exports.apagarUtilizador = async (req, res) => {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
         }
 
-        if(req.user.isAdmin) res.status(401).json({ error: 'Operação não permitida' })
+        if (req.user.isAdmin) {
+            return res.status(401).json({ error: 'Operação não permitida' })
+        }
 
         await utilizador.destroy();
 
         // Limpeza da Cookie
         res.clearCookie('Authorization', {
-            httpOnly: false,  
-            secure: false, 
+            httpOnly: false,
+            secure: false,
             sameSite: 'Lax'
         });
 

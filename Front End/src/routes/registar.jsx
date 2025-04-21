@@ -34,7 +34,7 @@ function Registar() {
             }, 2100);
         },
         onError: (err) => {
-            toast.error(`Erro ao fazer login: ${err.response?.data?.error || err.message}`, {
+            toast.error(`Erro ao fazer registo: ${err.response?.data?.error || err.message}`, {
                 position: "bottom-center",
                 autoClose: 4000,
                 hideProgressBar: false,
