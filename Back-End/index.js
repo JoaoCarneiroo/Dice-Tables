@@ -14,6 +14,7 @@ const swaggerjsdoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
 const swaggerOptions = require('./swaggerConfig')
 
+const teste = require('./models/gruposModel');
 
 // Todas as Rotas
 const cafesRoutes = require('./routes/cafesRoutes');
@@ -25,6 +26,7 @@ const reservasRoutes = require('./routes/reservasRoutes');
 
 
 /* Criar admin */
+
 
 // async function createAdmin() {
 

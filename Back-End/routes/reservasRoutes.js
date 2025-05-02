@@ -35,6 +35,53 @@ router.get('/', reservasController.mostrarReservas);
  */
 router.get('/utilizador', checkAuth, reservasController.mostrarReservasUtilizador);
 
+
+/**
+ * @swagger
+ * /reservas/juntar/{id}:
+ *   post:
+ *     summary: Juntar-se a um grupo de reservas
+ *     tags: [Reservas]
+ *     description: Permite que um utilizador autenticado se junte a um grupo de reservas.
+ *     security:
+ *       - CookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do grupo de reservas a que o utilizador deseja se juntar
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Utilizador juntado ao grupo com sucesso
+ *       400:
+ *         description: Erro na solicitação - ID inválido ou grupo não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.post('/juntar/:id', checkAuth, reservasController.juntarGrupo);
+
+
+// Fazer rota de mostrarReservasGrupo (mostra todas as reservas desse utilizador a que ele se juntou e não criou)
+/**
+ * @swagger
+ * /reservas/grupo:
+ *   get:
+ *     summary: Mostra as reservas inscritas do utilizador autenticado
+ *     tags: [Reservas]
+ *     description: Obtém todas as reservas em que o utilizador está inscrito.
+ *     security:
+ *       - CookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de reservas do grupo retornada com sucesso
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/grupo', checkAuth, reservasController.mostrarReservasGrupo);
+
+
 /**
  * @swagger
  * /reservas:

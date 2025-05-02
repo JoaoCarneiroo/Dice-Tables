@@ -4,6 +4,8 @@ const Cafes = require('../models/cafeModel');
 const Mesas = require('../models/mesasModel');
 const Utilizadores = require('../models/utilizadorModel');
 const Jogos = require('../models/jogosModel');
+const Utilizadores_Grupos = require('../models/utilizadorGrupoModel');
+const Grupos = require('../models/gruposModel');
 
 const { Op } = require('sequelize');
 
@@ -65,7 +67,7 @@ exports.mostrarReservasUtilizador = async (req, res) => {
 // Criação de uma Reserva
 exports.criarReserva = async (req, res) => {
     try {
-        const { ID_Mesa, ID_Jogo, Hora_Inicio, Hora_Fim } = req.body;
+        const { ID_Mesa, ID_Jogo, Hora_Inicio, Hora_Fim, Nome_Grupo, Lugares_Grupo } = req.body;
 
         // Verificar se a data/hora de início é no futuro
         if (!isInFuture(Hora_Inicio)) {
@@ -138,6 +140,44 @@ exports.criarReserva = async (req, res) => {
             }
         }
 
+        // Selecionar o ID de todas as reservas existentes desse café
+        const reservasExistentes = await Reservas.findAll({
+            where: { ID_Cafe },
+            attributes: ['ID_Reserva']
+        });
+
+        // Verificar todos os grupos associados a esse café e se já existe um com o mesmo nome
+        const gruposExistentes = await Grupos.findAll({
+            where: { ID_Reserva: reservasExistentes.map(reserva => reserva.ID_Reserva) },
+            attributes: ['Nome_Grupo']
+        });
+
+        // Verificar se já existe um grupo com o mesmo nome
+        if (Nome_Grupo && Lugares_Grupo) {
+            const grupoExistente = gruposExistentes.find(grupo => grupo.Nome_Grupo === Nome_Grupo);
+            if (grupoExistente) {
+                return res.status(400).json({ error: 'Já existe um grupo com esse nome.' });
+            }
+        }
+
+        // Verificar se o número de lugares do grupo é válido consoante o número de lugares da mesa tendo em conta o prórpio
+        if (Lugares_Grupo && Lugares_Grupo > mesa.Lugares) {
+            return res.status(400).json({ error: 'O número de lugares do grupo não pode ser superior ao número de lugares da mesa.' });
+        }
+
+
+        if (reservasExistentes.length > 0) {
+            return res.status(400).json({ error: 'Já existe uma reserva com esse nome de grupo.' });
+        }
+
+
+
+
+        // Validar se o o número de lugares não excede o número de lugares da mesa (contando com o próprio)
+        if (Lugares_Grupo >= mesa.Lugares) {
+            return res.status(400).json({ error: 'O número de lugares do grupo não pode ser superior ou igual ao número de lugares da mesa.' });
+        }
+
         // Criar a reserva
         const novaReserva = await Reservas.create({
             ID_Cafe,
@@ -147,6 +187,25 @@ exports.criarReserva = async (req, res) => {
             Hora_Inicio,
             Hora_Fim
         });
+
+        // Criar um grupo se o nome do grupo e o número de lugares forem fornecidos
+        let grupo = null;
+
+        if (Nome_Grupo && Lugares_Grupo) {
+            grupo = await Grupos.create({
+                Nome_Grupo,
+                Lugares_Grupo,
+                ID_Reserva: novaReserva.ID_Reserva
+            });
+        }
+
+        //Associar o grupo ao Utilizadores_Grupos
+        if (grupo) {
+            await Utilizadores_Grupos.create({
+                ID_Grupo: grupo.ID_Grupo,
+                ID_Utilizador: ID_Utilizador
+            });
+        }
 
         // Reduzir o stock do jogo se necessário
         if (jogo) {
@@ -159,6 +218,63 @@ exports.criarReserva = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// Obter as reservas do utilizador (que ele se juntou a um grupo e não fez a reserva)
+exports.mostrarReservasGrupo = async (req, res) => {
+    try {
+        const ID_Utilizador = req.user.id;
+
+        const reservas = await Utilizadores_Grupos.findAll({
+            where: { ID_Utilizador },
+            include: [
+                {
+                    model: Grupos,
+                    include: [
+                        {
+                            model: Reservas,
+                            where: {
+                                ID_Utilizador: { [Op.ne]: ID_Utilizador } // exclui as reservas feitas pelo próprio utilizador
+                            },
+                            include: [
+                                { model: Cafes, attributes: ['Nome_Cafe'] },
+                                { model: Mesas, attributes: ['Lugares'] },
+                                { model: Jogos, attributes: ['Nome_Jogo'] }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+
+        /*
+        [
+            {
+                "ID_Utilizador_Grupos": 1,
+                "ID_Grupo": 1,
+                "ID_Utilizador": 2,
+                "Grupo": null
+            }
+        ]
+
+    */
+
+        // coloar as reservas cujo grupo não é null no array reservasComGrupo´
+        // e ignorar as reservas cujo grupo é null com for each
+        const reservasComGrupo = reservas.filter(reserva => reserva.Grupo !== null).map(reserva => {
+            return reserva
+        });
+
+        if (reservasComGrupo.length === 0) {
+            return res.status(404).json({ message: 'Não está inscrito em nenhuma reserva.' });
+        }
+
+        res.status(200).json(reservasComGrupo);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 // Atualizar uma reserva (Apenas o utilizador que reservou pode alterar)
 exports.atualizarReserva = async (req, res) => {
@@ -258,8 +374,63 @@ exports.atualizarReserva = async (req, res) => {
 
         await reserva.save();
 
+        // Atualizar os dados do grupo se forem fornecidos
+        if (req.body.Nome_Grupo || req.body.Lugares_Grupo) {
+            const grupo = await Grupos.findOne({ where: { ID_Reserva } });
+            if (grupo) {
+                if (req.body.Nome_Grupo) grupo.Nome_Grupo = req.body.Nome_Grupo;
+                if (req.body.Lugares_Grupo) grupo.Lugares_Grupo = req.body.Lugares_Grupo;
+                await grupo.save();
+            }
+        }
+
+
         res.status(200).json({ message: 'Reserva atualizada com sucesso!', reserva });
 
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Endpoint para outra pessoa se juntar a um grupo existente
+exports.juntarGrupo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const ID_Utilizador = req.user.id;
+
+        // Verificar se o grupo existe
+        const grupo = await Grupos.findByPk(id);
+        if (!grupo) {
+            return res.status(404).json({ error: 'Grupo não encontrado.' });
+        }
+
+        // Verificar se o utilizador já está no grupo
+        const utilizadorGrupo = await Utilizadores_Grupos.findOne({
+            where: { ID_Grupo: id, ID_Utilizador }
+        });
+
+        //Verificar se ainda tem lugares disponíveis
+        if (grupo.Lugares_Grupo <= 0) {
+            return res.status(400).json({ error: 'Não há lugares disponíveis neste grupo.' });
+        }
+
+        if (utilizadorGrupo) {
+            return res.status(400).json({ error: 'Já está neste grupo.' });
+        }
+
+        // Remover um lugar do grupo
+        grupo.Lugares_Grupo -= 1;
+
+        // Adicionar o utilizador ao grupo
+        await Utilizadores_Grupos.create({
+            ID_Grupo: id,
+            ID_Utilizador
+        });
+
+        //Salvar as alterações no grupo
+        await grupo.save();
+
+        res.status(200).json({ message: 'Utilizador adicionado ao grupo com sucesso.' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
