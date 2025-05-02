@@ -31,9 +31,9 @@ function CardCafe({ cafe }) {
           Imagem não disponível
         </div>
       )}
-      <p className="text-gray-300">Local: {cafe.Local}</p>
+      <p className="text-gray-300">📍 {cafe.Local}</p>
 
-      <p className="text-gray-300">Horário: {cafe.Horario_Abertura}:00 - {cafe.Horario_Fecho}:00</p>
+      <p className="text-gray-300">🕒 {cafe.Horario_Abertura}:00 - {cafe.Horario_Fecho}:00</p>
 
       <div className="mt-4">
         <button

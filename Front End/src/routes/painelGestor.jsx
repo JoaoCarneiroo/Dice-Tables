@@ -225,9 +225,9 @@ function PainelGestor() {
                     <div className="mt-8 p-6 bg-gray-700 rounded-lg">
                         <h2 className="text-xl font-medium text-gray-300">Meu Café</h2>
                         <p className="text-gray-200 mt-2">Nome: {cafeData.Nome_Cafe}</p>
-                        <p className="text-gray-200">Local: {cafeData.Local}</p>
-                        <p className="text-gray-200">Tipo: {cafeData.Tipo_Cafe === 0 ? 'Café com Jogos' : 'Café sem Jogos'}</p>
-                        <p className="text-gray-200">Horário: {cafeData.Horario_Abertura}:00 - {cafeData.Horario_Fecho}:00</p>
+                        <p className="text-gray-200">🎲 {cafeData.Tipo_Cafe === 0 ? 'Café com Jogos' : 'Café sem Jogos'}</p>
+                        <p className="text-gray-200">📍 {cafeData.Local}</p>
+                        <p className="text-gray-200">🕒 {cafeData.Horario_Abertura}:00 - {cafeData.Horario_Fecho}:00</p>
                         {cafeData.Imagem_Cafe ? (
                             <img
                                 src={`http://localhost:3000/uploads/cafes/${cafeData.Imagem_Cafe}`}

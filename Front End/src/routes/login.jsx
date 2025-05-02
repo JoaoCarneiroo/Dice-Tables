@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { createFileRoute } from '@tanstack/react-router';
+import { useNavigate, createFileRoute } from '@tanstack/react-router';
 import { useUser } from '../context/UserContext'
 import { toast, Bounce } from 'react-toastify';
 
@@ -10,18 +10,22 @@ export const Route = createFileRoute('/login')({
 });
 
 function Login() {
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { login } = useUser();
-    
+
     const mutation = useMutation({
         mutationFn: (loginData) => axios.post('http://localhost:3000/autenticar/login', loginData, {
             withCredentials: true,
         }),
         onSuccess: (response) => {
             const nome = response.data.nome;
-            const cargos = { isAdmin: response.data.isAdmin, isGestor: response.data.isGestor};
-            login(nome,cargos)
+            const cargos = { isAdmin: response.data.isAdmin, isGestor: response.data.isGestor };
+            login(nome, cargos)
+            navigate({ to: '/perfil' });
+
             toast.success('Login realizado com Sucesso', {
                 position: "bottom-center",
                 autoClose: 2000,
@@ -45,7 +49,7 @@ function Login() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
         },
     });
 

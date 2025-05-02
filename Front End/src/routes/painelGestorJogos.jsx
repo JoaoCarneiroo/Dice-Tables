@@ -1,14 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { useNavigate, createFileRoute } from '@tanstack/react-router';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast, Bounce } from "react-toastify";
+import { IoIosArrowBack } from 'react-icons/io';
 
 export const Route = createFileRoute('/painelGestorJogos')({
   component: PainelGestorJogos,
 })
 
 export default function PainelGestorJogos() {
+  const navigate = useNavigate();
+
   const [nomeJogo, setNomeJogo] = useState("");
   const [notasJogo, setNotasJogo] = useState("");
   const [preco, setPreco] = useState("");
@@ -172,8 +175,18 @@ export default function PainelGestorJogos() {
     );
 
   return (
-    <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-gray-300">
-      <h1 className="text-2xl font-bold text-indigo-500 mb-6">Gerenciar Jogos</h1>
+    <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-gray-300 relative">
+      <button
+        onClick={() => navigate({ to: '/painelGestor' })}
+        className="absolute top-4 left-4 text-indigo-500 hover:text-indigo-400"
+      >
+        <IoIosArrowBack className="h-6 w-6" />
+      </button>
+
+      <div className="flex items-center justify-center mb-6">
+        <h1 className="text-2xl font-bold text-indigo-500">Gerenciar Jogos</h1>
+      </div>
+
       {cafeData && (
         <div className="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold text-indigo-400">Café: {cafeData.Nome_Cafe}</h2>
@@ -200,28 +213,28 @@ export default function PainelGestorJogos() {
           placeholder="Nome do Jogo"
           value={nomeJogo}
           onChange={(e) => setNomeJogo(e.target.value)}
-          className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
+          className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <input
           type="text"
           placeholder="Notas do Jogo"
           value={notasJogo}
           onChange={(e) => setNotasJogo(e.target.value)}
-          className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
+          className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <input
           type="number"
           placeholder="Preço"
           value={preco}
           onChange={(e) => setPreco(e.target.value)}
-          className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
+          className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <input
           type="number"
           placeholder="Quantidade"
           value={quantidade}
           onChange={(e) => setQuantidade(e.target.value)}
-          className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
+          className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <button
           onClick={() =>
@@ -285,7 +298,7 @@ export default function PainelGestorJogos() {
                     setEditData({ ...editData, nomeJogo: e.target.value })
                   }
                   placeholder="Nome do Jogo"
-                  className="p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 w-full mb-2"
+                  className="p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <input
                   type="text"
@@ -293,7 +306,7 @@ export default function PainelGestorJogos() {
                     setEditData({ ...editData, notasJogo: e.target.value })
                   }
                   placeholder="Notas do Jogo"
-                  className="p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 w-full mb-2"
+                  className="p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <input
                   type="number"
@@ -301,7 +314,7 @@ export default function PainelGestorJogos() {
                     setEditData({ ...editData, preco: e.target.value })
                   }
                   placeholder="Preço"
-                  className="p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 w-full mb-2"
+                  className="p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <input
                   type="number"
@@ -309,7 +322,7 @@ export default function PainelGestorJogos() {
                     setEditData({ ...editData, quantidade: e.target.value })
                   }
                   placeholder="Quantidade"
-                  className="p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 w-full mb-4"
+                  className="p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <div className="flex gap-2">
                   <button

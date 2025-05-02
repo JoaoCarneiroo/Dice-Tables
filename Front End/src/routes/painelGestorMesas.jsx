@@ -1,14 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { useNavigate, createFileRoute } from '@tanstack/react-router';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast, Bounce } from "react-toastify";
+import { IoIosArrowBack } from 'react-icons/io';
 
 export const Route = createFileRoute('/painelGestorMesas')({
   component: PainelGestorMesas,
 });
 
 export default function PainelGestorMesas() {
+  const navigate = useNavigate();
+
   const [nomeMesa, setNomeMesa] = useState("");
   const [lugares, setLugares] = useState("");
   const [editingMesa, setEditingMesa] = useState(null);
@@ -166,8 +169,18 @@ export default function PainelGestorMesas() {
   if (cafeError || mesasError) return <p className="text-red-500">Erro ao carregar dados: {cafeError?.message || mesasError?.message}</p>;
 
   return (
-    <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-gray-300">
-      <h1 className="text-2xl font-bold text-indigo-500 mb-6">Gerenciar Mesas</h1>
+    <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-gray-300 relative">
+      <button
+        onClick={() => navigate({ to: '/painelGestor' })}
+        className="absolute top-4 left-4 text-indigo-500 hover:text-indigo-400"
+      >
+        <IoIosArrowBack className="h-6 w-6" />
+      </button>
+
+      <div className="flex items-center justify-center mb-6">
+        <h1 className="text-2xl font-bold text-indigo-500">Gerenciar Mesas</h1>
+      </div>
+
       {cafeData && (
         <div className="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold text-indigo-400">Café: {cafeData.Nome_Cafe}</h2>
@@ -220,13 +233,13 @@ export default function PainelGestorMesas() {
                   placeholder="Nome da mesa"
                   value={newNomeMesa}
                   onChange={(e) => setNewNomeMesa(e.target.value)}
-                  className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
+                  className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <input
                   type="number"
                   placeholder="Número de lugares"
                   onChange={(e) => setNewLugares(e.target.value)}
-                  className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2"
+                  className="p-2 border border-gray-600 rounded-md w-full bg-gray-700 text-gray-200 mt-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </>
             )}
