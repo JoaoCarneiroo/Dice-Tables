@@ -97,6 +97,45 @@ function Perfil() {
         enabled: !!token,
     });
 
+    // Obter as Reservas do Utilizador onde ele se juntou a um grupo
+    const { data: reservasGrupo, isLoading: isLoadingReservasGrupo, isError: isErrorReservasGrupo } = useQuery({
+        queryKey: ['userReservasGrupo'],
+        queryFn: async () => {
+            const response = await axios.get('http://localhost:3000/reservas/grupo', {
+                withCredentials: true,
+            });
+
+            const reservas = await Promise.all(
+                response.data.map(async (reservaGrupo) => {
+                    const reserva = reservaGrupo.Grupo?.Reserva;
+
+                    if (!reserva) return null; // ignora casos inválidos
+
+                    return {
+                        ID_Reserva: reserva.ID_Reserva,
+                        ID_Cafe: reserva.ID_Cafe,
+                        ID_Mesa: reserva.ID_Mesa,
+                        ID_Utilizador: reserva.ID_Utilizador,
+                        ID_Jogo: reserva.ID_Jogo,
+                        Hora_Inicio: reserva.Hora_Inicio,
+                        Hora_Fim: reserva.Hora_Fim,
+                        Cafe: reserva.Cafe, // já vem com Nome_Cafe
+                        Mesa: reserva.Mesa, // já vem com Lugares
+                        Jogo: reserva.Jogo || null, // pode não existir
+                        Grupo: reservaGrupo.Grupo // inclui info do grupo se quiseres mostrar nome, lugares, etc
+                    };
+                })
+            );
+
+            // filtra valores nulos (quando reservaGrupo.Grupo?.Reserva é null)
+            return reservas.filter(Boolean);
+        },
+        enabled: !!token,
+    });
+
+    const [secaoAtiva, setSecaoAtiva] = useState(null);
+
+
     // Atualizar Utilizador
     const updateUserMutation = useMutation({
         mutationFn: async (updatedData) => {
@@ -449,121 +488,199 @@ function Perfil() {
                     </button>
                 </div>
 
-                {/* Secção de Reservas */}
-                <div className="mt-10">
-                    <h2 className="text-2xl font-semibold text-indigo-500 mb-6 text-center">Minhas Reservas</h2>
+                {/* Botões para alternar entre reservas pessoais e de grupo */}
+                <div className="text-center flex flex-col sm:flex-row justify-center gap-4 mt-6">
+                    <button
+                        onClick={() => setSecaoAtiva(secaoAtiva === 'minhas' ? null : 'minhas')}
+                        className={`px-6 py-2 rounded-lg transition text-white ${secaoAtiva === 'minhas' ? 'bg-blue-700' : 'bg-blue-600 hover:bg-blue-500'}`}
+                    >
+                        {secaoAtiva === 'minhas' ? 'Esconder Reservas' : 'Minhas Reservas'}
+                    </button>
 
-                    {isLoadingReservas && <p className="text-gray-400 text-center">Carregando reservas...</p>}
-                    {isErrorReservas && <p className="text-red-500 text-center">Erro ao carregar reservas.</p>}
+                    <button
+                        onClick={() => setSecaoAtiva(secaoAtiva === 'grupo' ? null : 'grupo')}
+                        className={`px-6 py-2 rounded-lg transition text-white ${secaoAtiva === 'grupo' ? 'bg-yellow-700' : 'bg-yellow-600 hover:bg-yellow-500'}`}
+                    >
+                        {secaoAtiva === 'grupo' ? 'Esconder Grupos' : 'Reservas em Grupos'}
+                    </button>
+                </div>
 
-                    {reservas && reservas.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {reservas.map((reserva) => (
-                                <div
-                                    key={reserva.ID_Reserva}
-                                    className="bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-700 hover:shadow-xl transition duration-300 space-y-4"
-                                >
-                                    <h3 className="text-xl font-bold text-gray-300 border-b border-gray-600 pb-2">
-                                        {reserva.Cafe?.Nome_Cafe || 'Café Desconhecido'}
-                                    </h3>
 
-                                    <p className="text-gray-300">
-                                        <span className="font-semibold">Local:</span> {reserva.Cafe?.Local || 'N/A'}
-                                    </p>
+                {/* Minhas Reservas */}
+                {secaoAtiva === 'minhas' && (
+                    <div className="mt-10">
+                        <h2 className="text-2xl font-semibold text-indigo-500 mb-6 text-center">Minhas Reservas</h2>
 
-                                    {reserva.Jogo && (
+                        {isLoadingReservas && <p className="text-gray-400 text-center">Carregando reservas...</p>}
+                        {isErrorReservas && <p className="text-red-500 text-center">Erro ao carregar reservas.</p>}
+
+                        {reservas && reservas.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {reservas.map((reserva) => (
+                                    <div
+                                        key={reserva.ID_Reserva}
+                                        className="bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-700 hover:shadow-xl transition duration-300 space-y-4"
+                                    >
+                                        <h3 className="text-xl font-bold text-gray-300 border-b border-gray-600 pb-2">
+                                            {reserva.Cafe?.Nome_Cafe || 'Café Desconhecido'}
+                                        </h3>
+
+                                        <p className="text-gray-300">
+                                            <span className="font-semibold">Local:</span> {reserva.Cafe?.Local || 'N/A'}
+                                        </p>
+
+                                        {reserva.Jogo && (
+                                            <div className="mt-4 pt-2 border-t border-gray-700">
+                                                <p className="text-gray-300">
+                                                    <span className="font-semibold">Jogo:</span> {reserva.Jogo?.Nome_Jogo || 'N/A'}
+                                                </p>
+                                            </div>
+                                        )}
+
                                         <div className="mt-4 pt-2 border-t border-gray-700">
                                             <p className="text-gray-300">
-                                                <span className="font-semibold">Jogo:</span> {reserva.Jogo?.Nome_Jogo || 'N/A'}
+                                                <span className="font-semibold">Nome da Mesa:</span> {reserva.Mesa?.Nome_Mesa || 'N/A'}
+                                            </p>
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Lugares:</span> {reserva.Mesa?.Lugares || 'N/A'}
                                             </p>
                                         </div>
-                                    )}
 
-                                    <div className="mt-4 pt-2 border-t border-gray-700">
-                                        <p className="text-gray-300">
-                                            <span className="font-semibold">Nome da Mesa:</span> {reserva.Mesa?.Nome_Mesa || 'N/A'}
-                                        </p>
-                                        <p className="text-gray-300">
-                                            <span className="font-semibold">Lugares:</span> {reserva.Mesa?.Lugares || 'N/A'}
-                                        </p>
+                                        <div className="mt-4 pt-2 border-t border-gray-700">
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Início:</span> {formatDateForDisplay(reserva.Hora_Inicio)}
+                                            </p>
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Fim:</span> {formatDateForDisplay(reserva.Hora_Fim)}
+                                            </p>
+                                        </div>
+
+                                        {/* Ações */}
+                                        <div className="flex gap-2 mt-4">
+                                            <button
+                                                onClick={() => handleEditReserva(reserva)}
+                                                className="bg-yellow-600 text-white px-4 py-1 rounded hover:bg-yellow-500"
+                                            >
+                                                Atualizar
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteReserva(reserva.ID_Reserva)}
+                                                className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-500"
+                                            >
+                                                Apagar
+                                            </button>
+                                        </div>
+
+                                        {/* Formulário de edição */}
+                                        {editingReservaId === reserva.ID_Reserva && (
+                                            <form onSubmit={(e) => handleEditSubmit(e, reserva.ID_Reserva)} className="mt-4 space-y-4 border-t border-gray-600 pt-4">
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-gray-400">Hora de Início</label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        name="Hora_Inicio"
+                                                        value={editingData.Hora_Inicio}
+                                                        onChange={handleEditChange}
+                                                        className="mt-1 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
+                                                        required
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-gray-400">Hora de Fim</label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        name="Hora_Fim"
+                                                        value={editingData.Hora_Fim}
+                                                        onChange={handleEditChange}
+                                                        className="mt-1 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
+                                                        required
+                                                    />
+                                                </div>
+
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        type="submit"
+                                                        className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-500"
+                                                    >
+                                                        Salvar
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleCancelEdit}
+                                                        className="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-500"
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        )}
                                     </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-500">Você não tem reservas.</p>
+                        )}
+                    </div>
+                )}
 
-                                    <div className="mt-4 pt-2 border-t border-gray-700">
+                {/* Reservas em Grupos */}
+                {secaoAtiva === 'grupo' && (
+                    <div className="mt-10">
+                        <h2 className="text-2xl font-semibold text-indigo-500 mb-6 text-center">Reservas em Grupos</h2>
+
+                        {isLoadingReservasGrupo && <p className="text-gray-400 text-center">Carregando reservas de grupo...</p>}
+                        {isErrorReservasGrupo && <p className="text-red-500 text-center">Erro ao carregar reservas de grupo.</p>}
+
+                        {reservasGrupo && reservasGrupo.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {reservasGrupo.map((reserva) => (
+                                    <div
+                                        key={reserva.ID_Reserva}
+                                        className="bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-700 hover:shadow-xl transition duration-300 space-y-4"
+                                    >
+                                        <h3 className="text-xl font-bold text-gray-300 border-b border-gray-600 pb-2">
+                                            {reserva.Cafe?.Nome_Cafe || 'Café Desconhecido'}
+                                        </h3>
+
                                         <p className="text-gray-300">
-                                            <span className="font-semibold">Início:</span> {formatDateForDisplay(reserva.Hora_Inicio)}
+                                            <span className="font-semibold">Grupo:</span> {reserva.Grupo?.Nome_Grupo || 'Grupo sem nome'}
                                         </p>
-                                        <p className="text-gray-300">
-                                            <span className="font-semibold">Fim:</span> {formatDateForDisplay(reserva.Hora_Fim)}
-                                        </p>
+
+                                        {reserva.Jogo && (
+                                            <div className="mt-2">
+                                                <p className="text-gray-300">
+                                                    <span className="font-semibold">Jogo:</span> {reserva.Jogo?.Nome_Jogo || 'N/A'}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        <div className="mt-2">
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Mesa:</span> {reserva.Mesa?.Nome_Mesa || 'N/A'}
+                                            </p>
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Lugares:</span> {reserva.Mesa?.Lugares || 'N/A'}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-2">
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Início:</span> {formatDateForDisplay(reserva.Hora_Inicio)}
+                                            </p>
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Fim:</span> {formatDateForDisplay(reserva.Hora_Fim)}
+                                            </p>
+                                        </div>
                                     </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-500">Você não se juntou a nenhuma reserva de grupo.</p>
+                        )}
+                    </div>
+                )}
 
-                                    {/* Ações */}
-                                    <div className="flex gap-2 mt-4">
-                                        <button
-                                            onClick={() => handleEditReserva(reserva)}
-                                            className="bg-yellow-600 text-white px-4 py-1 rounded hover:bg-yellow-500"
-                                        >
-                                            Atualizar
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteReserva(reserva.ID_Reserva)}
-                                            className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-500"
-                                        >
-                                            Apagar
-                                        </button>
-                                    </div>
-
-                                    {/* Formulário de edição */}
-                                    {editingReservaId === reserva.ID_Reserva && (
-                                        <form onSubmit={(e) => handleEditSubmit(e, reserva.ID_Reserva)} className="mt-4 space-y-4 border-t border-gray-600 pt-4">
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-400">Hora de Início</label>
-                                                <input
-                                                    type="datetime-local"
-                                                    name="Hora_Inicio"
-                                                    value={editingData.Hora_Inicio}
-                                                    onChange={handleEditChange}
-                                                    className="mt-1 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
-                                                    required
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-400">Hora de Fim</label>
-                                                <input
-                                                    type="datetime-local"
-                                                    name="Hora_Fim"
-                                                    value={editingData.Hora_Fim}
-                                                    onChange={handleEditChange}
-                                                    className="mt-1 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
-                                                    required
-                                                />
-                                            </div>
-
-                                            <div className="flex gap-2">
-                                                <button
-                                                    type="submit"
-                                                    className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-500"
-                                                >
-                                                    Salvar
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={handleCancelEdit}
-                                                    className="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-500"
-                                                >
-                                                    Cancelar
-                                                </button>
-                                            </div>
-                                        </form>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-center text-gray-500">Você não tem reservas.</p>
-                    )}
-                </div>
             </div>
         </div>
     );

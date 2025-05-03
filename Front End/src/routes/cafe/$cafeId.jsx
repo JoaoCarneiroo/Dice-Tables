@@ -20,11 +20,16 @@ function CafeDetalhes() {
     ID_Mesa: '',
     ID_Jogo: '',
     Hora_Inicio: '',
-    Hora_Fim: ''
+    Hora_Fim: '',
+    Nome_Grupo: '',
+    Lugares_Grupo: ''
   });
 
   const [mostrarReserva, setMostrarReserva] = useState(false);
   const [mostrarJogos, setMostrarJogos] = useState(false);
+
+  const [reservasDisponiveis, setReservasDisponiveis] = useState([]);
+  const [mostrarReservasDisponiveis, setMostrarReservasDisponiveis] = useState(false);
 
   const fetchCafeDetalhes = async () => {
     try {
@@ -131,6 +136,56 @@ function CafeDetalhes() {
     }
   };
 
+  const buscarReservasDisponiveis = async () => {
+    try {
+      const res = await axios.get(`http://localhost:3000/reservas/grupo/${cafeId}`, { withCredentials: true });
+      setReservasDisponiveis(res.data);
+      setMostrarReservasDisponiveis(true);
+    } catch (err) {
+      toast.error(`Erro ao procurar reservas com lugares: ${err.response?.data?.error || err.message}`, {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+    }
+  };
+
+  const juntarAoGrupo = async (idGrupo) => {
+    try {
+      await axios.post(`http://localhost:3000/reservas/juntar/${idGrupo}`, null, { withCredentials: true });
+      toast.success('Juntou-se ao Grupo com sucesso', {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+      buscarReservasDisponiveis(); // atualiza após entrar
+    } catch (err) {
+      toast.error(`Erro ao juntar-se ao grupo: ${err.response?.data?.error || err.message}`, {
+        position: "bottom-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+    }
+  };
+
   if (loading) return <p className="text-center text-white">Carregando detalhes...</p>;
 
   return (
@@ -165,28 +220,50 @@ function CafeDetalhes() {
           />
         </div>
 
-        {/* Botão para mostrar o formulário e mostrar Jogos*/}
+        {/* Botões para as Reservas, Grupos e Compra de Jogos*/}
         <div className="text-center flex flex-col sm:flex-row justify-center gap-4 mt-4">
           <button
             onClick={() => {
               setMostrarReserva((prev) => {
-                if (!prev) setMostrarJogos(false);
-                return !prev;
+                const novoEstado = !prev;
+                setMostrarJogos(false);
+                setMostrarReservasDisponiveis(false);
+                return novoEstado;
               });
             }}
-            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 transition rounded-lg text-white"
+            className={`px-6 py-2 rounded-lg transition text-white ${mostrarReserva ? 'bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-500'
+              }`}
           >
             {mostrarReserva ? 'Cancelar Reserva' : 'Fazer Reserva'}
           </button>
 
           <button
             onClick={() => {
-              setMostrarJogos((prev) => {
-                if (!prev) setMostrarReserva(false);
-                return !prev;
+              setMostrarReservasDisponiveis((prev) => {
+                const novoEstado = !prev;
+                setMostrarReserva(false);
+                setMostrarJogos(false);
+                if (novoEstado) buscarReservasDisponiveis();
+                return novoEstado;
               });
             }}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-500 transition rounded-lg text-white"
+            className={`px-6 py-2 rounded-lg transition text-white ${mostrarReservasDisponiveis ? 'bg-yellow-700' : 'bg-yellow-600 hover:bg-yellow-500'
+              }`}
+          >
+            {mostrarReservasDisponiveis ? 'Esconder Grupos' : 'Ver Grupos com Lugares'}
+          </button>
+
+          <button
+            onClick={() => {
+              setMostrarJogos((prev) => {
+                const novoEstado = !prev;
+                setMostrarReserva(false);
+                setMostrarReservasDisponiveis(false);
+                return novoEstado;
+              });
+            }}
+            className={`px-6 py-2 rounded-lg transition text-white ${mostrarJogos ? 'bg-blue-700' : 'bg-blue-600 hover:bg-blue-500'
+              }`}
           >
             {mostrarJogos ? 'Esconder Jogos' : 'Ver Jogos Disponíveis'}
           </button>
@@ -195,77 +272,110 @@ function CafeDetalhes() {
 
 
         {/* Formulário de Reserva */}
-        <div className={`transition-all duration-300 overflow-hidden ${mostrarReserva ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'} mt-4`}>
+        <div
+          className={`transition-all duration-300 overflow-hidden ${mostrarReserva ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            } mt-6`}
+        >
           {mostrarReserva && (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-400">Mesa</label>
-                <select
-                  name="ID_Mesa"
-                  value={formData.ID_Mesa}
-                  onChange={handleChange}
-                  className="w-full p-2 bg-gray-700 rounded"
-                  required
-                >
-                  <option value="">Seleciona uma mesa</option>
-                  {mesas.map((mesa) => (
-                    <option key={mesa.ID_Mesa} value={mesa.ID_Mesa}>
-                      {mesa.Nome_Mesa} - {mesa.Lugares} lugares
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
+              <h2 className="text-2xl font-semibold text-white text-center">Fazer Reserva</h2>
 
-              {cafe.Tipo_Cafe === 0 && (
-                <div>
-                  <label className="block text-gray-400">Jogo</label>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="block text-sm text-gray-300">Mesa</label>
                   <select
-                    name="ID_Jogo"
-                    value={formData.ID_Jogo}
+                    name="ID_Mesa"
+                    value={formData.ID_Mesa}
                     onChange={handleChange}
-                    className="w-full p-2 bg-gray-700 rounded"
+                    className="w-full p-3 bg-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
                   >
-                    <option value="">Seleciona um jogo</option>
-                    {jogos.map((jogo) => (
-                      <option key={jogo.ID_Jogo} value={jogo.ID_Jogo}>
-                        {jogo.Nome_Jogo} ({jogo.Quantidade} disponíveis)
+                    <option value="">Seleciona uma mesa</option>
+                    {mesas.map((mesa) => (
+                      <option key={mesa.ID_Mesa} value={mesa.ID_Mesa}>
+                        {mesa.Nome_Mesa} - {mesa.Lugares} lugares
                       </option>
                     ))}
                   </select>
                 </div>
-              )}
 
-              <div>
-                <label className="block text-gray-400">Hora de Início</label>
-                <input
-                  type="datetime-local"
-                  name="Hora_Inicio"
-                  value={formData.Hora_Inicio}
-                  onChange={handleChange}
-                  className="w-full p-2 bg-gray-700 rounded"
-                  required
-                />
-              </div>
+                {cafe.Tipo_Cafe === 0 && (
+                  <div className="space-y-1">
+                    <label className="block text-sm text-gray-300">Jogo</label>
+                    <select
+                      name="ID_Jogo"
+                      value={formData.ID_Jogo}
+                      onChange={handleChange}
+                      className="w-full p-3 bg-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Seleciona um jogo</option>
+                      {jogos.map((jogo) => (
+                        <option key={jogo.ID_Jogo} value={jogo.ID_Jogo}>
+                          {jogo.Nome_Jogo} ({jogo.Quantidade} disponíveis)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
-              <div>
-                <label className="block text-gray-400">Hora de Fim</label>
-                <input
-                  type="datetime-local"
-                  name="Hora_Fim"
-                  value={formData.Hora_Fim}
-                  onChange={handleChange}
-                  className="w-full p-2 bg-gray-700 rounded"
-                  required
-                />
-              </div>
+                <div className="space-y-1">
+                  <label className="block text-sm text-gray-300">Nome do Grupo</label>
+                  <input
+                    type="text"
+                    name="Nome_Grupo"
+                    value={formData.Nome_Grupo}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Ex: Grupo dos Boardgamers"
+                  />
+                </div>
 
-              <button
-                type="submit"
-                className="w-full bg-green-600 hover:bg-green-500 text-white p-2 rounded"
-              >
-                Confirmar Reserva
-              </button>
-            </form>
+                <div className="space-y-1">
+                  <label className="block text-sm text-gray-300">
+                    Número de Pessoas no Grupo <span className="text-xs text-gray-400">(excluindo o próprio)</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="Lugares_Grupo"
+                    value={formData.Lugares_Grupo}
+                    onChange={handleChange}
+                    min="0"
+                    className="w-full p-3 bg-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-sm text-gray-300">Hora de Início</label>
+                  <input
+                    type="datetime-local"
+                    name="Hora_Inicio"
+                    value={formData.Hora_Inicio}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-sm text-gray-300">Hora de Fim</label>
+                  <input
+                    type="datetime-local"
+                    name="Hora_Fim"
+                    value={formData.Hora_Fim}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-green-600 hover:bg-green-500 text-white font-medium py-3 rounded-xl transition shadow-sm hover:shadow-md"
+                >
+                  Confirmar Reserva
+                </button>
+              </form>
+            </div>
           )}
         </div>
 
@@ -296,6 +406,55 @@ function CafeDetalhes() {
             </div>
           )}
         </div>
+
+        {/* Lista de Reservas com Lugares no Café */}
+        {mostrarReservasDisponiveis && (
+          <div className="mt-6 space-y-4">
+            <h2 className="text-xl font-semibold text-indigo-400">🎯 Grupos com Lugares Disponíveis</h2>
+
+            {reservasDisponiveis.length === 0 ? (
+              <p className="text-gray-400">Nenhum grupo disponível no momento.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {reservasDisponiveis.map((reserva) => {
+                  const jogo = jogos.find((j) => j.ID_Jogo === reserva.ID_Jogo);
+                  const mesa = mesas.find((m) => m.ID_Mesa === reserva.ID_Mesa);
+
+                  return reserva.Grupo && (
+                    <div
+                      key={reserva.ID_Reserva}
+                      className="bg-gray-800 border border-indigo-600 p-4 rounded-xl shadow-lg flex flex-col justify-between space-y-2"
+                    >
+                      <h3 className="text-lg font-semibold text-white">Grupo: <span className="text-indigo-300">{reserva.Grupo.Nome_Grupo}</span></h3>
+
+                      <p className="text-gray-300">🪑 Mesa: <span className="text-white font-medium">{mesa?.Nome_Mesa || '—'} ({mesa?.Lugares || '?'} lugares)</span></p>
+
+                      {jogo && (
+                        <p className="text-gray-300">🎲 Jogo: <span className="text-white font-medium">{jogo.Nome_Jogo}</span></p>
+                      )}
+
+                      <p className="text-gray-300">
+                        🕒 Hora:{" "}
+                        <span className="text-white">
+                          {new Date(reserva.Hora_Inicio).toLocaleString()} - {new Date(reserva.Hora_Fim).toLocaleString()}
+                        </span>
+                      </p>
+
+                      <p className="text-gray-300">👥 Lugares Disponíveis: <span className="text-green-400 font-semibold">{reserva.Grupo.Lugares_Grupo}</span></p>
+
+                      <button
+                        onClick={() => juntarAoGrupo(reserva.Grupo.ID_Grupo)}
+                        className="mt-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded transition"
+                      >
+                        Juntar-se ao Grupo
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

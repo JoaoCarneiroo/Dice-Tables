@@ -62,6 +62,7 @@ router.get('/utilizador', checkAuth, reservasController.mostrarReservasUtilizado
  */
 router.post('/juntar/:id', checkAuth, reservasController.juntarGrupo);
 
+router.get('/grupo/:id', checkAuth, reservasController.mostrarReservasComLugares);
 
 // Fazer rota de mostrarReservasGrupo (mostra todas as reservas desse utilizador a que ele se juntou e não criou)
 /**

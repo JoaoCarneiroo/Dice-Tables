@@ -166,12 +166,6 @@ exports.criarReserva = async (req, res) => {
         }
 
 
-        if (reservasExistentes.length > 0) {
-            return res.status(400).json({ error: 'Já existe uma reserva com esse nome de grupo.' });
-        }
-
-
-
 
         // Validar se o o número de lugares não excede o número de lugares da mesa (contando com o próprio)
         if (Lugares_Grupo >= mesa.Lugares) {
@@ -199,7 +193,7 @@ exports.criarReserva = async (req, res) => {
             });
         }
 
-        //Associar o grupo ao Utilizadores_Grupos
+        // Associar o grupo ao Utilizadores_Grupos
         if (grupo) {
             await Utilizadores_Grupos.create({
                 ID_Grupo: grupo.ID_Grupo,
@@ -237,7 +231,7 @@ exports.mostrarReservasGrupo = async (req, res) => {
                             },
                             include: [
                                 { model: Cafes, attributes: ['Nome_Cafe'] },
-                                { model: Mesas, attributes: ['Lugares'] },
+                                { model: Mesas, attributes: ['Nome_Mesa', 'Lugares'] },
                                 { model: Jogos, attributes: ['Nome_Jogo'] }
                             ]
                         }
@@ -387,6 +381,33 @@ exports.atualizarReserva = async (req, res) => {
 
         res.status(200).json({ message: 'Reserva atualizada com sucesso!', reserva });
 
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Mostrar as reservas que tiverem lugares de grupo disponíveis em um café
+exports.mostrarReservasComLugares = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Obter todas as reservas do café com lugares de grupo disponíveis
+        const reservas = await Reservas.findAll({
+            where: { ID_Cafe: id },
+            include: [
+                {
+                    model: Grupos,
+                    where: { Lugares_Grupo: { [Op.gt]: 0 } },
+                    required: false
+                }
+            ]
+        });
+
+        if (reservas.length === 0) {
+            return res.status(404).json({ message: 'Não há reservas com lugares disponíveis neste café.' });
+        }
+
+        res.status(200).json(reservas);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
