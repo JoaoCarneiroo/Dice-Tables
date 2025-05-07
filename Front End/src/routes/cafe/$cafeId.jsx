@@ -170,7 +170,7 @@ function CafeDetalhes() {
         theme: "dark",
         transition: Bounce,
       });
-      buscarReservasDisponiveis(); // atualiza após entrar
+      buscarReservasDisponiveis();
     } catch (err) {
       toast.error(`Erro ao juntar-se ao grupo: ${err.response?.data?.error || err.message}`, {
         position: "bottom-center",

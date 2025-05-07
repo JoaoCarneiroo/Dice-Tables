@@ -380,7 +380,7 @@ exports.mostrarReservasComLugares = async (req, res) => {
         });
 
         if (reservas.length === 0) {
-            return res.status(404).json({ message: 'Não há reservas com lugares disponíveis neste café.' });
+            return res.status(204).json({ message: 'Não há reservas com lugares disponíveis neste café.' });
         }
 
         res.status(200).json(reservas);
@@ -434,12 +434,11 @@ exports.juntarGrupo = async (req, res) => {
 };
 
 
-// Obter as reservas do utilizador (que ele se juntou a um grupo e não fez a reserva)
 exports.mostrarReservasGrupo = async (req, res) => {
     try {
         const ID_Utilizador = req.user.id;
 
-        const reservas = await Utilizadores_Grupos.findAll({
+        const utilizadorGrupos = await Utilizadores_Grupos.findAll({
             where: { ID_Utilizador },
             include: [
                 {
@@ -447,8 +446,9 @@ exports.mostrarReservasGrupo = async (req, res) => {
                     include: [
                         {
                             model: Reservas,
+                            required: true,
                             where: {
-                                ID_Utilizador: { [Op.ne]: ID_Utilizador } // exclui as reservas feitas pelo próprio utilizador
+                                ID_Utilizador: { [Op.ne]: ID_Utilizador } // ignora reservas criadas pelo próprio
                             },
                             include: [
                                 { model: Cafes, attributes: ['Nome_Cafe'] },
@@ -461,19 +461,19 @@ exports.mostrarReservasGrupo = async (req, res) => {
             ]
         });
 
-
-        // coloar as reservas cujo grupo não é null no array reservasComGrupo´
-        // e ignorar as reservas cujo grupo é null com for each
-        const reservasComGrupo = reservas.filter(reserva => reserva.Grupo !== null).map(reserva => {
-            return reserva
-        });
+        // Garantir que só devolvemos reservas válidas com grupo e reserva associada
+        const reservasComGrupo = utilizadorGrupos
+            .filter(entry => entry.Grupo && entry.Grupo.Reserva)
+            .map(entry => ({
+                ID_Grupo: entry.ID_Grupo,
+                Reserva: entry.Grupo.Reserva
+            }));
 
         if (reservasComGrupo.length === 0) {
-            return res.status(404).json({ message: 'Não está inscrito em nenhuma reserva.' });
+            return res.status(204).json({ message: 'Não está inscrito em nenhuma reserva de grupo que não tenha feito.' });
         }
 
         res.status(200).json(reservasComGrupo);
-
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

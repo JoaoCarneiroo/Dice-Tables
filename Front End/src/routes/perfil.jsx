@@ -629,7 +629,6 @@ function Perfil() {
                     <div className="mt-10">
                         <h2 className="text-2xl font-semibold text-indigo-500 mb-6 text-center">Reservas em Grupos</h2>
 
-                        {isLoadingReservasGrupo && <p className="text-gray-400 text-center">Carregando reservas de grupo...</p>}
                         {isErrorReservasGrupo && <p className="text-red-500 text-center">Erro ao carregar reservas de grupo.</p>}
 
                         {reservasGrupo && reservasGrupo.length > 0 ? (
