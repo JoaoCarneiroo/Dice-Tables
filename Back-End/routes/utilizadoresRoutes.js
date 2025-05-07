@@ -109,60 +109,28 @@ router.get('/utilizador', checkAuth, utilizadoresController.mostrarUtilizadorAut
  */
 router.post('/', utilizadoresController.criarUtilizador);
 
+/**
+ * @swagger
+ * /autenticar/confirmar-email/{token}:
+ *   get:
+ *     summary: Confirma o email do utilizador
+ *     tags: [Utilizadores]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token de confirmação enviado por email
+ *     responses:
+ *       200:
+ *         description: Email confirmado com sucesso
+ *       400:
+ *         description: Token inválido ou expirado
+ *       500:
+ *         description: Erro interno do servidor
+ */
 router.get('/confirmar-email/:token', utilizadoresController.confirmarEmail);
-
-/**
- * @swagger
- * /autenticar:
- *   patch:
- *     summary: Atualiza o utilizador autenticado
- *     tags: [Utilizadores]
- *     security:
- *       - CookieAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nome:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Utilizador atualizado com sucesso
- *       401:
- *         description: Não autorizado
- *       404:
- *         description: Utilizador não encontrado
- *       500:
- *         description: Erro interno do servidor
- */
-router.patch('/', checkAuth, utilizadoresController.atualizarUtilizador);
-
-/**
- * @swagger
- * /autenticar:
- *   delete:
- *     summary: Remove o utilizador autenticado
- *     tags: [Utilizadores]
- *     security:
- *       - CookieAuth: []
- *     responses:
- *       200:
- *         description: Utilizador removido com sucesso
- *       401:
- *         description: Não autorizado
- *       404:
- *         description: Utilizador não encontrado
- *       500:
- *         description: Erro interno do servidor
- */
-router.delete('/', checkAuth, utilizadoresController.apagarUtilizador);
 
 /**
  * @swagger
@@ -217,5 +185,60 @@ router.post('/login', utilizadoresController.login);
  *         description: Erro interno do servidor
  */
 router.post('/logout', utilizadoresController.logout);
+
+/**
+ * @swagger
+ * /autenticar:
+ *   patch:
+ *     summary: Atualiza o utilizador autenticado
+ *     tags: [Utilizadores]
+ *     security:
+ *       - CookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Utilizador atualizado com sucesso
+ *       401:
+ *         description: Não autorizado
+ *       404:
+ *         description: Utilizador não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.patch('/', checkAuth, utilizadoresController.atualizarUtilizador);
+
+/**
+ * @swagger
+ * /autenticar:
+ *   delete:
+ *     summary: Remove o utilizador autenticado
+ *     tags: [Utilizadores]
+ *     security:
+ *       - CookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Utilizador removido com sucesso
+ *       401:
+ *         description: Não autorizado
+ *       404:
+ *         description: Utilizador não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.delete('/', checkAuth, utilizadoresController.apagarUtilizador);
+
+
 
 module.exports = router;

@@ -213,61 +213,6 @@ exports.criarReserva = async (req, res) => {
     }
 };
 
-// Obter as reservas do utilizador (que ele se juntou a um grupo e não fez a reserva)
-exports.mostrarReservasGrupo = async (req, res) => {
-    try {
-        const ID_Utilizador = req.user.id;
-
-        const reservas = await Utilizadores_Grupos.findAll({
-            where: { ID_Utilizador },
-            include: [
-                {
-                    model: Grupos,
-                    include: [
-                        {
-                            model: Reservas,
-                            where: {
-                                ID_Utilizador: { [Op.ne]: ID_Utilizador } // exclui as reservas feitas pelo próprio utilizador
-                            },
-                            include: [
-                                { model: Cafes, attributes: ['Nome_Cafe'] },
-                                { model: Mesas, attributes: ['Nome_Mesa', 'Lugares'] },
-                                { model: Jogos, attributes: ['Nome_Jogo'] }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        });
-
-        /*
-        [
-            {
-                "ID_Utilizador_Grupos": 1,
-                "ID_Grupo": 1,
-                "ID_Utilizador": 2,
-                "Grupo": null
-            }
-        ]
-
-    */
-
-        // coloar as reservas cujo grupo não é null no array reservasComGrupo´
-        // e ignorar as reservas cujo grupo é null com for each
-        const reservasComGrupo = reservas.filter(reserva => reserva.Grupo !== null).map(reserva => {
-            return reserva
-        });
-
-        if (reservasComGrupo.length === 0) {
-            return res.status(404).json({ message: 'Não está inscrito em nenhuma reserva.' });
-        }
-
-        res.status(200).json(reservasComGrupo);
-
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
 
 
 // Atualizar uma reserva (Apenas o utilizador que reservou pode alterar)
@@ -386,6 +331,37 @@ exports.atualizarReserva = async (req, res) => {
     }
 };
 
+// Apagar uma reserva (Apenas o utilizador que reservou pode remover)
+exports.apagarReserva = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const ID_Utilizador = req.user.id;
+
+        const reserva = await Reservas.findByPk(id);
+        if (!reserva) {
+            return res.status(404).json({ error: "Reserva não encontrada." });
+        }
+
+        // Verificar se o utilizador é dono da reserva
+        if (reserva.ID_Utilizador !== ID_Utilizador) {
+            return res.status(403).json({ error: "Não tem permissão para apagar esta reserva." });
+        }
+
+        // Se houver um jogo associado, restaurar o stock
+        if (reserva.ID_Jogo) {
+            const jogo = await Jogos.findByPk(reserva.ID_Jogo);
+            if (jogo) {
+                await jogo.update({ Quantidade: jogo.Quantidade + 1 });
+            }
+        }
+
+        await reserva.destroy();
+        res.status(200).json({ message: "Reserva apagada com sucesso." });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Mostrar as reservas que tiverem lugares de grupo disponíveis em um café
 exports.mostrarReservasComLugares = async (req, res) => {
     try {
@@ -458,32 +434,82 @@ exports.juntarGrupo = async (req, res) => {
 };
 
 
-// Apagar uma reserva (Apenas o utilizador que reservou pode remover)
-exports.apagarReserva = async (req, res) => {
+// Obter as reservas do utilizador (que ele se juntou a um grupo e não fez a reserva)
+exports.mostrarReservasGrupo = async (req, res) => {
+    try {
+        const ID_Utilizador = req.user.id;
+
+        const reservas = await Utilizadores_Grupos.findAll({
+            where: { ID_Utilizador },
+            include: [
+                {
+                    model: Grupos,
+                    include: [
+                        {
+                            model: Reservas,
+                            where: {
+                                ID_Utilizador: { [Op.ne]: ID_Utilizador } // exclui as reservas feitas pelo próprio utilizador
+                            },
+                            include: [
+                                { model: Cafes, attributes: ['Nome_Cafe'] },
+                                { model: Mesas, attributes: ['Nome_Mesa', 'Lugares'] },
+                                { model: Jogos, attributes: ['Nome_Jogo'] }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+
+
+        // coloar as reservas cujo grupo não é null no array reservasComGrupo´
+        // e ignorar as reservas cujo grupo é null com for each
+        const reservasComGrupo = reservas.filter(reserva => reserva.Grupo !== null).map(reserva => {
+            return reserva
+        });
+
+        if (reservasComGrupo.length === 0) {
+            return res.status(404).json({ message: 'Não está inscrito em nenhuma reserva.' });
+        }
+
+        res.status(200).json(reservasComGrupo);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Apagar um grupo das reservas que o Utilizador se Juntou
+exports.apagarGrupo = async (req, res) => {
     try {
         const { id } = req.params;
         const ID_Utilizador = req.user.id;
 
-        const reserva = await Reservas.findByPk(id);
-        if (!reserva) {
-            return res.status(404).json({ error: "Reserva não encontrada." });
+        // Verificar se o grupo existe
+        const grupo = await Grupos.findByPk(id);
+        if (!grupo) {
+            return res.status(404).json({ error: 'Grupo não encontrado.' });
         }
 
-        // Verificar se o utilizador é dono da reserva
-        if (reserva.ID_Utilizador !== ID_Utilizador) {
-            return res.status(403).json({ error: "Não tem permissão para apagar esta reserva." });
+        // Verificar se o utilizador está no grupo
+        const utilizadorGrupo = await Utilizadores_Grupos.findOne({
+            where: { ID_Grupo: id, ID_Utilizador }
+        });
+
+        if (!utilizadorGrupo) {
+            return res.status(400).json({ error: 'Não está neste grupo.' });
         }
 
-        // Se houver um jogo associado, restaurar o stock
-        if (reserva.ID_Jogo) {
-            const jogo = await Jogos.findByPk(reserva.ID_Jogo);
-            if (jogo) {
-                await jogo.update({ Quantidade: jogo.Quantidade + 1 });
-            }
-        }
+        // Adicionar um lugar ao grupo
+        grupo.Lugares_Grupo += 1;
 
-        await reserva.destroy();
-        res.status(200).json({ message: "Reserva apagada com sucesso." });
+        // Remover o utilizador do grupo
+        await utilizadorGrupo.destroy();
+
+        //Salvar as alterações no grupo
+        await grupo.save();
+
+        res.status(200).json({ message: 'Utilizador removido do grupo com sucesso.' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
