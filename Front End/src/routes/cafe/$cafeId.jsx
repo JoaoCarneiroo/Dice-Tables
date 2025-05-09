@@ -332,7 +332,7 @@ function CafeDetalhes() {
 
                 <div className="space-y-1">
                   <label className="block text-sm text-gray-300">
-                    Número de Pessoas no Grupo <span className="text-xs text-gray-400">(excluindo o próprio)</span>
+                    Número de Vagas Disponíveis <span className="text-xs text-gray-400">(excluindo o próprio)</span>
                   </label>
                   <input
                     type="number"
@@ -389,6 +389,7 @@ function CafeDetalhes() {
                 jogos.map((jogo) => (
                   <div key={jogo.ID_Jogo} className="bg-gray-700 p-4 rounded-lg shadow flex flex-col gap-2">
                     <h3 className="text-xl font-semibold text-white">{jogo.Nome_Jogo}</h3>
+                    <p className="text-gray-300">Preço: {jogo.Preco}€</p>
                     <p className="text-gray-300">Disponíveis: {jogo.Quantidade}</p>
                     <button
                       onClick={() => handleComprarJogo(jogo.ID_Jogo)}

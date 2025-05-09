@@ -107,10 +107,9 @@ function Perfil() {
 
             const reservas = await Promise.all(
                 response.data.map(async (reservaGrupo) => {
-                    const reserva = reservaGrupo.Grupo?.Reserva;
+                    const reserva = reservaGrupo.Reserva;
 
                     if (!reserva) return null; // ignora casos inválidos
-
                     return {
                         ID_Reserva: reserva.ID_Reserva,
                         ID_Cafe: reserva.ID_Cafe,
@@ -119,10 +118,11 @@ function Perfil() {
                         ID_Jogo: reserva.ID_Jogo,
                         Hora_Inicio: reserva.Hora_Inicio,
                         Hora_Fim: reserva.Hora_Fim,
-                        Cafe: reserva.Cafe, // já vem com Nome_Cafe
-                        Mesa: reserva.Mesa, // já vem com Lugares
-                        Jogo: reserva.Jogo || null, // pode não existir
-                        Grupo: reservaGrupo.Grupo // inclui info do grupo se quiseres mostrar nome, lugares, etc
+                        Cafe: reserva.Cafe,
+                        Mesa: reserva.Mesa,
+                        Jogo: reserva.Jogo || null,
+                        Nome_Grupo: reservaGrupo.Nome_Grupo,
+                        Lugares_Grupo: reservaGrupo.Lugares_Grupo
                     };
                 })
             );
@@ -642,9 +642,15 @@ function Perfil() {
                                             {reserva.Cafe?.Nome_Cafe || 'Café Desconhecido'}
                                         </h3>
 
-                                        <p className="text-gray-300">
-                                            <span className="font-semibold">Grupo:</span> {reserva.Grupo?.Nome_Grupo || 'Grupo sem nome'}
-                                        </p>
+
+                                        <div className="mt-2">
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Grupo:</span> {reserva.Nome_Grupo || 'N/A'}
+                                            </p>
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Lugares Disponíveis:</span> {reserva.Lugares_Grupo || 'N/A'}
+                                            </p>
+                                        </div>
 
                                         {reserva.Jogo && (
                                             <div className="mt-2">

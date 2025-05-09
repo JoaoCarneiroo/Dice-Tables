@@ -443,12 +443,14 @@ exports.mostrarReservasGrupo = async (req, res) => {
             include: [
                 {
                     model: Grupos,
+                    attributes: ['ID_Grupo', 'Nome_Grupo', 'Lugares_Grupo'],
+
                     include: [
                         {
                             model: Reservas,
                             required: true,
                             where: {
-                                ID_Utilizador: { [Op.ne]: ID_Utilizador } // ignora reservas criadas pelo próprio
+                                ID_Utilizador: { [Op.ne]: ID_Utilizador } // Ignorar Reservas criadas pelo próprio
                             },
                             include: [
                                 { model: Cafes, attributes: ['Nome_Cafe'] },
@@ -461,11 +463,13 @@ exports.mostrarReservasGrupo = async (req, res) => {
             ]
         });
 
-        // Garantir que só devolvemos reservas válidas com grupo e reserva associada
+        // Garantir que só devolvemos reservas válidas com grupo oe reserva associada
         const reservasComGrupo = utilizadorGrupos
             .filter(entry => entry.Grupo && entry.Grupo.Reserva)
             .map(entry => ({
                 ID_Grupo: entry.ID_Grupo,
+                Nome_Grupo: entry.Grupo.Nome_Grupo,
+                Lugares_Grupo: entry.Grupo.Lugares_Grupo,
                 Reserva: entry.Grupo.Reserva
             }));
 
