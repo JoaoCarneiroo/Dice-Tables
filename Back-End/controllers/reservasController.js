@@ -160,12 +160,6 @@ exports.criarReserva = async (req, res) => {
             }
         }
 
-        // Verificar se o número de lugares do grupo é válido consoante o número de lugares da mesa tendo em conta o prórpio
-        if (Lugares_Grupo && Lugares_Grupo > mesa.Lugares) {
-            return res.status(400).json({ error: 'O número de lugares do grupo não pode ser superior ao número de lugares da mesa.' });
-        }
-
-
 
         // Validar se o o número de lugares não excede o número de lugares da mesa (contando com o próprio)
         if (Lugares_Grupo >= mesa.Lugares) {

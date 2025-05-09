@@ -109,7 +109,7 @@ function Perfil() {
                 response.data.map(async (reservaGrupo) => {
                     const reserva = reservaGrupo.Reserva;
 
-                    if (!reserva) return null; // ignora casos inválidos
+                    if (!reserva) return null;
                     return {
                         ID_Reserva: reserva.ID_Reserva,
                         ID_Cafe: reserva.ID_Cafe,
@@ -628,8 +628,6 @@ function Perfil() {
                 {secaoAtiva === 'grupo' && (
                     <div className="mt-10">
                         <h2 className="text-2xl font-semibold text-indigo-500 mb-6 text-center">Reservas em Grupos</h2>
-
-                        {isErrorReservasGrupo && <p className="text-red-500 text-center">Erro ao carregar reservas de grupo.</p>}
 
                         {reservasGrupo && reservasGrupo.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
