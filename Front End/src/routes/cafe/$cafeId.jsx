@@ -340,6 +340,7 @@ function CafeDetalhes() {
                     value={formData.Lugares_Grupo}
                     onChange={handleChange}
                     min="0"
+                    placeholder="Ex: 2"
                     className="w-full p-3 bg-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
@@ -413,7 +414,8 @@ function CafeDetalhes() {
           <div className="mt-6 space-y-4">
             <h2 className="text-xl font-semibold text-indigo-400">🎯 Grupos com Lugares Disponíveis</h2>
 
-            {reservasDisponiveis.length === 0 ? (
+            {/* Filtra as reservas para mostrar apenas aquelas com Lugares_Grupo > 0 */}
+            {reservasDisponiveis.filter(reserva => reserva.Grupo?.Lugares_Grupo > 0).length === 0 ? (
               <p className="text-gray-400">Nenhum grupo disponível no momento.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -421,7 +423,7 @@ function CafeDetalhes() {
                   const jogo = jogos.find((j) => j.ID_Jogo === reserva.ID_Jogo);
                   const mesa = mesas.find((m) => m.ID_Mesa === reserva.ID_Mesa);
 
-                  return reserva.Grupo && (
+                  return reserva.Grupo && reserva.Grupo.Lugares_Grupo > 0 && (
                     <div
                       key={reserva.ID_Reserva}
                       className="bg-gray-800 border border-indigo-600 p-4 rounded-xl shadow-lg flex flex-col justify-between space-y-2"
@@ -456,6 +458,7 @@ function CafeDetalhes() {
             )}
           </div>
         )}
+
       </div>
     </div>
   );

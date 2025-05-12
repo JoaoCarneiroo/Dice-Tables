@@ -67,7 +67,6 @@ exports.logout = (req, res) => {
         secure: false,
         sameSite: 'Lax'
     });
-    // Retorna uma resposta informando que o usuário foi desconectado
     res.status(200).json({ message: 'Desconectado com sucesso!' });
 };
 
@@ -151,7 +150,7 @@ exports.criarUtilizador = async (req, res) => {
         const urlConfirmacao = `http://localhost:3000/autenticar/confirmar-email/${tokenConfirmacao}`;
         await enviarEmailConfirmacao(email, urlConfirmacao);
 
-        res.status(201).json({ message: 'Utilizador criado! Verifique o seu email para confirmar a conta.' });
+        res.status(201).json({ message: 'Utilizador criado! Verifique o seu email para confirmar a sua conta.' });
     } catch (err) {
         // Sequelize valida automaticamente os campos Nome e Email
         if (err.name === 'SequelizeValidationError') {

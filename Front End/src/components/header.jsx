@@ -11,7 +11,8 @@ export default function Header() {
                 Dice & Tables
             </Link>
             <div className="flex space-x-4">
-                <Link to="/" className="text-gray-300 hover:text-blue-400 font-medium">Home</Link>
+                <Link to="/sobre" className="text-gray-300 hover:text-blue-400 font-medium">Sobre Nós</Link>
+
                 <Link to="/cafes" className="text-gray-300 hover:text-blue-400 font-medium">Cafés</Link>
                 {user.isLoggedIn && (
                     <Link to="/perfil" className="text-gray-300 hover:text-blue-400 font-medium">Perfil</Link>

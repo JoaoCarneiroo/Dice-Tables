@@ -185,7 +185,7 @@ router.delete('/:id', checkAuth, jogosController.apagarJogo);
  *   post:
  *     summary: Compra um jogo
  *     tags: [Jogos]
- *     description: Permite que um utilizador compre um jogo, reduzindo o estoque.
+ *     description: Permite que um utilizador compre um jogo, reduzindo a quantidade e enviando um email com fatura para levantamento.
  *     security:
  *       - CookieAuth: []
  *     parameters:
@@ -205,6 +205,8 @@ router.delete('/:id', checkAuth, jogosController.apagarJogo);
  *       500:
  *         description: Erro interno do servidor
  */
+// documentação swagger da compra de jogo com fatura por email
+
 router.post('/comprar/:id', checkAuth, jogosController.comprarJogo);
 
 module.exports = router;

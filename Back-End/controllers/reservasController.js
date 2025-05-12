@@ -52,9 +52,7 @@ exports.mostrarReservasUtilizador = async (req, res) => {
         const reservas = await Reservas.findAll({
             where: { ID_Utilizador },
             include: [
-                // { model: Cafes, attributes: ['Nome_Cafe', 'Local'] },
-                // { model: Mesas, attributes: ['Lugares'] },
-                // { model: Jogos, attributes: ['Nome_Jogo'] }
+                { model: Grupos, attributes: ['Nome_Grupo', 'Lugares_Grupo'] },
             ]
         });
 
@@ -207,13 +205,11 @@ exports.criarReserva = async (req, res) => {
     }
 };
 
-
-
 // Atualizar uma reserva (Apenas o utilizador que reservou pode alterar)
 exports.atualizarReserva = async (req, res) => {
     try {
         const ID_Reserva = req.params.id;
-        const { ID_Mesa, ID_Jogo, Hora_Inicio, Hora_Fim } = req.body;
+        const { Hora_Inicio, Hora_Fim, Lugares_Grupo } = req.body;
         const ID_Utilizador = req.user.id;
 
         // Verificar se a reserva existe e pertence ao utilizador autenticado
@@ -225,98 +221,55 @@ exports.atualizarReserva = async (req, res) => {
             return res.status(404).json({ error: 'Reserva não encontrada ou não pertence ao utilizador.' });
         }
 
-        // Verificar se a nova mesa existe e pertence ao mesmo café
-        if (ID_Mesa && ID_Mesa !== reserva.ID_Mesa) {
-            const novaMesa = await Mesas.findByPk(ID_Mesa);
-            if (!novaMesa || novaMesa.ID_Cafe !== reserva.ID_Cafe) {
-                return res.status(400).json({ error: 'A mesa selecionada não existe ou não pertence ao mesmo café.' });
-            }
-
-            // Verificar se a nova mesa já está reservada no horário selecionado
-            const reservaExistente = await Reservas.findOne({
-                where: {
-                    ID_Mesa,
-                    [Op.or]: [
-                        { Hora_Inicio: { [Op.between]: [Hora_Inicio, Hora_Fim] } },
-                        { Hora_Fim: { [Op.between]: [Hora_Inicio, Hora_Fim] } }
-                    ]
-                }
-            });
-
-            if (reservaExistente) {
-                return res.status(400).json({ error: 'A nova mesa já está reservada neste horário.' });
-            }
-
-            reserva.ID_Mesa = ID_Mesa;
-        }
-
-        // Verificar se o novo jogo pertence ao mesmo café e tem stock disponível
-        if (ID_Jogo && ID_Jogo !== reserva.ID_Jogo) {
-            const novoJogo = await Jogos.findOne({
-                where: { ID_Jogo, ID_Cafe: reserva.ID_Cafe }
-            });
-
-            if (!novoJogo) {
-                return res.status(400).json({ error: 'O jogo selecionado não existe ou não pertence a este café.' });
-            }
-
-            if (novoJogo.Quantidade < 1) {
-                return res.status(400).json({ error: 'O jogo selecionado está sem stock.' });
-            }
-
-            // Restaurar o stock do jogo anterior
-            const jogoAntigo = await Jogos.findByPk(reserva.ID_Jogo);
-            if (jogoAntigo) {
-                await jogoAntigo.update({ Quantidade: jogoAntigo.Quantidade + 1 });
-            }
-
-            // Reduzir o stock do novo jogo
-            await novoJogo.update({ Quantidade: novoJogo.Quantidade - 1 });
-
-            reserva.ID_Jogo = ID_Jogo;
-        }
-
-        // Atualizar horários se forem fornecidos
-        if (Hora_Inicio) reserva.Hora_Inicio = Hora_Inicio;
-        if (Hora_Fim) reserva.Hora_Fim = Hora_Fim;
-
-
+        // Validar e atualizar apenas os campos permitidos
         const cafe = await Cafes.findByPk(reserva.ID_Cafe);
         if (!cafe) {
             return res.status(404).json({ error: 'Café não encontrado.' });
         }
 
-        if (!isInFuture(reserva.Hora_Inicio)) {
+        // Verificar se a nova data/hora de início é no futuro
+        if (Hora_Inicio && !isInFuture(Hora_Inicio)) {
             return res.status(400).json({ error: 'A nova data/hora de início deve ser no futuro.' });
         }
 
-        if (!isInFuture(reserva.Hora_Fim)) {
+        // Verificar se a nova data/hora de fim é no futuro
+        if (Hora_Fim && !isInFuture(Hora_Fim)) {
             return res.status(400).json({ error: 'A nova data/hora de fim deve ser no futuro.' });
         }
 
-        if (!isDurationValid(reserva.Hora_Inicio, reserva.Hora_Fim)) {
+        // Verificar a duração da reserva (máximo de 4 horas)
+        if (Hora_Inicio && Hora_Fim && !isDurationValid(Hora_Inicio, Hora_Fim)) {
             return res.status(400).json({ error: 'A duração da reserva deve ser no máximo 4 horas.' });
         }
 
         // Verificar se a reserva está dentro do horário de funcionamento do café
-        if (!isWithinCafeHours(reserva.Hora_Inicio, reserva.Hora_Fim, cafe.Horario_Abertura, cafe.Horario_Fecho)) {
+        if (Hora_Inicio && Hora_Fim && !isWithinCafeHours(Hora_Inicio, Hora_Fim, cafe.Horario_Abertura, cafe.Horario_Fecho)) {
             return res.status(400).json({
                 error: `A reserva deve estar entre as ${cafe.Horario_Abertura}h e ${cafe.Horario_Fecho}h, horário de funcionamento do café.`
             });
         }
 
-        await reserva.save();
+        // Atualizar os campos que forem fornecidos
+        if (Hora_Inicio) reserva.Hora_Inicio = Hora_Inicio;
+        if (Hora_Fim) reserva.Hora_Fim = Hora_Fim;
 
-        // Atualizar os dados do grupo se forem fornecidos
-        if (req.body.Nome_Grupo || req.body.Lugares_Grupo) {
-            const grupo = await Grupos.findOne({ where: { ID_Reserva } });
+        // Verificar a mesa para a validade de Lugares_Grupo
+        if (Lugares_Grupo) {
+            const mesa = await Mesas.findByPk(reserva.ID_Mesa);
+            if (Lugares_Grupo >= mesa.Lugares) {
+                return res.status(400).json({ error: 'O número de lugares do grupo não pode ser superior ou igual ao número de lugares da mesa.' });
+            }
+
+            // Atualizar o grupo se houver
+            const grupo = await Grupos.findOne({ where: { ID_Reserva: reserva.ID_Reserva } });
             if (grupo) {
-                if (req.body.Nome_Grupo) grupo.Nome_Grupo = req.body.Nome_Grupo;
-                if (req.body.Lugares_Grupo) grupo.Lugares_Grupo = req.body.Lugares_Grupo;
+                grupo.Lugares_Grupo = Lugares_Grupo;
                 await grupo.save();
             }
         }
 
+        // Salvar a reserva atualizada
+        await reserva.save();
 
         res.status(200).json({ message: 'Reserva atualizada com sucesso!', reserva });
 
@@ -477,8 +430,8 @@ exports.mostrarReservasGrupo = async (req, res) => {
     }
 };
 
-// Apagar um grupo das reservas que o Utilizador se Juntou
-exports.apagarGrupo = async (req, res) => {
+// Sair de um grupo da reserva que o Utilizador se Juntou
+exports.sairGrupo = async (req, res) => {
     try {
         const { id } = req.params;
         const ID_Utilizador = req.user.id;

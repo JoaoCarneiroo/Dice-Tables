@@ -98,12 +98,17 @@ function Perfil() {
     });
 
     // Obter as Reservas do Utilizador onde ele se juntou a um grupo
-    const { data: reservasGrupo, isLoading: isLoadingReservasGrupo, isError: isErrorReservasGrupo } = useQuery({
+    const { data: reservasGrupo, refetch: refetchReservasGrupo } = useQuery({
         queryKey: ['userReservasGrupo'],
         queryFn: async () => {
             const response = await axios.get('http://localhost:3000/reservas/grupo', {
                 withCredentials: true,
+                validateStatus: (status) => status === 200 || status === 204
             });
+
+            if (response.status === 204) {
+                return [];
+            }
 
             const reservas = await Promise.all(
                 response.data.map(async (reservaGrupo) => {
@@ -121,16 +126,51 @@ function Perfil() {
                         Cafe: reserva.Cafe,
                         Mesa: reserva.Mesa,
                         Jogo: reserva.Jogo || null,
+                        ID_Grupo: reservaGrupo.ID_Grupo,
                         Nome_Grupo: reservaGrupo.Nome_Grupo,
                         Lugares_Grupo: reservaGrupo.Lugares_Grupo
                     };
                 })
             );
 
-            // filtra valores nulos (quando reservaGrupo.Grupo?.Reserva é null)
             return reservas.filter(Boolean);
         },
         enabled: !!token,
+    });
+
+    // Sair do Grupo da Reserva
+    const leaveGroupMutation = useMutation({
+        mutationFn: async (reservaGrupo) => {
+            await axios.delete(`http://localhost:3000/reservas/sair/${reservaGrupo.ID_Grupo}`, {
+                withCredentials: true,
+            });
+        },
+        onSuccess: () => {
+            toast.success('Saíste do grupo com sucesso!', {
+                position: 'bottom-center',
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+                transition: Bounce,
+            });
+            refetchReservasGrupo();
+        },
+
+        onError: (err) => {
+            toast.error(`Erro ao sair do grupo: ${err.response?.data?.error || err.message}`, {
+                position: 'bottom-center',
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+                transition: Bounce,
+            });
+        },
     });
 
     const [secaoAtiva, setSecaoAtiva] = useState(null);
@@ -223,16 +263,14 @@ function Perfil() {
     // Estados para edição de reserva
     const [editingReservaId, setEditingReservaId] = useState(null);
     const [editingData, setEditingData] = useState({
-        ID_Mesa: '',
-        ID_Jogo: '',
         Hora_Inicio: '',
-        Hora_Fim: ''
+        Hora_Fim: '',
+        Lugares_Grupo: ''
     });
 
     // Atualizar Reserva
     const updateReservaMutation = useMutation({
         mutationFn: async ({ id, updatedData }) => {
-            console.log(updatedData)
             await axios.patch(`http://localhost:3000/reservas/${id}`, updatedData, {
                 withCredentials: true,
             });
@@ -340,8 +378,7 @@ function Perfil() {
     const handleEditReserva = (reserva) => {
         setEditingReservaId(reserva.ID_Reserva);
         setEditingData({
-            ID_Mesa: reserva.ID_Mesa,
-            ID_Jogo: reserva.ID_Jogo,
+            Lugares_Grupo: reserva.Lugares_Grupo || '',
             Hora_Inicio: formatDateTimeForInput(reserva.Hora_Inicio),
             Hora_Fim: formatDateTimeForInput(reserva.Hora_Fim),
         });
@@ -352,10 +389,9 @@ function Perfil() {
         e.preventDefault();
 
         const updatedData = {
-            Hora_Inicio: convertToUTC(editingData.Hora_Inicio),
-            Hora_Fim: convertToUTC(editingData.Hora_Fim),
             ID_Mesa: editingData.ID_Mesa,
             ID_Jogo: editingData.ID_Jogo,
+            Lugares_Grupo: editingData.Lugares_Grupo,
         };
 
         updateReservaMutation.mutate({ id: reservaId, updatedData });
@@ -365,8 +401,7 @@ function Perfil() {
     const handleCancelEdit = () => {
         setEditingReservaId(null);
         setEditingData({
-            ID_Mesa: '',
-            ID_Jogo: '',
+            Lugares_Grupo: '',
             Hora_Inicio: '',
             Hora_Fim: ''
         });
@@ -488,7 +523,7 @@ function Perfil() {
                     </button>
                 </div>
 
-                {/* Botões para alternar entre reservas pessoais e de grupo */}
+                {/* Botões para alternar entre reservas feita pelo próprio utilizador e de grupo */}
                 <div className="text-center flex flex-col sm:flex-row justify-center gap-4 mt-6">
                     <button
                         onClick={() => setSecaoAtiva(secaoAtiva === 'minhas' ? null : 'minhas')}
@@ -548,6 +583,15 @@ function Perfil() {
 
                                         <div className="mt-4 pt-2 border-t border-gray-700">
                                             <p className="text-gray-300">
+                                                <span className="font-semibold">Grupo:</span> {reserva.Grupo?.Nome_Grupo || 'N/A'}
+                                            </p>
+                                            <p className="text-gray-300">
+                                                <span className="font-semibold">Vagas do Grupo Disponíveis:</span> {reserva.Grupo?.Lugares_Grupo}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-4 pt-2 border-t border-gray-700">
+                                            <p className="text-gray-300">
                                                 <span className="font-semibold">Início:</span> {formatDateForDisplay(reserva.Hora_Inicio)}
                                             </p>
                                             <p className="text-gray-300">
@@ -557,12 +601,23 @@ function Perfil() {
 
                                         {/* Ações */}
                                         <div className="flex gap-2 mt-4">
-                                            <button
-                                                onClick={() => handleEditReserva(reserva)}
-                                                className="bg-yellow-600 text-white px-4 py-1 rounded hover:bg-yellow-500"
-                                            >
-                                                Atualizar
-                                            </button>
+                                            {editingReservaId === reserva.ID_Reserva ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCancelEdit}
+                                                    className="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-500"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleEditReserva(reserva)}
+                                                    className="bg-yellow-600 text-white px-4 py-1 rounded hover:bg-yellow-500"
+                                                >
+                                                    Atualizar
+                                                </button>
+                                            )}
+
                                             <button
                                                 onClick={() => handleDeleteReserva(reserva.ID_Reserva)}
                                                 className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-500"
@@ -573,7 +628,10 @@ function Perfil() {
 
                                         {/* Formulário de edição */}
                                         {editingReservaId === reserva.ID_Reserva && (
-                                            <form onSubmit={(e) => handleEditSubmit(e, reserva.ID_Reserva)} className="mt-4 space-y-4 border-t border-gray-600 pt-4">
+                                            <form
+                                                onSubmit={(e) => handleEditSubmit(e, reserva.ID_Reserva)}
+                                                className="mt-4 space-y-4 border-t border-gray-600 pt-4"
+                                            >
                                                 <div>
                                                     <label className="block text-sm font-semibold text-gray-400">Hora de Início</label>
                                                     <input
@@ -598,19 +656,25 @@ function Perfil() {
                                                     />
                                                 </div>
 
-                                                <div className="flex gap-2">
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-gray-400">Lugares no Grupo</label>
+                                                    <input
+                                                        type="number"
+                                                        name="Lugares_Grupo"
+                                                        value={editingData.Lugares_Grupo || reserva.Grupo?.Lugares_Grupo}
+                                                        onChange={handleEditChange}
+                                                        className="mt-1 w-full p-2 rounded-lg border-gray-600 bg-gray-700 text-white"
+                                                        required
+                                                    />
+                                                </div>
+
+
+                                                <div className="flex justify-start">
                                                     <button
                                                         type="submit"
                                                         className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-500"
                                                     >
                                                         Salvar
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleCancelEdit}
-                                                        className="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-500"
-                                                    >
-                                                        Cancelar
                                                     </button>
                                                 </div>
                                             </form>
@@ -675,6 +739,10 @@ function Perfil() {
                                                 <span className="font-semibold">Fim:</span> {formatDateForDisplay(reserva.Hora_Fim)}
                                             </p>
                                         </div>
+
+                                        <button onClick={() => leaveGroupMutation.mutate({ ID_Grupo: reserva.ID_Grupo })} className="w-full bg-red-600 px-4 py-2 text-white rounded-md hover:bg-red-500">
+                                            Sair do Grupo
+                                        </button>
                                     </div>
                                 ))}
                             </div>

@@ -12,6 +12,9 @@ function Index() {
         Explore jogos incríveis e divirta-se com nossa plataforma de entretenimento interativo.
       </p>
       <div className="flex space-x-4">
+        <Link to="/sobre" className="bg-yellow-600 hover:bg-yellow-500 text-white font-medium py-2 px-4 rounded-lg shadow-md">
+          Informação sobre a Plataforma
+        </Link>
         <Link to="/cafes" className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded-lg shadow-md">
           Explorar Cafés
         </Link>

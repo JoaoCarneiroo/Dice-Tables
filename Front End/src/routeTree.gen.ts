@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SobreImport } from './routes/sobre'
 import { Route as RegistarImport } from './routes/registar'
 import { Route as PerfilImport } from './routes/perfil'
 import { Route as PainelGestorMesasImport } from './routes/painelGestorMesas'
@@ -23,6 +24,12 @@ import { Route as IndexImport } from './routes/index'
 import { Route as CafeCafeIdImport } from './routes/cafe/$cafeId'
 
 // Create/Update Routes
+
+const SobreRoute = SobreImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const RegistarRoute = RegistarImport.update({
   id: '/registar',
@@ -151,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistarImport
       parentRoute: typeof rootRoute
     }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreImport
+      parentRoute: typeof rootRoute
+    }
     '/cafe/$cafeId': {
       id: '/cafe/$cafeId'
       path: '/cafe/$cafeId'
@@ -173,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/painelGestorMesas': typeof PainelGestorMesasRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
+  '/sobre': typeof SobreRoute
   '/cafe/$cafeId': typeof CafeCafeIdRoute
 }
 
@@ -186,6 +201,7 @@ export interface FileRoutesByTo {
   '/painelGestorMesas': typeof PainelGestorMesasRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
+  '/sobre': typeof SobreRoute
   '/cafe/$cafeId': typeof CafeCafeIdRoute
 }
 
@@ -200,6 +216,7 @@ export interface FileRoutesById {
   '/painelGestorMesas': typeof PainelGestorMesasRoute
   '/perfil': typeof PerfilRoute
   '/registar': typeof RegistarRoute
+  '/sobre': typeof SobreRoute
   '/cafe/$cafeId': typeof CafeCafeIdRoute
 }
 
@@ -215,6 +232,7 @@ export interface FileRouteTypes {
     | '/painelGestorMesas'
     | '/perfil'
     | '/registar'
+    | '/sobre'
     | '/cafe/$cafeId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -227,6 +245,7 @@ export interface FileRouteTypes {
     | '/painelGestorMesas'
     | '/perfil'
     | '/registar'
+    | '/sobre'
     | '/cafe/$cafeId'
   id:
     | '__root__'
@@ -239,6 +258,7 @@ export interface FileRouteTypes {
     | '/painelGestorMesas'
     | '/perfil'
     | '/registar'
+    | '/sobre'
     | '/cafe/$cafeId'
   fileRoutesById: FileRoutesById
 }
@@ -253,6 +273,7 @@ export interface RootRouteChildren {
   PainelGestorMesasRoute: typeof PainelGestorMesasRoute
   PerfilRoute: typeof PerfilRoute
   RegistarRoute: typeof RegistarRoute
+  SobreRoute: typeof SobreRoute
   CafeCafeIdRoute: typeof CafeCafeIdRoute
 }
 
@@ -266,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   PainelGestorMesasRoute: PainelGestorMesasRoute,
   PerfilRoute: PerfilRoute,
   RegistarRoute: RegistarRoute,
+  SobreRoute: SobreRoute,
   CafeCafeIdRoute: CafeCafeIdRoute,
 }
 
@@ -288,6 +310,7 @@ export const routeTree = rootRoute
         "/painelGestorMesas",
         "/perfil",
         "/registar",
+        "/sobre",
         "/cafe/$cafeId"
       ]
     },
@@ -317,6 +340,9 @@ export const routeTree = rootRoute
     },
     "/registar": {
       "filePath": "registar.jsx"
+    },
+    "/sobre": {
+      "filePath": "sobre.jsx"
     },
     "/cafe/$cafeId": {
       "filePath": "cafe/$cafeId.jsx"

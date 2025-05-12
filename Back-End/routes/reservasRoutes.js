@@ -227,4 +227,31 @@ router.get('/grupo/:id', checkAuth, reservasController.mostrarReservasComLugares
  */
 router.get('/grupo', checkAuth, reservasController.mostrarReservasGrupo);
 
+/**
+ * @swagger
+ * /reservas/sair/{id}:
+ *   delete:
+ *     summary: Sair de um grupo da reserva que o utilizador se juntou
+ *     tags: [Reservas]
+ *     description: Permite que um utilizador autenticado saia do grupo que se juntou.
+ *     security:
+ *       - CookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do grupo de reservas do qual o utilizador deseja sair
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Utilizador saiu do grupo com sucesso
+ *       400:
+ *         description: Erro na solicitação - ID inválido ou grupo não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.delete('/sair/:id', checkAuth, reservasController.sairGrupo);
+
+
 module.exports = router;

@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { toast, Bounce } from 'react-toastify';
+import { IoIosArrowBack } from 'react-icons/io';
 
 export const Route = createFileRoute('/painelGestor')({
     component: PainelGestor,
@@ -219,7 +220,16 @@ function PainelGestor() {
 
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-12 px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
+
+            <div className="max-w-3xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg relative">
+
+                {/* Botão de Voltar no Canto Inferior */}
+                <button
+                    onClick={() => navigate({ to: '/perfil' })}
+                    className="absolute top-4 left-4 text-indigo-500 hover:text-indigo-400"
+                >
+                    <IoIosArrowBack className="h-6 w-6" />
+                </button>
                 <h1 className="text-3xl font-semibold text-center text-indigo-600 mb-6">Painel do Gestor</h1>
                 {cafeData ? (
                     <div className="mt-8 p-6 bg-gray-700 rounded-lg">
@@ -335,7 +345,7 @@ function PainelGestor() {
                                             className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                         />
                                     </div>
-                                    
+
                                     <div>
                                         <select
                                             name="tipo_cafe"

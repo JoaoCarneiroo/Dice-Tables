@@ -1,11 +1,15 @@
 const Jogos = require('../models/jogosModel');
 const Gestor = require('../models/gestorModel');
 const Cafes = require('../models/cafeModel');
+const Utilizador = require('../models/utilizadorModel');
+
+const { enviarFaturaCompra } = require('../middlewares/email');
+
 
 // Comprar um jogo
 exports.comprarJogo = async (req, res) => {
     try {
-        const { id } = req.params; // ID do jogo
+        const { id } = req.params;
 
         // Procurar o Jogo
         const jogo = await Jogos.findByPk(id);
@@ -20,6 +24,28 @@ exports.comprarJogo = async (req, res) => {
 
         // Reduzir o stock do jogo
         await jogo.update({ Quantidade: jogo.Quantidade - 1 });
+
+        // Procurar Email do Utilizador
+        const utilizador = await Utilizador.findByPk(req.user.id);
+        if (!utilizador || !utilizador.Email) {
+            return res.status(400).json({ error: "Email do utilizador não encontrado." });
+        }
+
+        // Procurar o café do jogo
+        const cafe = await Cafes.findByPk(jogo.ID_Cafe);
+        if (!cafe) {
+            return res.status(404).json({ error: "Café associado ao jogo não encontrado." });
+        }
+
+
+        // Enviar email com fatura e QR code
+        await enviarFaturaCompra({
+            destinatario: utilizador.Email,
+            nomeCliente: utilizador.Nome,
+            nomeJogo: jogo.Nome_Jogo,
+            preco: jogo.Preco,
+            nomeCafe: cafe.Nome_Cafe,
+        });
 
         res.status(200).json({ message: "Compra efetuada com sucesso!", jogo });
 
@@ -89,7 +115,7 @@ exports.criarJogo = async (req, res) => {
         const { nomeJogo, notasJogo, preco, quantidade } = req.body;
 
         // Verificar se o utilizador autenticado é gestor de um café
-        if (!req.user.isGestor) { 
+        if (!req.user.isGestor) {
             return res.status(403).json({ error: "Apenas gestores podem adicionar jogos." });
         }
 
@@ -97,13 +123,13 @@ exports.criarJogo = async (req, res) => {
             where: { ID_Utilizador: req.user.id }
         });
 
-        if (!gestor) { 
+        if (!gestor) {
             return res.status(403).json({ error: "Ainda não tens um café a gerir." });
         }
 
         const cafe = await Cafes.findByPk(gestor.ID_Cafe);
 
-        if (cafe.Tipo_Cafe == 1) { 
+        if (cafe.Tipo_Cafe == 1) {
             return res.status(403).json({ error: "Altere o tipo de café" });
         }
 
