@@ -12,6 +12,21 @@ function CafeDetalhes() {
 
   const navigate = useNavigate();
 
+  // const getTokenFromCookie = () => {
+  //   const match = document.cookie.match(/(^| )Authorization=([^;]+)/);
+  //   return match ? match[2] : null;
+  // };
+
+  // const token = getTokenFromCookie();
+
+  // useEffect(() => {
+  //   if (!token) {
+  //     setTimeout(() => {
+  //       navigate({ to: '/login' });
+  //     }, 100);
+  //   }
+  // }, [token, navigate]);
+
   const [cafe, setCafe] = useState(null);
   const [mesas, setMesas] = useState([]);
   const [jogos, setJogos] = useState([]);

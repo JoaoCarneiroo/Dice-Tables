@@ -3,7 +3,41 @@ const router = express.Router();
 const utilizadoresController = require('../controllers/utilizadoresController');
 const checkAuth = require('../middlewares/authentication');
 
+/**
+ * @swagger
+ * /autenticar/verificar/gestor:
+ *   get:
+ *     summary: Verifica se o utilizador autenticado é um gestor
+ *     tags: [Utilizadores]
+ *     security:
+ *       - CookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Verificação realizada com sucesso
+ *       401:
+ *         description: Não autorizado (token inválido ou ausente)
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/verificar/gestor', utilizadoresController.verificarSeGestor);
 
+/**
+ * @swagger
+ * /autenticar/verificar/admin:
+ *   get:
+ *     summary: Verifica se o utilizador autenticado é um admin
+ *     tags: [Utilizadores]
+ *     security:
+ *       - CookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Verificação realizada com sucesso
+ *       401:
+ *         description: Não autorizado (token inválido ou ausente)
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/verificar/admin', utilizadoresController.verificarSeAdmin);
 /**
  * @swagger
  * /autenticar:

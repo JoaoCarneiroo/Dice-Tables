@@ -6,6 +6,29 @@ const { enviarEmailConfirmacao } = require('../middlewares/email');
 
 const secretKey = 'carneiro_secret';
 
+exports.verificarSeGestor = (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Utilizador não autenticado' });
+    }
+
+    if (req.user.isGestor) {
+        return res.json({ isGestor: true });
+    } else {
+        return res.json({ isGestor: false });
+    }
+};
+
+exports.verificarSeAdmin = (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Utilizador não autenticado' });
+    }
+
+    if (req.user.isAdmin) {
+        return res.json({ isAdmin: true });
+    } else {
+        return res.json({ isAdmin: false });
+    }
+};
 
 // Login de Utilizador
 exports.login = async (req, res) => {

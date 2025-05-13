@@ -28,6 +28,8 @@ function Perfil() {
         }
     }, [token, navigate]);
 
+
+
     const [formData, setFormData] = useState({ nome: '', email: '', password: '' });
     const [showForm, setShowForm] = useState(false);
 
@@ -50,6 +52,13 @@ function Perfil() {
             });
         },
     });
+    useEffect(() => {
+        if (isError && error?.response?.status === 401) {
+            setTimeout(() => {
+                navigate({ to: '/' });
+            }, 3000);
+        }
+    }, [isError, navigate]);
 
     // Obter Reservas do Utilizador
     const { data: reservas, isLoading: isLoadingReservas, isError: isErrorReservas, refetch: refetchReservas } = useQuery({
@@ -422,7 +431,7 @@ function Perfil() {
 
     if (!token) return null;
     if (isLoading) return <p className="text-center text-white">Carregando...</p>;
-    if (isError) return <p className="text-center text-red-500">Erro ao carregar perfil: {error.message}</p>;
+    if (isError) return <p className="text-center text-red-500">Erro ao carregar perfil: {error.response?.data?.error || error.message}</p>;
 
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-12 px-6 lg:px-8">

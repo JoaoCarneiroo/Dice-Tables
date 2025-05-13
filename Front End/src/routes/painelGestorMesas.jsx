@@ -1,13 +1,28 @@
-import { useNavigate, createFileRoute } from '@tanstack/react-router';
+import { useNavigate, createFileRoute, redirect } from '@tanstack/react-router';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast, Bounce } from "react-toastify";
 import { IoIosArrowBack } from 'react-icons/io';
 
+
 export const Route = createFileRoute('/painelGestorMesas')({
+  beforeLoad: async () => {
+
+    try {
+      const response = await axios.get("http://localhost:3000/autenticar/verificar/gestor");
+
+      if (response.status !== 200) {
+        throw redirect({to: '/'});
+      }
+
+    } catch (err) {
+        throw redirect({to: '/'});
+    }
+  },
   component: PainelGestorMesas,
 });
+
 
 export default function PainelGestorMesas() {
   const navigate = useNavigate();

@@ -1,8 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import axios from 'axios';
 
 export const Route = createFileRoute('/painelAdmin')({
+    beforeLoad: async () => {
+
+    try {
+      const response = await axios.get("http://localhost:3000/autenticar/verificar/admin");
+
+      if (response.status !== 200) {
+        throw redirect({ to: '/' });
+      }
+
+    } catch (err) {
+      throw redirect({ to: '/' });
+    }
+  },
   component: PainelAdmin,
 });
 
