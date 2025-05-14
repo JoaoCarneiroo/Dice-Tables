@@ -14,7 +14,7 @@ exports.verificarSeGestor = (req, res) => {
     if (req.user.isGestor) {
         return res.json({ isGestor: true });
     } else {
-        return res.json({ isGestor: false });
+        return res.status(401).json({ error: 'Acesso negado: Não é Gestor' });
     }
 };
 
@@ -26,7 +26,7 @@ exports.verificarSeAdmin = (req, res) => {
     if (req.user.isAdmin) {
         return res.json({ isAdmin: true });
     } else {
-        return res.json({ isAdmin: false });
+        return res.status(401).json({ error: 'Acesso negado: Não é Admin' });
     }
 };
 

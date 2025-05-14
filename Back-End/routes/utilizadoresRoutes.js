@@ -19,7 +19,7 @@ const checkAuth = require('../middlewares/authentication');
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/verificar/gestor', utilizadoresController.verificarSeGestor);
+router.get('/verificar/gestor', checkAuth, utilizadoresController.verificarSeGestor);
 
 /**
  * @swagger
@@ -37,7 +37,7 @@ router.get('/verificar/gestor', utilizadoresController.verificarSeGestor);
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/verificar/admin', utilizadoresController.verificarSeAdmin);
+router.get('/verificar/admin', checkAuth, utilizadoresController.verificarSeAdmin);
 /**
  * @swagger
  * /autenticar:

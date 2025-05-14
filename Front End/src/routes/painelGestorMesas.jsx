@@ -10,14 +10,16 @@ export const Route = createFileRoute('/painelGestorMesas')({
   beforeLoad: async () => {
 
     try {
-      const response = await axios.get("http://localhost:3000/autenticar/verificar/gestor");
-
+      const response = await axios.get("http://localhost:3000/autenticar/verificar/gestor", {
+        withCredentials: true
+      });
+      
       if (response.status !== 200) {
-        throw redirect({to: '/'});
+        throw redirect({ to: '/' });
       }
 
     } catch (err) {
-        throw redirect({to: '/'});
+      throw redirect({ to: '/' });
     }
   },
   component: PainelGestorMesas,

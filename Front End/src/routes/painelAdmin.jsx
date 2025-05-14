@@ -3,11 +3,12 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 import axios from 'axios';
 
 export const Route = createFileRoute('/painelAdmin')({
-    beforeLoad: async () => {
+  beforeLoad: async () => {
 
     try {
-      const response = await axios.get("http://localhost:3000/autenticar/verificar/admin");
-
+      const response = await axios.get("http://localhost:3000/autenticar/verificar/admin", {
+        withCredentials: true
+      });
       if (response.status !== 200) {
         throw redirect({ to: '/' });
       }
@@ -26,7 +27,7 @@ function CardUtilizador({ utilizador, onPromover }) {
       <h2 className="text-xl font-semibold text-indigo-600">{utilizador.Nome}</h2>
       <p className="text-gray-300">Email: {utilizador.Email}</p>
       <p className="text-gray-300">Cargo: {utilizador.Cargo}</p>
-      
+
       {/* Botão para promover a gestor */}
       <button
         onClick={() => onPromover(utilizador.ID_Utilizador)}
@@ -40,7 +41,7 @@ function CardUtilizador({ utilizador, onPromover }) {
 
 // Cada Gestor
 function CardGestor({ gestor, onDespromover }) {
-  
+
   return (
     <div className="bg-gray-800 p-4 rounded-md shadow-md">
       <h2 className="text-xl font-semibold text-indigo-600">{gestor.Nome}</h2>
@@ -105,7 +106,7 @@ function PainelAdmin() {
   // Função para despromover um gestor com confirmação
   const despromoverGestor = async () => {
     if (!gestorToDespromover) return;
-    
+
     try {
       console.log(`ID do gestor a ser despromovido: ${gestorToDespromover.ID_Utilizador}`);
       await axios.delete(`http://localhost:3000/gestor/${gestorToDespromover.ID_Utilizador}`, { withCredentials: true });

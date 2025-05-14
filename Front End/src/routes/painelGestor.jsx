@@ -9,7 +9,9 @@ export const Route = createFileRoute('/painelGestor')({
     beforeLoad: async () => {
 
         try {
-            const response = await axios.get("http://localhost:3000/autenticar/verificar/gestor");
+            const response = await axios.get("http://localhost:3000/autenticar/verificar/gestor", {
+                withCredentials: true
+            });
 
             if (response.status !== 200) {
                 throw redirect({ to: '/' });
