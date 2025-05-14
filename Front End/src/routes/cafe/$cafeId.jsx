@@ -201,6 +201,19 @@ function CafeDetalhes() {
     }
   };
 
+  const formatDateForDisplay = (isoDateStr) => {
+    const date = new Date(isoDateStr);
+
+    // Ajustar a data para o fuso horário local do navegador
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  };
+
   if (loading) return <p className="text-center text-white">Carregando detalhes...</p>;
 
   return (
@@ -453,9 +466,7 @@ function CafeDetalhes() {
 
                       <p className="text-gray-300">
                         🕒 Hora:{" "}
-                        <span className="text-white">
-                          {new Date(reserva.Hora_Inicio).toLocaleString()} - {new Date(reserva.Hora_Fim).toLocaleString()}
-                        </span>
+                        <span className="text-white"> {formatDateForDisplay(reserva.Hora_Inicio)} - {formatDateForDisplay(reserva.Hora_Fim)}</span>
                       </p>
 
                       <p className="text-gray-300">👥 Lugares Disponíveis: <span className="text-green-400 font-semibold">{reserva.Grupo.Lugares_Grupo}</span></p>

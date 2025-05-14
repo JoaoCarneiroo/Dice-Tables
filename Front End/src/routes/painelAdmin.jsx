@@ -9,6 +9,7 @@ export const Route = createFileRoute('/painelAdmin')({
       const response = await axios.get("http://localhost:3000/autenticar/verificar/admin", {
         withCredentials: true
       });
+      
       if (response.status !== 200) {
         throw redirect({ to: '/' });
       }
