@@ -21,12 +21,12 @@ cron.schedule('* * * * *', async () => {
             if (jogo) {
                 jogo.Quantidade += 1; // Devolve o jogo ao stock
                 await jogo.save();
-                console.log(`Stock atualizado: ${jogo.Nome_Jogo} (${jogo.Quantidade} disponíveis)`);
+                //console.log(`Stock atualizado: ${jogo.Nome_Jogo} (${jogo.Quantidade} disponíveis)`);
             }
 
             // Remover reserva da base de dados
             await reserva.destroy();
-            console.log(`Reserva ID ${reserva.ID_Reserva} removida.`);
+            //console.log(`Reserva ID ${reserva.ID_Reserva} removida.`);
         }
 
     } catch (error) {

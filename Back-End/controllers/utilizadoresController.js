@@ -199,7 +199,7 @@ exports.confirmarEmail = async (req, res) => {
 
         await utilizador.save();
 
-        res.status(200).json({ message: 'Email confirmado com sucesso! Já pode iniciar sessão.' });
+        res.redirect('http://localhost:5173/login');
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

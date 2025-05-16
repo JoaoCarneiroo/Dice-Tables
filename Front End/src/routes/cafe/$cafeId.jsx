@@ -237,16 +237,18 @@ function CafeDetalhes() {
         </div>
 
         {/* Mapa do Google Maps */}
-        <div>
-          <h2 className="text-lg font-semibold text-indigo-400 mb-2">📍 Localização</h2>
-          <iframe
-            title="Mapa do Café"
-            src={`https://maps.google.com/maps?q=${encodeURIComponent(cafe.Coordenadas)}&z=15&output=embed`}
-            className="w-full h-64 rounded shadow-md"
-            allowFullScreen
-            loading="lazy"
-          />
-        </div>
+        {cafe.Coordenadas && (
+          <div>
+            <h2 className="text-lg font-semibold text-indigo-400 mb-2">📍 Localização</h2>
+            <iframe
+              title="Mapa do Café"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(cafe.Coordenadas)}&z=15&output=embed`}
+              className="w-full h-64 rounded shadow-md"
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+        )}
 
         {/* Botões para as Reservas, Grupos e Compra de Jogos*/}
         <div className="text-center flex flex-col sm:flex-row justify-center gap-4 mt-4">
@@ -442,7 +444,7 @@ function CafeDetalhes() {
           <div className="mt-6 space-y-4">
             <h2 className="text-xl font-semibold text-indigo-400">🎯 Grupos com Lugares Disponíveis</h2>
 
-            {/* Filtra as reservas para mostrar apenas aquelas com Lugares_Grupo > 0 */}
+            {/* Filtra as reservas para mostrar apenas aquelas com Vagas Disponíveis Maior que 0 */}
             {reservasDisponiveis.filter(reserva => reserva.Grupo?.Lugares_Grupo > 0).length === 0 ? (
               <p className="text-gray-400">Nenhum grupo disponível no momento.</p>
             ) : (
