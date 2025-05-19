@@ -3,8 +3,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { enviarEmailConfirmacao } = require('../middlewares/email');
+const { enviarCodigo2FAEmail } = require('../middlewares/email');
 
 const secretKey = 'carneiro_secret';
+const codes2FA = new Map();
 
 exports.verificarSeGestor = (req, res) => {
     if (!req.user) {
@@ -35,7 +37,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Verificar se já existe um token na cookie
+        // Verificar se já existe um token ativo na cookie
         const tokenExistente = req.cookies.Authorization;
         if (tokenExistente) {
             try {
@@ -50,38 +52,77 @@ exports.login = async (req, res) => {
             }
         }
 
+        // Procurar o Utilizador
         const utilizador = await Utilizador.findOne({ where: { Email: email } });
 
+
+        // Verificar o Email e se está confirmado
         if (!utilizador) {
             return res.status(404).json({ error: 'Email ou Password incorretos' });
         }
-
-        // Confirmação do Email
         if (!utilizador.EmailConfirmado) {
             return res.status(403).json({ error: 'É necessário confirmar o email antes de iniciar sessão.' });
         }
 
-        // Comparar a senha fornecida com o hash da senha no banco de dados
-        const match = await bcrypt.compare(password, utilizador.Password);
 
+        // Verificar a Password
+        const match = await bcrypt.compare(password, utilizador.Password);
         if (!match) {
             return res.status(401).json({ error: 'Email ou Password incorretos' });
         }
 
-        var isAdmin = utilizador.Cargo == 'Administrador'
-        var isGestor = utilizador.Cargo == 'Gestor'
+        // Gerar código 2FA de 6 dígitos
+        const codigo2FA = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Gerar o token JWT
-        const token = jwt.sign({ id: utilizador.ID_Utilizador, nome: utilizador.Nome, email: utilizador.Email, isAdmin: isAdmin, isGestor: isGestor }, secretKey, { expiresIn: '1h' });
+        codes2FA.set(utilizador.ID_Utilizador, { code: codigo2FA, expires: Date.now() + 5 * 60 * 1000 });
 
-        res.cookie('Authorization', token, { httpOnly: false, secure: false, sameSite: 'Lax' });
+        await enviarCodigo2FAEmail(utilizador.Email, codigo2FA);
 
-        res.status(200).json({ message: 'Utilizador autenticado com sucesso!', token, });
+        return res.status(200).json({ message: 'Código 2FA enviado para o email. Por favor, valide para continuar.', email: utilizador.Email });
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 };
 
+exports.verificarCodigo2FA = async (req, res) => {
+    const { email, codigo } = req.body;
+
+    try {
+        const utilizador = await Utilizador.findOne({ where: { Email: email } });
+        if (!utilizador) {
+            return res.status(404).json({ error: 'Utilizador não encontrado' });
+        }
+
+        const dadosCodigo = codes2FA.get(utilizador.ID_Utilizador);
+        if (!dadosCodigo) {
+            return res.status(400).json({ error: 'Nenhum código 2FA foi gerado para este utilizador' });
+        }
+
+        if (Date.now() > dadosCodigo.expires) {
+            codes2FA.delete(utilizador.ID_Utilizador);
+            return res.status(400).json({ error: 'Código expirado' });
+        }
+
+        if (codigo !== dadosCodigo.code) {
+            return res.status(400).json({ error: 'Código inválido' });
+        }
+
+        codes2FA.delete(utilizador.ID_Utilizador);
+
+        // Criar token JWT (como no login original)
+        var isAdmin = utilizador.Cargo == 'Administrador';
+        var isGestor = utilizador.Cargo == 'Gestor';
+
+        const token = jwt.sign({ id: utilizador.ID_Utilizador, nome: utilizador.Nome, email: utilizador.Email, isAdmin, isGestor }, secretKey, { expiresIn: '1h' });
+
+        res.cookie('Authorization', token, { httpOnly: false, secure: false, sameSite: 'Lax' });
+
+        return res.json({ message: 'Autenticado com sucesso!', token });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+};
 
 // Logout de Utilizador
 exports.logout = (req, res) => {

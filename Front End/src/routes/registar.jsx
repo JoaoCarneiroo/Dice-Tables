@@ -18,9 +18,9 @@ function Registar() {
             withCredentials: true,
         }),
         onSuccess: (response) => {
-            toast.success('Conta criada com Sucesso, por favor realize o login', {
+            toast.info('Conta criada com Sucesso, por favor confirme o seu Email.', {
                 position: "bottom-center",
-                autoClose: 2000,
+                autoClose: 3000,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
@@ -31,7 +31,7 @@ function Registar() {
             });
             setTimeout(() => {
                 window.location.href = '/login';
-            }, 2100);
+            }, 3000);
         },
         onError: (err) => {
             toast.error(`Erro ao fazer registo: ${err.response?.data?.error || err.message}`, {

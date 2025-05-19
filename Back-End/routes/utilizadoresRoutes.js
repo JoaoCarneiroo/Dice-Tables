@@ -208,6 +208,24 @@ router.post('/login', utilizadoresController.login);
 
 /**
  * @swagger
+ * /autenticar/2fa:
+ *   post:
+ *     summary: Ativa a autenticação de dois fatores para o utilizador autenticado
+ *     tags: [Utilizadores]
+ *     security:
+ *       - CookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Autenticação de dois fatores ativada com sucesso
+ *       401:
+ *         description: Não autorizado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.post('/login/2fa', utilizadoresController.verificarCodigo2FA);
+
+/**
+ * @swagger
  * /autenticar/logout:
  *   post:
  *     summary: Termina a sessão do utilizador com login

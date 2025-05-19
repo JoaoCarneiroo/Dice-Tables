@@ -25,6 +25,20 @@ exports.enviarEmailConfirmacao = async (destinatario, linkConfirmacao) => {
     });
 };
 
+exports.enviarCodigo2FAEmail = async (destinatario, codigo) => {
+    await transporter.sendMail({
+        from: '"Dice & Tables" <joaomiko257@gmail.com>',
+        to: destinatario,
+        subject: 'Código de Autenticação',
+        html: `
+            <p>Olá!</p>
+            <p>O teu código de autenticação é:</p>
+            <h2>${codigo}</h2>
+            <p>Este código é válido por 5 minutos.</p>
+        `
+    });
+};
+
 exports.enviarFaturaCompra = async ({ destinatario, nomeCliente, nomeJogo, preco, nomeCafe }) => {
     return new Promise(async (resolve, reject) => {
         try {
