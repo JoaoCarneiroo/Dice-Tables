@@ -21,6 +21,7 @@ import { Route as PainelAdminImport } from './routes/painelAdmin'
 import { Route as LoginImport } from './routes/login'
 import { Route as CafesImport } from './routes/cafes'
 import { Route as IndexImport } from './routes/index'
+import { Route as CafeSucessoImport } from './routes/cafe/sucesso'
 import { Route as CafeCafeIdImport } from './routes/cafe/$cafeId'
 
 // Create/Update Routes
@@ -82,6 +83,12 @@ const CafesRoute = CafesImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CafeSucessoRoute = CafeSucessoImport.update({
+  id: '/cafe/sucesso',
+  path: '/cafe/sucesso',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -172,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CafeCafeIdImport
       parentRoute: typeof rootRoute
     }
+    '/cafe/sucesso': {
+      id: '/cafe/sucesso'
+      path: '/cafe/sucesso'
+      fullPath: '/cafe/sucesso'
+      preLoaderRoute: typeof CafeSucessoImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -189,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/registar': typeof RegistarRoute
   '/sobre': typeof SobreRoute
   '/cafe/$cafeId': typeof CafeCafeIdRoute
+  '/cafe/sucesso': typeof CafeSucessoRoute
 }
 
 export interface FileRoutesByTo {
@@ -203,6 +218,7 @@ export interface FileRoutesByTo {
   '/registar': typeof RegistarRoute
   '/sobre': typeof SobreRoute
   '/cafe/$cafeId': typeof CafeCafeIdRoute
+  '/cafe/sucesso': typeof CafeSucessoRoute
 }
 
 export interface FileRoutesById {
@@ -218,6 +234,7 @@ export interface FileRoutesById {
   '/registar': typeof RegistarRoute
   '/sobre': typeof SobreRoute
   '/cafe/$cafeId': typeof CafeCafeIdRoute
+  '/cafe/sucesso': typeof CafeSucessoRoute
 }
 
 export interface FileRouteTypes {
@@ -234,6 +251,7 @@ export interface FileRouteTypes {
     | '/registar'
     | '/sobre'
     | '/cafe/$cafeId'
+    | '/cafe/sucesso'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -247,6 +265,7 @@ export interface FileRouteTypes {
     | '/registar'
     | '/sobre'
     | '/cafe/$cafeId'
+    | '/cafe/sucesso'
   id:
     | '__root__'
     | '/'
@@ -260,6 +279,7 @@ export interface FileRouteTypes {
     | '/registar'
     | '/sobre'
     | '/cafe/$cafeId'
+    | '/cafe/sucesso'
   fileRoutesById: FileRoutesById
 }
 
@@ -275,6 +295,7 @@ export interface RootRouteChildren {
   RegistarRoute: typeof RegistarRoute
   SobreRoute: typeof SobreRoute
   CafeCafeIdRoute: typeof CafeCafeIdRoute
+  CafeSucessoRoute: typeof CafeSucessoRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -289,6 +310,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegistarRoute: RegistarRoute,
   SobreRoute: SobreRoute,
   CafeCafeIdRoute: CafeCafeIdRoute,
+  CafeSucessoRoute: CafeSucessoRoute,
 }
 
 export const routeTree = rootRoute
@@ -311,7 +333,8 @@ export const routeTree = rootRoute
         "/perfil",
         "/registar",
         "/sobre",
-        "/cafe/$cafeId"
+        "/cafe/$cafeId",
+        "/cafe/sucesso"
       ]
     },
     "/": {
@@ -346,6 +369,9 @@ export const routeTree = rootRoute
     },
     "/cafe/$cafeId": {
       "filePath": "cafe/$cafeId.jsx"
+    },
+    "/cafe/sucesso": {
+      "filePath": "cafe/sucesso.jsx"
     }
   }
 }

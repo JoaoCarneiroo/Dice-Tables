@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createFileRoute, useParams, useNavigate } from '@tanstack/react-router';
 import axios from 'axios';
 import { toast, Bounce } from 'react-toastify';
+import { loadStripe } from '@stripe/stripe-js';
 
 export const Route = createFileRoute('/cafe/$cafeId')({
   component: CafeDetalhes,
@@ -9,6 +10,7 @@ export const Route = createFileRoute('/cafe/$cafeId')({
 
 function CafeDetalhes() {
   const { cafeId } = useParams('/$cafeId');
+  const stripePromise = loadStripe('pk_test_51RQUSAQsEvSErosmSEbBhJSjnXc9LBQ1m4HGsXc2TbU4Xkd6aGdj6UZju1LLbKYMmkhOqXhKBL2WFefeL0F1EV5b00RxfPrnN7');
 
   const navigate = useNavigate();
 
@@ -118,26 +120,35 @@ function CafeDetalhes() {
       });
     }
   };
-
   const handleComprarJogo = async (id) => {
     try {
-      await axios.post(`http://localhost:3000/jogos/comprar/${id}`, null, {
+      const stripe = await stripePromise;
+
+      // 1. Chama o endpoint para criar a sessão
+      const response = await axios.post(`http://localhost:3000/jogos/comprar/${id}`, null, {
         withCredentials: true,
       });
-      toast.success('Jogo comprado com sucesso!', {
-        position: "bottom-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-      });
-      fetchCafeDetalhes();
+
+      const sessionId = response.data.sessionId;
+
+      const result = await stripe.redirectToCheckout({ sessionId });
+
+      if (result.error) {
+        toast.error(`Erro no redirecionamento: ${result.error.message}`, {
+          position: "bottom-center",
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Bounce,
+        });
+      }
+
     } catch (err) {
-      toast.error(`Erro ao comprar jogo: ${err.response?.data?.error || err.message}`, {
+      toast.error(`Erro ao iniciar checkout: ${err.response?.data?.error || err.message}`, {
         position: "bottom-center",
         autoClose: 4000,
         hideProgressBar: false,
@@ -148,7 +159,7 @@ function CafeDetalhes() {
         theme: "dark",
         transition: Bounce,
       });
-    }
+    };
   };
 
   const buscarReservasDisponiveis = async () => {

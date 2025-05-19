@@ -5,40 +5,74 @@ const Utilizador = require('../models/utilizadorModel');
 
 const { enviarFaturaCompra } = require('../middlewares/email');
 
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Comprar um jogo
 exports.comprarJogo = async (req, res) => {
     try {
         const { id } = req.params;
-
-        // Procurar o Jogo
         const jogo = await Jogos.findByPk(id);
-        if (!jogo) {
-            return res.status(404).json({ error: "Jogo não encontrado." });
+        if (!jogo || jogo.Quantidade < 1) {
+            return res.status(400).json({ error: "Jogo inválido ou sem stock." });
         }
 
-        // Verificar se o jogo tem stock disponível
-        if (jogo.Quantidade < 1) {
-            return res.status(400).json({ error: "Este jogo está sem stock." });
-        }
-
-        // Reduzir o stock do jogo
-        await jogo.update({ Quantidade: jogo.Quantidade - 1 });
-
-        // Procurar Email do Utilizador
         const utilizador = await Utilizador.findByPk(req.user.id);
         if (!utilizador || !utilizador.Email) {
             return res.status(400).json({ error: "Email do utilizador não encontrado." });
         }
 
-        // Procurar o café do jogo
-        const cafe = await Cafes.findByPk(jogo.ID_Cafe);
-        if (!cafe) {
-            return res.status(404).json({ error: "Café associado ao jogo não encontrado." });
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            customer_email: utilizador.Email,
+            mode: 'payment',
+            line_items: [{
+                price_data: {
+                    currency: 'eur',
+                    product_data: { name: jogo.Nome_Jogo },
+                    unit_amount: Math.round(jogo.Preco * 100),
+                },
+                quantity: 1,
+            }],
+            success_url: `${process.env.CLIENT_URL}/cafe/sucesso?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.CLIENT_URL}/perfil`,
+            metadata: {
+                ID_Utilizador: utilizador.ID_Utilizador,
+                ID_Jogo: jogo.ID_Jogo,
+            }
+        });
+
+        res.status(200).json({ sessionId: session.id });
+
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao criar sessão de pagamento." });
+    }
+};
+
+// Finalizar a Comprar depois do Checkout
+exports.finalizarCompra = async (req, res) => {
+    try {
+        const { sessionId } = req.body;
+
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        if (!session || session.payment_status !== 'paid') {
+            return res.status(400).json({ error: "Pagamento não confirmado." });
         }
 
+        const ID_Utilizador = session.metadata.ID_Utilizador;
+        const ID_Jogo = session.metadata.ID_Jogo;
 
-        // Enviar email com fatura e QR code
+        const utilizador = await Utilizador.findByPk(ID_Utilizador);
+        const jogo = await Jogos.findByPk(ID_Jogo);
+        const cafe = await Cafes.findByPk(jogo.ID_Cafe);
+
+        if (!jogo || jogo.Quantidade < 1) {
+            return res.status(400).json({ error: "Este jogo está sem stock." });
+        }
+
+        // Reduzir stock
+        await jogo.update({ Quantidade: jogo.Quantidade - 1 });
+
+        // Enviar fatura
         await enviarFaturaCompra({
             destinatario: utilizador.Email,
             nomeCliente: utilizador.Nome,
@@ -47,12 +81,9 @@ exports.comprarJogo = async (req, res) => {
             nomeCafe: cafe.Nome_Cafe,
         });
 
-        res.status(200).json({ message: "Compra efetuada com sucesso!", jogo });
+        res.status(200).json({ message: "Compra finalizada com sucesso." });
 
     } catch (error) {
-        if (error.name === "SequelizeValidationError") {
-            return res.status(400).json({ error: error.errors.map(e => e.message) });
-        }
         res.status(500).json({ error: error.message });
     }
 };

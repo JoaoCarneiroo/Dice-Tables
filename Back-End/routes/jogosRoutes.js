@@ -3,6 +3,8 @@ const router = express.Router();
 const jogosController = require('../controllers/jogosController');
 const checkAuth = require('../middlewares/authentication');
 
+
+
 /**
  * @swagger
  * /jogos:
@@ -205,8 +207,35 @@ router.delete('/:id', checkAuth, jogosController.apagarJogo);
  *       500:
  *         description: Erro interno do servidor
  */
-// documentação swagger da compra de jogo com fatura por email
 
 router.post('/comprar/:id', checkAuth, jogosController.comprarJogo);
+
+/**
+ * @swagger
+ * /jogos/finalizar:
+ *   post:
+ *     summary: Finaliza a compra de um jogo
+ *     tags: [Jogos]
+ *     description: Permite que um utilizador finalize a compra de um jogo diminuindo o stock e enviando a fatura.
+ *     security:
+ *       - CookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               sessionId:
+ *                 type: string
+ *                 description: ID da sessão de pagamento
+ *     responses:
+ *       200:
+ *         description: Compra finalizada com sucesso
+ *       400:
+ *         description: Erro ao finalizar a compra
+ */
+router.post('/finalizar', checkAuth, jogosController.finalizarCompra);
+
 
 module.exports = router;
