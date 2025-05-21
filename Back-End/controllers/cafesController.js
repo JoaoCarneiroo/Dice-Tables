@@ -40,7 +40,11 @@ const upload = multer({
     }
 });
 
-
+// Função auxiliar para converter HH:MM em minutos totais desde meia-noite
+function horarioParaMinutos(horario) {
+    const [h, m] = horario.split(':').map(Number);
+    return h * 60 + m;
+}
 
 // Obter todos os cafés
 exports.mostrarCafes = async (req, res) => {
@@ -103,16 +107,9 @@ exports.criarCafe = async (req, res) => {
         // Definindo imagem padrão inicialmente
         const imagem_cafe = req.file ? req.file.filename : 'default.png';
 
-        // Garantir que horario_abertura e horario_fecho sejam convertidos para inteiros
-        horario_abertura = parseInt(horario_abertura, 10);
-        horario_fecho = parseInt(horario_fecho, 10);
-
-        // Verificação se o horário de abertura é menor que o de fecho
-        if (horario_abertura >= horario_fecho) {
-            if (req.file.filename) {
-                deleteFile(req.file.filename);
-            }
-            return res.status(400).json({ error: 'O horário de abertura deve ser menor que o horário de fecho.' });
+        if (horario_abertura === horario_fecho) {
+            if (req.file) deleteFile(req.file.filename);
+            return res.status(400).json({ error: 'Horário de abertura e fecho não podem ser iguais.' });
         }
 
         // Verifique se o gestor já tem um café
@@ -181,17 +178,12 @@ exports.atualizarCafe = async (req, res) => {
         let { nome_cafe, descricao, local, coordenadas, tipo_cafe, horario_abertura, horario_fecho } = req.body;
         const novaImagem = req.file ? req.file.filename : cafe.Imagem_Cafe;
 
-        horario_abertura = parseInt(horario_abertura, 10);
-        horario_fecho = parseInt(horario_fecho, 10);
+        if (horario_abertura && horario_fecho && horario_abertura === horario_fecho) {
+            if (req.file) deleteFile(req.file.filename);
+            return res.status(400).json({ error: 'Horário de abertura e fecho não podem ser iguais.' });
+        }
 
         const novoTipo = parseInt(tipo_cafe, 10);
-
-        if (horario_abertura >= horario_fecho) {
-            if (req.file) {
-                deleteFile(req.file.filename);
-            }
-            return res.status(400).json({ error: 'O horário de abertura deve ser menor que o horário de fecho.' });
-        }
 
         // Apagar jogos se mudar de tipo 0 para 1
         if (tipoCafeAntigo === 0 && novoTipo === 1) {

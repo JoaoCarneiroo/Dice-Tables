@@ -110,7 +110,7 @@ exports.verificarCodigo2FA = async (req, res) => {
 
         codes2FA.delete(utilizador.ID_Utilizador);
 
-        // Criar token JWT (como no login original)
+        // Criar token JWT
         var isAdmin = utilizador.Cargo == 'Administrador';
         var isGestor = utilizador.Cargo == 'Gestor';
 

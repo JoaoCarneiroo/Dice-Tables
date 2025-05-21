@@ -252,7 +252,7 @@ function PainelGestor() {
                         <p className="text-gray-200 mt-2">Nome: {cafeData.Nome_Cafe}</p>
                         <p className="text-gray-200">🎲 {cafeData.Tipo_Cafe === 0 ? 'Café com Jogos' : 'Café sem Jogos'}</p>
                         <p className="text-gray-200">📍 {cafeData.Local}</p>
-                        <p className="text-gray-200">🕒 {cafeData.Horario_Abertura}:00 - {cafeData.Horario_Fecho}:00</p>
+                        <p className="text-gray-200">🕒 {cafeData.Horario_Abertura} - {cafeData.Horario_Fecho}</p>
                         {cafeData.Imagem_Cafe ? (
                             <img
                                 src={`http://localhost:3000/uploads/cafes/${cafeData.Imagem_Cafe}`}
@@ -375,8 +375,11 @@ function PainelGestor() {
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
+                                            <label htmlFor="horario_abertura" className="block text-sm text-white mb-1">
+                                                Horário de Abertura
+                                            </label>
                                             <input
-                                                type="number"
+                                                type="time"
                                                 name="horario_abertura"
                                                 placeholder="Horário de Abertura"
                                                 value={form.horario_abertura}
@@ -386,8 +389,11 @@ function PainelGestor() {
                                         </div>
 
                                         <div>
+                                            <label htmlFor="horario_fecho" className="block text-sm text-white mb-1">
+                                                Horário de Fecho
+                                            </label>
                                             <input
-                                                type="number"
+                                                type="time"
                                                 name="horario_fecho"
                                                 placeholder="Horário de Fecho"
                                                 value={form.horario_fecho}
@@ -457,7 +463,7 @@ function PainelGestor() {
                                     <input
                                         type="text"
                                         name="local"
-                                        placeholder="Local"
+                                        placeholder="Localização"
                                         onChange={handleChange}
                                         required
                                         className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -488,8 +494,11 @@ function PainelGestor() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
+                                        <label htmlFor="horario_abertura" className="block text-sm text-white mb-1">
+                                            Horário de Abertura
+                                        </label>
                                         <input
-                                            type="number"
+                                            type="time"
                                             name="horario_abertura"
                                             placeholder="Horário de Abertura"
                                             onChange={handleChange}
@@ -499,8 +508,11 @@ function PainelGestor() {
                                     </div>
 
                                     <div>
+                                        <label htmlFor="horario_fecho" className="block text-sm text-white mb-1">
+                                            Horário de Fecho
+                                        </label>
                                         <input
-                                            type="number"
+                                            type="time"
                                             name="horario_fecho"
                                             placeholder="Horário de Fecho"
                                             onChange={handleChange}

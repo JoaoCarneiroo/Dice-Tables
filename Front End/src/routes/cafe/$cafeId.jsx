@@ -242,7 +242,7 @@ function CafeDetalhes() {
             <h1 className="text-3xl font-bold text-indigo-400">{cafe.Nome_Cafe}</h1>
             <p className="italic text-gray-300">{cafe.Descricao}</p>
             <p>📍 <span className="text-gray-300">{cafe.Local}</span></p>
-            <p>🕒 <span className="text-gray-300">Horário: {cafe.Horario_Abertura}:00 - {cafe.Horario_Fecho}:00</span></p>
+            <p>🕒 <span className="text-gray-300">Horário: {cafe.Horario_Abertura} - {cafe.Horario_Fecho}</span></p>
             <p>🎲 <span className="text-gray-300">Tipo: {cafe.Tipo_Cafe === 0 ? 'Café com Jogos' : 'Café sem Jogos'}</span></p>
           </div>
         </div>

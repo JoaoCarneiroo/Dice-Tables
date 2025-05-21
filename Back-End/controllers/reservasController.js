@@ -8,23 +8,62 @@ const Utilizadores_Grupos = require('../models/utilizadorGrupoModel');
 const Grupos = require('../models/gruposModel');
 
 const { Op } = require('sequelize');
+const { DateTime } = require('luxon');
 
-const isWithinCafeHours = (horaInicio, horaFim, horarioAbertura, horarioFecho) => {
-    const horaInicioInt = new Date(horaInicio).getHours();
-    const horaFimInt = new Date(horaFim).getHours();
+// Verifica se a reserva está dentro do horário do café (horaInicio e horaFim são strings ISO)
 
-    return horaInicioInt >= horarioAbertura && horaFimInt <= horarioFecho;
+const isWithinCafeHours = (horaInicioISO, horaFimISO, horarioAberturaStr, horarioFechoStr) => {
+    // Pega horas e minutos do café
+    const [abrHora, abrMin] = horarioAberturaStr.split(':').map(Number);
+    const [fecHora, fecMin] = horarioFechoStr.split(':').map(Number);
+
+    // Parseia as datas como UTC, usando o construtor Date com string ISO que já é UTC
+    const inicio = new Date(horaInicioISO);
+    let fim = new Date(horaFimISO);
+
+    // Se Hora_Fim for antes ou igual Hora_Inicio, adiciona 1 dia a Hora_Fim (reservas que atravessam a meia-noite)
+    if (fim <= inicio) {
+        fim.setUTCDate(fim.getUTCDate() + 1);
+    }
+
+    // Cria datas de abertura e fecho no mesmo dia de inicio, no UTC
+    const abertura = new Date(inicio);
+    abertura.setUTCHours(abrHora, abrMin, 0, 0);
+
+    const fecho = new Date(inicio);
+    fecho.setUTCHours(fecHora, fecMin, 0, 0);
+
+    // Se fecho for menor ou igual a abertura, é do dia seguinte
+    if (fecho <= abertura) {
+        fecho.setUTCDate(fecho.getUTCDate() + 1);
+    }
+
+    console.log('--- VERIFICAÇÃO DE HORÁRIO DO CAFÉ (UTC) ---');
+    console.log('Hora Início:', inicio.toISOString());
+    console.log('Hora Fim:', fim.toISOString());
+    console.log('Abertura:', abertura.toISOString());
+    console.log('Fecho:', fecho.toISOString());
+
+    return inicio >= abertura && fim <= fecho;
 };
 
+// Verifica se a data está no futuro
 const isInFuture = (data) => {
     const agora = new Date();
     return new Date(data) > agora;
 };
 
+// Verifica se a duração da reserva é válida (máximo 4 horas e > 0)
 const isDurationValid = (horaInicio, horaFim) => {
-    const inicio = new Date(horaInicio);
-    const fim = new Date(horaFim);
-    const diffHoras = (fim - inicio) / (1000 * 60 * 60); // Máximo 4 Horas
+    let inicio = new Date(horaInicio);
+    let fim = new Date(horaFim);
+
+    // Se Hora_Fim for antes ou igual Hora_Inicio, adiciona 1 dia a Hora_Fim
+    if (fim <= inicio) {
+        fim.setDate(fim.getDate() + 1);
+    }
+
+    const diffHoras = (fim - inicio) / (1000 * 60 * 60);
     return diffHoras > 0 && diffHoras <= 4;
 };
 
@@ -66,16 +105,22 @@ exports.mostrarReservasUtilizador = async (req, res) => {
 exports.criarReserva = async (req, res) => {
     try {
         const { ID_Mesa, ID_Jogo, Hora_Inicio, Hora_Fim, Nome_Grupo, Lugares_Grupo } = req.body;
+        let horaInicio = new Date(Hora_Inicio);
+        let horaFim = new Date(Hora_Fim);
+
+        if (horaFim <= horaInicio) {
+            horaFim.setDate(horaFim.getDate() + 1);
+        }
 
         // Verificar se a data/hora de início é no futuro
-        if (!isInFuture(Hora_Inicio)) {
+        if (!isInFuture(horaInicio)) {
             return res.status(400).json({ error: 'A data/hora de início da reserva deve ser no futuro.' });
         }
-        if (!isInFuture(Hora_Fim)) {
+        if (!isInFuture(horaFim)) {
             return res.status(400).json({ error: 'A data/hora de fim da reserva deve ser no futuro.' });
         }
 
-        if (!isDurationValid(Hora_Inicio, Hora_Fim)) {
+        if (!isDurationValid(horaInicio, horaFim)) {
             return res.status(400).json({ error: 'A duração da reserva deve ser no máximo 4 horas.' });
         }
 
@@ -95,12 +140,12 @@ exports.criarReserva = async (req, res) => {
         }
 
         // Verificar se a reserva está dentro do horário de funcionamento do café
-        if (!isWithinCafeHours(Hora_Inicio, Hora_Fim, cafe.Horario_Abertura, cafe.Horario_Fecho)) {
+        // Exemplo: passando o timezone do café (deve obter isso do banco ou setar padrão)
+        if (!isWithinCafeHours(horaInicio.toISOString(), horaFim.toISOString(), cafe.Horario_Abertura, cafe.Horario_Fecho)) {
             return res.status(400).json({
                 error: `A reserva deve estar entre as ${cafe.Horario_Abertura}h e ${cafe.Horario_Fecho}h, horário de funcionamento do café.`
             });
         }
-
         // Verificar se já existe uma reserva na mesma mesa no horário escolhido
         const reservaExistente = await Reservas.findOne({
             where: {
@@ -170,8 +215,8 @@ exports.criarReserva = async (req, res) => {
             ID_Mesa,
             ID_Utilizador,
             ID_Jogo: jogo ? jogo.ID_Jogo : null,
-            Hora_Inicio,
-            Hora_Fim
+            Hora_Inicio: horaInicio,
+            Hora_Fim: horaFim
         });
 
         // Criar um grupo se o nome do grupo e o número de lugares forem fornecidos

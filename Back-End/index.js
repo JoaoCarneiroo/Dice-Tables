@@ -30,11 +30,11 @@ const reservasRoutes = require('./routes/reservasRoutes');
 
 // async function createAdmin() {
 
-//   const hashedPassword = await bcrypt.hash('admin', 10);
+//   const hashedPassword = await bcrypt.hash('batata', 10);
 
 //   const novoUtilizador = await Utilizador.create({
 //     Nome: 'admin',
-//     Email: 'admin@gmail.com',
+//     Email: 'joaomiko25@gmail.com',
 //     Password: hashedPassword,
 //     Cargo: 'Administrador',
 //     EmailConfirmado: true

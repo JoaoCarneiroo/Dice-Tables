@@ -2,31 +2,31 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../Database/sequelize');
 
 const Cafe = sequelize.define('Cafe', {
-    ID_Cafe: { 
-        type: DataTypes.INTEGER, 
-        primaryKey: true, 
+    ID_Cafe: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
         autoIncrement: true,
-        unique: true 
+        unique: true
     },
-    Nome_Cafe: { 
-        type: DataTypes.STRING, 
+    Nome_Cafe: {
+        type: DataTypes.STRING,
         allowNull: false,
         unique: {
             msg: 'O nome do café já existe.'
         }
     },
-    Descricao: { 
-        type: DataTypes.STRING, 
+    Descricao: {
+        type: DataTypes.STRING,
         allowNull: false,
     },
     Imagem_Cafe: {
         type: DataTypes.STRING,
-        allowNull: false, 
+        allowNull: false,
         defaultValue: 'default.png',
     },
-    Local: { 
-        type: DataTypes.STRING, 
-        allowNull: false 
+    Local: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
     Coordenadas: {
         type: DataTypes.STRING,
@@ -39,7 +39,7 @@ const Cafe = sequelize.define('Cafe', {
         }
     },
     Tipo_Cafe: {
-        type: DataTypes.TINYINT, 
+        type: DataTypes.TINYINT,
         allowNull: false,
         validate: {
             min: {
@@ -55,45 +55,31 @@ const Cafe = sequelize.define('Cafe', {
             }
         }
     },
-    Horario_Abertura: { 
-        type: DataTypes.INTEGER, 
+    Horario_Abertura: {
+        type: DataTypes.TIME,
         allowNull: false,
         validate: {
-            min: {
-                args: [0],
-                msg: 'O horário de abertura deve ser no mínimo 0 (meia-noite).'
-            },
-            max: {
-                args: [23],
-                msg: 'O horário de abertura deve ser no máximo 23 (11 da noite).'
-            },
-            isInt: {
-                msg: 'O horário de abertura deve ser um número inteiro entre 0 e 23.'
+            is: {
+                args: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+                msg: 'O horário de abertura deve estar no formato HH:MM.'
             }
         }
     },
-    Horario_Fecho: { 
-        type: DataTypes.INTEGER, 
+    Horario_Fecho: {
+        type: DataTypes.TIME,
         allowNull: false,
         validate: {
-            min: {
-                args: [0],
-                msg: 'O horário de fecho deve ser no mínimo 0 (meia-noite).'
-            },
-            max: {
-                args: [23],
-                msg: 'O horário de fecho deve ser no máximo 23 (11 da noite).'
-            },
-            isInt: {
-                msg: 'O horário de fecho deve ser um número inteiro entre 0 e 23.'
+            is: {
+                args: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+                msg: 'O horário de fecho deve estar no formato HH:MM.'
             }
         }
-    },
-    
-}, { 
-    tableName: 'Cafes', 
+    }
+
+}, {
+    tableName: 'Cafes',
     timestamps: false,
-    
+
 });
 
 module.exports = Cafe;
