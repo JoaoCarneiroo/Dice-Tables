@@ -8,10 +8,8 @@ const Utilizadores_Grupos = require('../models/utilizadorGrupoModel');
 const Grupos = require('../models/gruposModel');
 
 const { Op } = require('sequelize');
-const { DateTime } = require('luxon');
 
 // Verifica se a reserva está dentro do horário do café (horaInicio e horaFim são strings ISO)
-
 const isWithinCafeHours = (horaInicioISO, horaFimISO, horarioAberturaStr, horarioFechoStr) => {
     // Pega horas e minutos do café
     const [abrHora, abrMin] = horarioAberturaStr.split(':').map(Number);
@@ -38,11 +36,6 @@ const isWithinCafeHours = (horaInicioISO, horaFimISO, horarioAberturaStr, horari
         fecho.setUTCDate(fecho.getUTCDate() + 1);
     }
 
-    console.log('--- VERIFICAÇÃO DE HORÁRIO DO CAFÉ (UTC) ---');
-    console.log('Hora Início:', inicio.toISOString());
-    console.log('Hora Fim:', fim.toISOString());
-    console.log('Abertura:', abertura.toISOString());
-    console.log('Fecho:', fecho.toISOString());
 
     return inicio >= abertura && fim <= fecho;
 };
@@ -53,7 +46,7 @@ const isInFuture = (data) => {
     return new Date(data) > agora;
 };
 
-// Verifica se a duração da reserva é válida (máximo 4 horas e > 0)
+// Verifica se a duração da reserva é válida (Máximo 4 horas e maior que zero)
 const isDurationValid = (horaInicio, horaFim) => {
     let inicio = new Date(horaInicio);
     let fim = new Date(horaFim);
@@ -140,7 +133,6 @@ exports.criarReserva = async (req, res) => {
         }
 
         // Verificar se a reserva está dentro do horário de funcionamento do café
-        // Exemplo: passando o timezone do café (deve obter isso do banco ou setar padrão)
         if (!isWithinCafeHours(horaInicio.toISOString(), horaFim.toISOString(), cafe.Horario_Abertura, cafe.Horario_Fecho)) {
             return res.status(400).json({
                 error: `A reserva deve estar entre as ${cafe.Horario_Abertura}h e ${cafe.Horario_Fecho}h, horário de funcionamento do café.`
