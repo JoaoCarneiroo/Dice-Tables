@@ -165,7 +165,7 @@ function CafeDetalhes() {
   const buscarReservasDisponiveis = async () => {
     try {
       const res = await axios.get(`http://localhost:3000/reservas/grupo/${cafeId}`, { withCredentials: true });
-      setReservasDisponiveis(res.data);
+      setReservasDisponiveis(Array.isArray(res.data) ? res.data : []);
       setMostrarReservasDisponiveis(true);
     } catch (err) {
       toast.error(`Erro ao procurar reservas com lugares: ${err.response?.data?.error || err.message}`, {
@@ -455,12 +455,12 @@ function CafeDetalhes() {
           <div className="mt-6 space-y-4">
             <h2 className="text-xl font-semibold text-indigo-400">🎯 Grupos com Lugares Disponíveis</h2>
 
-            {/* Filtra as reservas para mostrar apenas aquelas com Vagas Disponíveis Maior que 0 */}
-            {reservasDisponiveis.filter(reserva => reserva.Grupo?.Lugares_Grupo > 0).length === 0 ? (
+            {/* Verifica se reservasDisponiveis é um array e se há grupos com lugares */}
+            {Array.isArray(reservasDisponiveis) && reservasDisponiveis.filter(reserva => reserva.Grupo?.Lugares_Grupo > 0).length === 0 ? (
               <p className="text-gray-400">Nenhum grupo disponível no momento.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {reservasDisponiveis.map((reserva) => {
+                {Array.isArray(reservasDisponiveis) && reservasDisponiveis.map((reserva) => {
                   const jogo = jogos.find((j) => j.ID_Jogo === reserva.ID_Jogo);
                   const mesa = mesas.find((m) => m.ID_Mesa === reserva.ID_Mesa);
 
@@ -469,20 +469,30 @@ function CafeDetalhes() {
                       key={reserva.ID_Reserva}
                       className="bg-gray-800 border border-indigo-600 p-4 rounded-xl shadow-lg flex flex-col justify-between space-y-2"
                     >
-                      <h3 className="text-lg font-semibold text-white">Grupo: <span className="text-indigo-300">{reserva.Grupo.Nome_Grupo}</span></h3>
+                      <h3 className="text-lg font-semibold text-white">
+                        Grupo: <span className="text-indigo-300">{reserva.Grupo.Nome_Grupo}</span>
+                      </h3>
 
-                      <p className="text-gray-300">🪑 Mesa: <span className="text-white font-medium">{mesa?.Nome_Mesa || '—'} ({mesa?.Lugares || '?'} lugares)</span></p>
+                      <p className="text-gray-300">
+                        🪑 Mesa: <span className="text-white font-medium">{mesa?.Nome_Mesa || '—'} ({mesa?.Lugares || '?'} lugares)</span>
+                      </p>
 
                       {jogo && (
-                        <p className="text-gray-300">🎲 Jogo: <span className="text-white font-medium">{jogo.Nome_Jogo}</span></p>
+                        <p className="text-gray-300">
+                          🎲 Jogo: <span className="text-white font-medium">{jogo.Nome_Jogo}</span>
+                        </p>
                       )}
 
                       <p className="text-gray-300">
                         🕒 Hora:{" "}
-                        <span className="text-white"> {formatDateForDisplay(reserva.Hora_Inicio)} - {formatDateForDisplay(reserva.Hora_Fim)}</span>
+                        <span className="text-white">
+                          {formatDateForDisplay(reserva.Hora_Inicio)} - {formatDateForDisplay(reserva.Hora_Fim)}
+                        </span>
                       </p>
 
-                      <p className="text-gray-300">👥 Lugares Disponíveis: <span className="text-green-400 font-semibold">{reserva.Grupo.Lugares_Grupo}</span></p>
+                      <p className="text-gray-300">
+                        👥 Lugares Disponíveis: <span className="text-green-400 font-semibold">{reserva.Grupo.Lugares_Grupo}</span>
+                      </p>
 
                       <button
                         onClick={() => juntarAoGrupo(reserva.Grupo.ID_Grupo)}

@@ -208,7 +208,7 @@ router.post('/juntar/:id', checkAuth, reservasController.juntarGrupo);
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/grupo/:id', checkAuth, reservasController.mostrarReservasComLugares);
+router.get('/grupo/:id', reservasController.mostrarReservasComLugares);
 
 /**
  * @swagger
