@@ -117,7 +117,7 @@ export default function PainelGestorJogos() {
     onSuccess: () => {
       queryClient.invalidateQueries(["jogos"]);
       setEditingJogo(null);
-      toast.success('Jogo criado com Sucesso', {
+      toast.success('Jogo Atualizado com Sucesso', {
         position: "bottom-center",
         autoClose: 4000,
         hideProgressBar: false,

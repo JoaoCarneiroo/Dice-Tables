@@ -95,7 +95,7 @@ exports.atualizarMesa = async (req, res) => {
         const mesa = await Mesas.findByPk(req.params.id);
         if (!mesa) return res.status(404).json({ error: 'Mesa não encontrada' });
 
-        const { lugares } = req.body;
+        const { nome_mesa, lugares } = req.body;
 
         // Verificar se o utilizador autenticado é gestor do café da mesa
         const gestor = await Gestor.findOne({
