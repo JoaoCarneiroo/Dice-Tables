@@ -79,7 +79,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 //   .then(() => {
 //     sequelize.sync({ force: true })
 //       .then(() => {
-//         console.log('Banco de dados sincronizado');
+//         console.log('Base de dados sincronizada');
 //         sequelize.query('PRAGMA foreign_keys=on;'); // Re-enable foreign key checks
 //       })
 //       .catch(err => console.error('Erro ao sincronizar BD:', err));
@@ -87,15 +87,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
 // Sincronizar Sequelize
 sequelize.sync()
-   .then(() => console.log('Banco de dados sincronizado'))
+   .then(() => console.log('Base de dados sincronizada'))
    .catch(err => console.error('Erro ao sincronizar BD:', err));
 
 
 app.get('/', (req, res) => {
    res.send('Back-End a Funcionar!');
 });
-
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => console.log(`Servidor ligado na porta ${PORT}`));
 
 module.exports = app;
