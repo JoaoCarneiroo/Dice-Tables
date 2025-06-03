@@ -1,10 +1,6 @@
 const { Sequelize } = require('sequelize');
+const mariadb = require('mariadb');
 
-// const sequelize = new Sequelize({
-//     dialect: 'sqlite',
-//     storage: './Database/cafe.db',
-//     logging: false, 
-// });
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
