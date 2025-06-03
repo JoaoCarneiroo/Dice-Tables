@@ -1,5 +1,5 @@
 require('dotenv').config();
-require('./middlewares/jogosStock');
+require('../middlewares/jogosStock');
 
 const express = require('express');
 const path = require('path');
