@@ -36,7 +36,29 @@ router.get('/', reservasController.mostrarReservas);
 router.get('/utilizador', checkAuth, reservasController.mostrarReservasUtilizador);
 
 
-
+/**
+ * @swagger
+ * /api/reservas/cafe/{id}:
+ *   get:
+ *     summary: Mostra as reservas de um café específico
+ *     tags: [Reservas]
+ *     description: Obtém todas as reservas de um café específico.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do café cujas reservas serão mostradas
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de reservas do café retornada com sucesso
+ *       404:
+ *         description: Café não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/cafe/:id', reservasController.mostrarReservasCafe);
 
 
 /**

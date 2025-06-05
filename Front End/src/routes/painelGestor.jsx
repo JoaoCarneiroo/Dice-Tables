@@ -58,6 +58,32 @@ function PainelGestor() {
         enabled: !!token,
     });
 
+    const [showReservas, setShowReservas] = useState(false);
+    // Consultar as reservas do café do gestor autenticado
+    const { data: reservasData, isLoading: isLoadingReservas, error: reservasError } = useQuery({
+        queryKey: ['reservasCafe', cafeData?.ID_Cafe],
+        queryFn: async () => {
+            const response = await axios.get(`http://localhost:3000/api/reservas/cafe/${cafeData.ID_Cafe}`, {
+                withCredentials: true,
+            });
+            return response.data;
+        },
+        enabled: !!cafeData?.ID_Cafe,
+    });
+
+    const formatDateForDisplay = (isoDateStr) => {
+        const date = new Date(isoDateStr);
+
+        // Ajustar a data para o fuso horário local do navegador
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+        return `${day}-${month}-${year} ${hours}:${minutes}`;
+    };
+
     // Função para Criar Café
     const createMutation = useMutation({
         mutationFn: async (newCafe) => {
@@ -267,7 +293,7 @@ function PainelGestor() {
                                 Imagem não disponível
                             </div>
                         )}
-                        {/* Botões de Atualizar e Apagar */}
+                        {/* Botões de Atualizar, Apagar, Gerir Mesas, Gerir Jogos e Reservas */}
                         <div className="mt-6 flex gap-4">
                             <div className="flex justify-center w-full">
                                 <button
@@ -297,7 +323,42 @@ function PainelGestor() {
                                     Gerir Jogos
                                 </button>
                             )}
+                            {/* Botão Mostrar Reservas */}
+                            <button
+                                onClick={() => setShowReservas(prev => !prev)}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 p-3 rounded-lg text-white font-semibold transition duration-300 transform hover:scale-105"
+                            >
+                                {showReservas ? 'Esconder Reservas' : 'Mostrar Reservas'}
+                            </button>
                         </div>
+
+                        {/* Lista de Reservas do Café*/}
+                        {showReservas && (
+                            <div className="mt-6 p-4 bg-gray-600 rounded-lg max-h-96 overflow-auto">
+                                {isLoadingReservas && <p>Carregando reservas...</p>}
+                                {reservasError && <p className="text-red-400">Erro ao carregar reservas.</p>}
+                                {!isLoadingReservas && !reservasError && reservasData.length === 0 && (
+                                    <p>Nenhuma reserva encontrada.</p>
+                                )}
+                                {!isLoadingReservas && !reservasError && reservasData.length > 0 && (
+                                    <ul className="space-y-4">
+                                        {reservasData.map(reserva => (
+                                            <li key={reserva.ID_Reserva} className="bg-gray-700 p-4 rounded-md">
+                                                <p>Utilizador: {reserva.Utilizador?.Nome} ({reserva.Utilizador?.Email})</p>
+                                                <p>Mesa: {reserva.Mesa?.Nome_Mesa} ({reserva.Mesa?.Lugares} lugares)</p>
+                                                {reserva.Jogo && <p>Jogo: {reserva.Jogo?.Nome_Jogo || '—'}</p>}
+                                                <p>Grupo: {reserva.Grupo?.Nome_Grupo || '—'}</p>
+                                                <p>Lugares do Grupo Disponíveis: {reserva.Grupo?.Lugares_Grupo || '—'}</p>
+                                                <p>
+                                                    Horário: {formatDateForDisplay(reserva.Hora_Inicio)} - {formatDateForDisplay(reserva.Hora_Fim)}
+                                                </p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        )}
+
 
                         {/* Formulário para Atualizar Café */}
                         {showEditForm && cafeData && (
@@ -536,6 +597,7 @@ function PainelGestor() {
                         </form>
                     </div>
                 )}
+
             </div>
         </div>
     );

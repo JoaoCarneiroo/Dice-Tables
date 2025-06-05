@@ -94,6 +94,29 @@ exports.mostrarReservasUtilizador = async (req, res) => {
     }
 };
 
+// Mostrar reservas de um café específico
+exports.mostrarReservasCafe = async (req, res) => {
+    try {
+        const ID_Cafe = req.params.id;
+        const reservas = await Reservas.findAll({
+            where: { ID_Cafe },
+            include: [
+                { model: Cafes, attributes: ['Nome_Cafe'] },
+                { model: Mesas, attributes: ['Nome_Mesa', 'Lugares'] },
+                { model: Utilizadores, attributes: ['Nome', 'Email'] },
+                { model: Jogos, attributes: ['Nome_Jogo'] },
+                { model: Grupos, attributes: ['Nome_Grupo', 'Lugares_Grupo'] },
+            ]
+        });
+        if (reservas.length === 0) {
+            return res.status(204).json({ message: 'Não há reservas para este café.' });
+        }
+        res.json(reservas);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Criação de uma Reserva
 exports.criarReserva = async (req, res) => {
     try {

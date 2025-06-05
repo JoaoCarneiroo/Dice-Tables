@@ -84,6 +84,11 @@ function Cafes() {
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-gray-900 text-gray-200">
       <h1 className="text-2xl font-bold text-center text-white mb-6">Lista de Cafés</h1>
+
+      {cafes.length === 0 && (
+        <p className="text-gray-400 mb-4">Nenhum café disponível no momento.</p>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {cafes.map((cafe) => (
           <CardCafe key={cafe.ID_Cafe} cafe={cafe} />
