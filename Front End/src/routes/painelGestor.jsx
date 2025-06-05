@@ -407,7 +407,7 @@ function PainelGestor() {
                                         <input
                                             type="text"
                                             name="local"
-                                            placeholder="Local"
+                                            placeholder="Localização"
                                             value={form.local}
                                             onChange={handleChange}
                                             className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -537,7 +537,7 @@ function PainelGestor() {
                                     <input
                                         type="text"
                                         name="coordenadas"
-                                        placeholder="Coordenadas (ex: 38.7169,-9.1399)"
+                                        placeholder="Coordenadas (ex: 38.7169,-9.1399) - Opcional"
                                         value={form.coordenadas}
                                         onChange={handleChange}
                                         className="w-full p-4 rounded-lg bg-gray-600 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
