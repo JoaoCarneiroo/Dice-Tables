@@ -5,7 +5,7 @@ const checkAuth = require('../middlewares/authentication');
 
 /**
  * @swagger
- * /autenticar/verificar/gestor:
+ * /api/autenticar/verificar/gestor:
  *   get:
  *     summary: Verifica se o utilizador autenticado é um gestor
  *     tags: [Utilizadores]
@@ -23,7 +23,7 @@ router.get('/verificar/gestor', checkAuth, utilizadoresController.verificarSeGes
 
 /**
  * @swagger
- * /autenticar/verificar/admin:
+ * /api/autenticar/verificar/admin:
  *   get:
  *     summary: Verifica se o utilizador autenticado é um admin
  *     tags: [Utilizadores]
@@ -40,7 +40,7 @@ router.get('/verificar/gestor', checkAuth, utilizadoresController.verificarSeGes
 router.get('/verificar/admin', checkAuth, utilizadoresController.verificarSeAdmin);
 /**
  * @swagger
- * /autenticar:
+ * /api/autenticar:
  *   get:
  *     summary: Obtém todos os utilizadores
  *     tags: [Utilizadores]
@@ -54,7 +54,7 @@ router.get('/', utilizadoresController.mostrarUtilizadores);
 
 /**
  * @swagger
- * /autenticar/{id}:
+ * /api/autenticar/{id}:
  *   get:
  *     summary: Obtém um utilizador pelo ID
  *     tags: [Utilizadores]
@@ -77,7 +77,7 @@ router.get('/utilizador/:id', utilizadoresController.mostrarUtilizadorID);
 
 /**
  * @swagger
- * /autenticar/utilizador:
+ * /api/autenticar/utilizador:
  *   get:
  *     summary: Obtém informações do utilizador autenticado
  *     tags: [Utilizadores]
@@ -112,7 +112,7 @@ router.get('/utilizador', checkAuth, utilizadoresController.mostrarUtilizadorAut
 
 /**
  * @swagger
- * /autenticar:
+ * /api/autenticar:
  *   post:
  *     summary: Cria um novo utilizador
  *     tags: [Utilizadores]
@@ -145,7 +145,7 @@ router.post('/', utilizadoresController.criarUtilizador);
 
 /**
  * @swagger
- * /autenticar/confirmar-email/{token}:
+ * /api/autenticar/confirmar-email/{token}:
  *   get:
  *     summary: Confirma o email do utilizador
  *     tags: [Utilizadores]
@@ -168,7 +168,7 @@ router.get('/confirmar-email/:token', utilizadoresController.confirmarEmail);
 
 /**
  * @swagger
- * /autenticar/login:
+ * /api/autenticar/login:
  *   post:
  *     summary: Autentica um utilizador
  *     tags: [Utilizadores]
@@ -208,7 +208,7 @@ router.post('/login', utilizadoresController.login);
 
 /**
  * @swagger
- * /autenticar/2fa:
+ * /api/autenticar/2fa:
  *   post:
  *     summary: Ativa a autenticação de dois fatores para o utilizador autenticado
  *     tags: [Utilizadores]
@@ -226,7 +226,7 @@ router.post('/login/2fa', utilizadoresController.verificarCodigo2FA);
 
 /**
  * @swagger
- * /autenticar/logout:
+ * /api/autenticar/logout:
  *   post:
  *     summary: Termina a sessão do utilizador com login
  *     tags: [Utilizadores]
@@ -240,7 +240,7 @@ router.post('/logout', utilizadoresController.logout);
 
 /**
  * @swagger
- * /autenticar:
+ * /api/autenticar:
  *   patch:
  *     summary: Atualiza o utilizador autenticado
  *     tags: [Utilizadores]
@@ -273,7 +273,7 @@ router.patch('/', checkAuth, utilizadoresController.atualizarUtilizador);
 
 /**
  * @swagger
- * /autenticar:
+ * /api/autenticar:
  *   delete:
  *     summary: Remove o utilizador autenticado
  *     tags: [Utilizadores]

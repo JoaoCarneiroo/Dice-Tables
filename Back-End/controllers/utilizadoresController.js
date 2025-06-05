@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const { enviarEmailConfirmacao } = require('../middlewares/email');
 const { enviarCodigo2FAEmail } = require('../middlewares/email');
 
-const secretKey = 'carneiro_secret';
+const secretKey = process.env.secretKeyJWT;
 const codes2FA = new Map();
 
 exports.verificarSeGestor = (req, res) => {
@@ -211,7 +211,7 @@ exports.criarUtilizador = async (req, res) => {
         });
 
         // Enviar e-mail com link de confirmação
-        const urlConfirmacao = `http://localhost:3000/autenticar/confirmar-email/${tokenConfirmacao}`;
+        const urlConfirmacao = `http://localhost:3000/api/autenticar/confirmar-email/${tokenConfirmacao}`;
         await enviarEmailConfirmacao(email, urlConfirmacao);
 
         res.status(201).json({ message: 'Utilizador criado! Verifique o seu email para confirmar a sua conta.' });

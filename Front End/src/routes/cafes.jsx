@@ -33,7 +33,7 @@ function CardCafe({ cafe }) {
       )}
       <p className="text-gray-300">📍 {cafe.Local}</p>
 
-      <p className="text-gray-300">🕒 {cafe.Horario_Abertura} - {cafe.Horario_Fecho}</p>
+      <p className="text-gray-300">🕒 {cafe.Horario_Abertura.slice(0, 5)} - {cafe.Horario_Fecho.slice(0, 5)}</p>
 
       <div className="mt-4">
         <button
@@ -60,7 +60,7 @@ function Cafes() {
   const fetchCafes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/cafes');
+      const response = await axios.get('http://localhost:3000/api/cafes');
       setCafes(response.data);
     } catch (err) {
       setError('Erro ao carregar os cafés');

@@ -6,7 +6,7 @@ const checkAuth = require('../middlewares/authentication');
 
 /**
  * @swagger
- * /gestor:
+ * /api/gestor:
  *   post:
  *     summary: Promove um utilizador a gestor
  *     tags: [Gestores]
@@ -39,7 +39,7 @@ router.post('/', checkAuth, gestorController.promoverParaGestor);
 
 /**
  * @swagger
- * /gestor:
+ * /api/gestor:
  *   get:
  *     summary: Obtém todos os gestores
  *     tags: [Gestores]
@@ -57,7 +57,7 @@ router.get('/', checkAuth, gestorController.mostrarGestores);
 
 /**
  * @swagger
- * /gestor/{id}:
+ * /api/gestor/{id}:
  *   get:
  *     summary: Obtém um gestor pelo ID
  *     tags: [Gestores]
@@ -84,7 +84,7 @@ router.get('/:id', checkAuth, gestorController.mostrarGestorID);
 
 /**
 * @swagger
-* /gestor/{id}:
+* /api/gestor/{id}:
 *   delete:
 *     summary: Despromove um gestor para utilizador comum e apaga o café associado
 *     tags: [Gestores]

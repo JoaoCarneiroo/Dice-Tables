@@ -6,7 +6,7 @@ const checkAuth = require('../middlewares/authentication');
 
 /**
  * @swagger
- * /mesas:
+ * /api/mesas:
  *   get:
  *     summary: Mostra todas as mesas
  *     tags: [Mesas]
@@ -21,7 +21,7 @@ router.get('/', mesasController.mostrarMesas);
 
 /**
  * @swagger
- * /mesas/porID/{id}:
+ * /api/mesas/porID/{id}:
  *   get:
  *     summary: Mostra a mesa pelo ID
  *     tags: [Mesas]
@@ -45,7 +45,7 @@ router.get('/porID/:id', mesasController.mostrarMesaPorID);
 
 /**
  * @swagger
- * /mesas/{id}:
+ * /api/mesas/{id}:
  *   get:
  *     summary: Mostra as mesas de um café específico
  *     tags: [Mesas]
@@ -69,7 +69,7 @@ router.get('/:id', mesasController.mostrarMesasID);
 
 /**
  * @swagger
- * /mesas:
+ * /api/mesas:
  *   post:
  *     summary: Cria uma nova mesa
  *     tags: [Mesas]
@@ -98,7 +98,7 @@ router.post('/', checkAuth, mesasController.criarMesa);
 
 /**
  * @swagger
- * /mesas/{id}:
+ * /api/mesas/{id}:
  *   patch:
  *     summary: Atualiza uma mesa existente
  *     tags: [Mesas]
@@ -136,7 +136,7 @@ router.patch('/:id', checkAuth, mesasController.atualizarMesa);
 
 /**
  * @swagger
- * /mesas/{id}:
+ * /api/mesas/{id}:
  *   delete:
  *     summary: Exclui uma mesa
  *     tags: [Mesas]

@@ -7,7 +7,7 @@ const checkAuth = require('../middlewares/authentication');
 
 /**
  * @swagger
- * /jogos:
+ * /api/jogos:
  *   get:
  *     summary: Mostra todos os jogos
  *     tags: [Jogos]
@@ -22,7 +22,7 @@ router.get('/', jogosController.mostrarJogos);
 
 /**
  * @swagger
- * /jogos/{id}:
+ * /api/jogos/{id}:
  *   get:
  *     summary: Mostra os jogos de um café específico
  *     tags: [Jogos]
@@ -46,7 +46,7 @@ router.get('/:id', jogosController.mostrarJogosID);
 
 /**
  * @swagger
- * /jogos/porID/{id}:
+ * /api/jogos/porID/{id}:
  *   get:
  *     summary: Mostra o jogo pelo ID
  *     tags: [Jogos]
@@ -70,7 +70,7 @@ router.get('/porID/:id', jogosController.mostrarJogoPorID);
 
 /**
  * @swagger
- * /jogos:
+ * /api/jogos:
  *   post:
  *     summary: Cria um novo jogo
  *     tags: [Jogos]
@@ -108,7 +108,7 @@ router.post('/', checkAuth, jogosController.criarJogo);
 
 /**
  * @swagger
- * /jogos/{id}:
+ * /api/jogos/{id}:
  *   patch:
  *     summary: Atualiza um jogo existente
  *     tags: [Jogos]
@@ -155,7 +155,7 @@ router.patch('/:id', checkAuth, jogosController.atualizarJogo);
 
 /**
  * @swagger
- * /jogos/{id}:
+ * /api/jogos/{id}:
  *   delete:
  *     summary: Remove um jogo
  *     tags: [Jogos]
@@ -183,7 +183,7 @@ router.delete('/:id', checkAuth, jogosController.apagarJogo);
 
 /**
  * @swagger
- * /jogos/comprar/{id}:
+ * /api/jogos/comprar/{id}:
  *   post:
  *     summary: Compra um jogo
  *     tags: [Jogos]
@@ -212,7 +212,7 @@ router.post('/comprar/:id', checkAuth, jogosController.comprarJogo);
 
 /**
  * @swagger
- * /jogos/finalizar:
+ * /api/jogos/finalizar:
  *   post:
  *     summary: Finaliza a compra de um jogo
  *     tags: [Jogos]

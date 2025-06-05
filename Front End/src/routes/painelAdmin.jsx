@@ -6,7 +6,7 @@ export const Route = createFileRoute('/painelAdmin')({
   beforeLoad: async () => {
 
     try {
-      const response = await axios.get("http://localhost:3000/autenticar/verificar/admin", {
+      const response = await axios.get("http://localhost:3000/api/autenticar/verificar/admin", {
         withCredentials: true
       });
       
@@ -72,7 +72,7 @@ function PainelAdmin() {
   const fetchUtilizadores = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/autenticar', { withCredentials: true });
+      const response = await axios.get('http://localhost:3000/api/autenticar', { withCredentials: true });
       const allUtilizadores = response.data;
 
       // Separando gestores dos outros utilizadores
@@ -91,7 +91,7 @@ function PainelAdmin() {
   // Função para promover um utilizador a gestor
   const promoverUtilizador = async (idUtilizador) => {
     try {
-      await axios.post('http://localhost:3000/gestor', { ID_Utilizador: idUtilizador }, { withCredentials: true });
+      await axios.post('http://localhost:3000/api/gestor', { ID_Utilizador: idUtilizador }, { withCredentials: true });
       fetchUtilizadores(); // Atualiza a lista após promoção
     } catch (err) {
       setError('Erro ao promover utilizador');
@@ -110,7 +110,7 @@ function PainelAdmin() {
 
     try {
       console.log(`ID do gestor a ser despromovido: ${gestorToDespromover.ID_Utilizador}`);
-      await axios.delete(`http://localhost:3000/gestor/${gestorToDespromover.ID_Utilizador}`, { withCredentials: true });
+      await axios.delete(`http://localhost:3000/api/gestor/${gestorToDespromover.ID_Utilizador}`, { withCredentials: true });
       fetchUtilizadores();
       setShowModal(false);
     } catch (err) {

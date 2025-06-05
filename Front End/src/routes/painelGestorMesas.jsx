@@ -10,7 +10,7 @@ export const Route = createFileRoute('/painelGestorMesas')({
   beforeLoad: async () => {
 
     try {
-      const response = await axios.get("http://localhost:3000/autenticar/verificar/gestor", {
+      const response = await axios.get("http://localhost:3000/api/autenticar/verificar/gestor", {
         withCredentials: true
       });
       
@@ -47,7 +47,7 @@ export default function PainelGestorMesas() {
   const { data: cafeData, isLoading: cafeLoading, error: cafeError } = useQuery({
     queryKey: ["cafeGestor"],
     queryFn: async () => {
-      const response = await axios.get("http://localhost:3000/cafes/gestor", {
+      const response = await axios.get("http://localhost:3000/api/cafes/gestor", {
         withCredentials: true,
       });
       return response.data;
@@ -60,7 +60,7 @@ export default function PainelGestorMesas() {
     queryKey: ["mesas"],
     queryFn: async () => {
       if (cafeData) {
-        const response = await axios.get(`http://localhost:3000/mesas/${cafeData.ID_Cafe}`, {
+        const response = await axios.get(`http://localhost:3000/api/mesas/${cafeData.ID_Cafe}`, {
           withCredentials: true,
         });
         return response.data;
@@ -72,7 +72,7 @@ export default function PainelGestorMesas() {
   // Criar Mesas do Café
   const createMesaMutation = useMutation({
     mutationFn: async (newMesa) => {
-      const response = await axios.post("http://localhost:3000/mesas", newMesa, {
+      const response = await axios.post("http://localhost:3000/api/mesas", newMesa, {
         withCredentials: true,
       });
       return response.data;
@@ -110,7 +110,7 @@ export default function PainelGestorMesas() {
   // Atualizar Mesas do Café
   const updateMesaMutation = useMutation({
     mutationFn: async ({ id, nome_mesa, lugares }) => {
-      const response = await axios.patch(`http://localhost:3000/mesas/${id}`, { nome_mesa, lugares }, {
+      const response = await axios.patch(`http://localhost:3000/api/mesas/${id}`, { nome_mesa, lugares }, {
         withCredentials: true,
       });
       return response.data;
@@ -149,7 +149,7 @@ export default function PainelGestorMesas() {
   // Apagar Mesas do Café
   const deleteMesaMutation = useMutation({
     mutationFn: async (id) => {
-      await axios.delete(`http://localhost:3000/mesas/${id}`, {
+      await axios.delete(`http://localhost:3000/api/mesas/${id}`, {
         withCredentials: true,
       });
     },

@@ -14,7 +14,7 @@ function Registar() {
     const [password, setPassword] = useState('');
 
     const mutation = useMutation({
-        mutationFn: (registerData) => axios.post('http://localhost:3000/autenticar', registerData, {
+        mutationFn: (registerData) => axios.post('http://localhost:3000/api/autenticar', registerData, {
             withCredentials: true,
         }),
         onSuccess: (response) => {

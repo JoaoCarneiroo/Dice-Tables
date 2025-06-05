@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const secretKey = 'carneiro_secret';
+const secretKey = process.env.secretKeyJWT;
 
 const checkAuth = (req, res, next) => {
     const token = req.cookies.Authorization;

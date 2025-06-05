@@ -18,6 +18,12 @@ const Cafe = sequelize.define('Cafe', {
     Descricao: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+            len: {
+                args: [1, 200],
+                msg: 'A descrição deve ter entre 1 e 200 caracteres.'
+            }
+        }
     },
     Imagem_Cafe: {
         type: DataTypes.STRING,

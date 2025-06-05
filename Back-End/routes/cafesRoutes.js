@@ -6,7 +6,7 @@ const checkAuth = require('../middlewares/authentication');
 
 /**
  * @swagger
- * /cafes:
+ * /api/cafes:
  *   get:
  *     summary: Obtém todos os cafés
  *     tags: [Cafés]
@@ -21,7 +21,7 @@ router.get('/', cafesController.mostrarCafes);
 
 /**
  * @swagger
- * /cafes/{id}:
+ * /api/cafes/{id}:
  *   get:
  *     summary: Obtém um café pelo ID
  *     tags: [Cafés]
@@ -46,7 +46,7 @@ router.get('/porID/:id', cafesController.mostrarCafeID);
 
 /**
  * @swagger
- * /cafes/gestor:
+ * /api/cafes/gestor:
  *   get:
  *     summary: Obtém o café gerenciado pelo usuário autenticado (gestor)
  *     tags: [Cafés]
@@ -95,7 +95,7 @@ router.get('/gestor', checkAuth, cafesController.mostrarCafeGestor);
 
 /**
  * @swagger
- * /cafes:
+ * /api/cafes:
  *   post:
  *     summary: Cria um novo café
  *     tags: [Cafés]
@@ -138,7 +138,7 @@ router.post('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafesC
 
 /**
  * @swagger
- * /cafes/{id}:
+ * /api/cafes/{id}:
  *   patch:
  *     summary: Atualiza um café existente
  *     tags: [Cafés]
@@ -190,7 +190,7 @@ router.patch('/', checkAuth, cafesController.upload.single('imagem_cafe'), cafes
 
 /**
  * @swagger
- * /cafes/{id}:
+ * /api/cafes/{id}:
  *   delete:
  *     summary: Remove um café
  *     tags: [Cafés]

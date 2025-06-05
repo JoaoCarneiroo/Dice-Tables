@@ -9,7 +9,7 @@ export const Route = createFileRoute('/painelGestorJogos')({
   beforeLoad: async () => {
 
     try {
-      const response = await axios.get("http://localhost:3000/autenticar/verificar/gestor", {
+      const response = await axios.get("http://localhost:3000/api/autenticar/verificar/gestor", {
         withCredentials: true
       });
       
@@ -45,7 +45,7 @@ export default function PainelGestorJogos() {
   const { data: cafeData, isLoading: cafeLoading, error: cafeError } = useQuery({
     queryKey: ["cafeGestor"],
     queryFn: async () => {
-      const response = await axios.get("http://localhost:3000/cafes/gestor", {
+      const response = await axios.get("http://localhost:3000/api/cafes/gestor", {
         withCredentials: true,
       });
       return response.data;
@@ -57,7 +57,7 @@ export default function PainelGestorJogos() {
     queryKey: ["jogos"],
     queryFn: async () => {
       if (cafeData) {
-        const response = await axios.get(`http://localhost:3000/jogos/${cafeData.ID_Cafe}`, {
+        const response = await axios.get(`http://localhost:3000/api/jogos/${cafeData.ID_Cafe}`, {
           withCredentials: true,
         });
         return response.data;
@@ -69,7 +69,7 @@ export default function PainelGestorJogos() {
   // Criar Jogo
   const createJogoMutation = useMutation({
     mutationFn: async (novoJogo) => {
-      const response = await axios.post("http://localhost:3000/jogos", novoJogo, {
+      const response = await axios.post("http://localhost:3000/api/jogos", novoJogo, {
         withCredentials: true,
       });
       return response.data;
@@ -110,7 +110,7 @@ export default function PainelGestorJogos() {
   // Atualizar Jogo
   const updateJogoMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      await axios.patch(`http://localhost:3000/jogos/${id}`, data, {
+      await axios.patch(`http://localhost:3000/api/jogos/${id}`, data, {
         withCredentials: true,
       });
     },
@@ -147,7 +147,7 @@ export default function PainelGestorJogos() {
   // Apagar Jogo
   const deleteJogoMutation = useMutation({
     mutationFn: async (id) => {
-      await axios.delete(`http://localhost:3000/jogos/${id}`, {
+      await axios.delete(`http://localhost:3000/api/jogos/${id}`, {
         withCredentials: true,
       });
     },

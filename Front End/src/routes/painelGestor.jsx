@@ -9,7 +9,7 @@ export const Route = createFileRoute('/painelGestor')({
     beforeLoad: async () => {
 
         try {
-            const response = await axios.get("http://localhost:3000/autenticar/verificar/gestor", {
+            const response = await axios.get("http://localhost:3000/api/autenticar/verificar/gestor", {
                 withCredentials: true
             });
 
@@ -50,7 +50,7 @@ function PainelGestor() {
     const { data: cafeData, isLoading, error, refetch } = useQuery({
         queryKey: ['cafeData'],
         queryFn: async () => {
-            const response = await axios.get('http://localhost:3000/cafes/gestor', {
+            const response = await axios.get('http://localhost:3000/api/cafes/gestor', {
                 withCredentials: true,
             });
             return response.data;
@@ -61,7 +61,7 @@ function PainelGestor() {
     // Função para Criar Café
     const createMutation = useMutation({
         mutationFn: async (newCafe) => {
-            const response = await axios.post('http://localhost:3000/cafes', newCafe, {
+            const response = await axios.post('http://localhost:3000/api/cafes', newCafe, {
                 withCredentials: true,
                 headers: { "Content-Type": "multipart/form-data" },
             });
@@ -99,7 +99,7 @@ function PainelGestor() {
     // Função para Atualizar Café
     const updateMutation = useMutation({
         mutationFn: async (updatedCafe) => {
-            const response = await axios.patch(`http://localhost:3000/cafes`, updatedCafe, {
+            const response = await axios.patch(`http://localhost:3000/api/cafes`, updatedCafe, {
                 withCredentials: true,
                 headers: { "Content-Type": "multipart/form-data" },
             });
@@ -137,7 +137,7 @@ function PainelGestor() {
     // Função para Apagar Café
     const deleteMutation = useMutation({
         mutationFn: async () => {
-            await axios.delete(`http://localhost:3000/cafes`, {
+            await axios.delete(`http://localhost:3000/api/cafes`, {
                 withCredentials: true,
             });
         },
@@ -250,9 +250,12 @@ function PainelGestor() {
                     <div className="mt-8 p-6 bg-gray-700 rounded-lg">
                         <h2 className="text-xl font-medium text-gray-300">Meu Café</h2>
                         <p className="text-gray-200 mt-2">Nome: {cafeData.Nome_Cafe}</p>
-                        <p className="text-gray-200">🎲 {cafeData.Tipo_Cafe === 0 ? 'Café com Jogos' : 'Café sem Jogos'}</p>
+                        <p className="italic whitespace-pre-line break-words overflow-auto pr-2">
+                            <span className="font-semibold">Descrição:</span> {cafeData.Descricao}
+                        </p>
+                        <p className="text-gray-200 mt-2">🎲 {cafeData.Tipo_Cafe === 0 ? 'Café com Jogos' : 'Café sem Jogos'}</p>
                         <p className="text-gray-200">📍 {cafeData.Local}</p>
-                        <p className="text-gray-200">🕒 {cafeData.Horario_Abertura} - {cafeData.Horario_Fecho}</p>
+                        <p className="text-gray-200">🕒 {cafeData.Horario_Abertura.slice(0, 5)} - {cafeData.Horario_Fecho.slice(0, 5)}</p>
                         {cafeData.Imagem_Cafe ? (
                             <img
                                 src={`http://localhost:3000/uploads/cafes/${cafeData.Imagem_Cafe}`}

@@ -38,7 +38,7 @@ function Perfil() {
         queryKey: ['userProfile'],
         queryFn: async () => {
             if (!token) return;
-            const response = await axios.get('http://localhost:3000/autenticar/utilizador', {
+            const response = await axios.get('http://localhost:3000/api/autenticar/utilizador', {
                 withCredentials: true,
             });
             return response.data;
@@ -64,23 +64,23 @@ function Perfil() {
     const { data: reservas, isLoading: isLoadingReservas, isError: isErrorReservas, refetch: refetchReservas } = useQuery({
         queryKey: ['userReservas'],
         queryFn: async () => {
-            const response = await axios.get('http://localhost:3000/reservas/utilizador', {
+            const response = await axios.get('http://localhost:3000/api/reservas/utilizador', {
                 withCredentials: true,
             });
 
             const reservas = await Promise.all(
                 response.data.map(async (reserva) => {
-                    const responseCafe = await axios.get(`http://localhost:3000/cafes/porID/${reserva.ID_Cafe}`, {
+                    const responseCafe = await axios.get(`http://localhost:3000/api/cafes/porID/${reserva.ID_Cafe}`, {
                         withCredentials: true,
                     });
 
-                    const responseMesa = await axios.get(`http://localhost:3000/mesas/porID/${reserva.ID_Mesa}`, {
+                    const responseMesa = await axios.get(`http://localhost:3000/api/mesas/porID/${reserva.ID_Mesa}`, {
                         withCredentials: true,
                     });
 
 
                     if (reserva.ID_Jogo) {
-                        const responseJogo = await axios.get(`http://localhost:3000/jogos/porID/${reserva.ID_Jogo}`, {
+                        const responseJogo = await axios.get(`http://localhost:3000/api/jogos/porID/${reserva.ID_Jogo}`, {
                             withCredentials: true,
                         });
 
@@ -110,7 +110,7 @@ function Perfil() {
     const { data: reservasGrupo, refetch: refetchReservasGrupo } = useQuery({
         queryKey: ['userReservasGrupo'],
         queryFn: async () => {
-            const response = await axios.get('http://localhost:3000/reservas/grupo', {
+            const response = await axios.get('http://localhost:3000/api/reservas/grupo', {
                 withCredentials: true,
                 validateStatus: (status) => status === 200 || status === 204
             });
@@ -150,7 +150,7 @@ function Perfil() {
     // Sair do Grupo da Reserva
     const leaveGroupMutation = useMutation({
         mutationFn: async (reservaGrupo) => {
-            await axios.delete(`http://localhost:3000/reservas/sair/${reservaGrupo.ID_Grupo}`, {
+            await axios.delete(`http://localhost:3000/api/reservas/sair/${reservaGrupo.ID_Grupo}`, {
                 withCredentials: true,
             });
         },
@@ -188,7 +188,7 @@ function Perfil() {
     // Atualizar Utilizador
     const updateUserMutation = useMutation({
         mutationFn: async (updatedData) => {
-            await axios.patch('http://localhost:3000/autenticar', updatedData, {
+            await axios.patch('http://localhost:3000/api/autenticar', updatedData, {
                 withCredentials: true,
             });
         },
@@ -225,7 +225,7 @@ function Perfil() {
     // Apagar Utilizador
     const deleteUserMutation = useMutation({
         mutationFn: async () => {
-            await axios.delete('http://localhost:3000/autenticar', {
+            await axios.delete('http://localhost:3000/api/autenticar', {
                 withCredentials: true,
             });
         },
@@ -280,7 +280,7 @@ function Perfil() {
     // Atualizar Reserva
     const updateReservaMutation = useMutation({
         mutationFn: async ({ id, updatedData }) => {
-            await axios.patch(`http://localhost:3000/reservas/${id}`, updatedData, {
+            await axios.patch(`http://localhost:3000/api/reservas/${id}`, updatedData, {
                 withCredentials: true,
             });
         },
@@ -315,7 +315,7 @@ function Perfil() {
     // Apagar Reserva
     const deleteReservaMutation = useMutation({
         mutationFn: async (id) => {
-            await axios.delete(`http://localhost:3000/reservas/${id}`, {
+            await axios.delete(`http://localhost:3000/api/reservas/${id}`, {
                 withCredentials: true,
             });
         },

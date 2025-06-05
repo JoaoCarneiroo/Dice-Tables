@@ -62,12 +62,12 @@ app.use(cookieParser())
 // Middleware para servir arquivos estáticos (imagens)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use('/cafes', cafesRoutes);
-app.use('/autenticar', utilizadoresRoutes);
-app.use('/gestor', gestorRoutes);
-app.use('/mesas', mesasRoutes);
-app.use('/jogos', jogosRoutes);
-app.use('/reservas', reservasRoutes);
+app.use('/api/cafes', cafesRoutes);
+app.use('/api/autenticar', utilizadoresRoutes);
+app.use('/api/gestor', gestorRoutes);
+app.use('/api/mesas', mesasRoutes);
+app.use('/api/jogos', jogosRoutes);
+app.use('/api/reservas', reservasRoutes);
 
 
 const swaggerDocs = swaggerjsdoc(swaggerOptions)
@@ -95,7 +95,7 @@ app.get('/', (req, res) => {
    res.send('Back-End a Funcionar!');
 });
 
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => console.log(`Servidor ligado na porta ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor ligado na porta ${PORT}`));
 
 module.exports = app;

@@ -23,7 +23,7 @@ function Login() {
 
     // Mutation para login inicial (email + senha)
     const loginMutation = useMutation({
-        mutationFn: (loginData) => axios.post('http://localhost:3000/autenticar/login', loginData, { withCredentials: true }),
+        mutationFn: (loginData) => axios.post('http://localhost:3000/api/autenticar/login', loginData, { withCredentials: true }),
         onSuccess: (response) => {
             toast.info('Código 2FA enviado para o seu email. Por favor, insira-o para continuar.', {
                 position: "bottom-center",
@@ -56,7 +56,7 @@ function Login() {
 
     // Mutation para verificar o código 2FA
     const verificar2FAMutation = useMutation({
-        mutationFn: (data) => axios.post('http://localhost:3000/autenticar/login/2fa', data, { withCredentials: true }),
+        mutationFn: (data) => axios.post('http://localhost:3000/api/autenticar/login/2fa', data, { withCredentials: true }),
         onSuccess: (response) => {
             const nome = response.data.nome;
             const cargos = { isAdmin: response.data.isAdmin, isGestor: response.data.isGestor };

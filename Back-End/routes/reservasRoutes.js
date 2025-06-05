@@ -5,7 +5,7 @@ const checkAuth = require('../middlewares/authentication');
 
 /**
  * @swagger
- * /reservas:
+ * /api/reservas:
  *   get:
  *     summary: Mostra todas as reservas
  *     tags: [Reservas]
@@ -20,7 +20,7 @@ router.get('/', reservasController.mostrarReservas);
 
 /**
  * @swagger
- * /reservas/utilizador:
+ * /api/reservas/utilizador:
  *   get:
  *     summary: Mostra as reservas do utilizador autenticado
  *     tags: [Reservas]
@@ -41,7 +41,7 @@ router.get('/utilizador', checkAuth, reservasController.mostrarReservasUtilizado
 
 /**
  * @swagger
- * /reservas:
+ * /api/reservas:
  *   post:
  *     summary: Cria uma nova reserva
  *     tags: [Reservas]
@@ -81,7 +81,7 @@ router.post('/', checkAuth, reservasController.criarReserva);
 
 /**
  * @swagger
- * /reservas/{id}:
+ * /api/reservas/{id}:
  *   patch:
  *     summary: Atualiza uma reserva existente
  *     tags: [Reservas]
@@ -132,7 +132,7 @@ router.patch('/:id', checkAuth, reservasController.atualizarReserva);
 
 /**
  * @swagger
- * /reservas/{id}:
+ * /api/reservas/{id}:
  *   delete:
  *     summary: Remove uma reserva
  *     tags: [Reservas]
@@ -160,7 +160,7 @@ router.delete('/:id', checkAuth, reservasController.apagarReserva);
 
 /**
  * @swagger
- * /reservas/juntar/{id}:
+ * /api/reservas/juntar/{id}:
  *   post:
  *     summary: Juntar-se a um grupo de reservas
  *     tags: [Reservas]
@@ -186,7 +186,7 @@ router.post('/juntar/:id', checkAuth, reservasController.juntarGrupo);
 
 /**
  * @swagger
- * /reservas/grupo/{id}:
+ * /api/reservas/grupo/{id}:
  *   get:
  *     summary: Mostra as reservas de um grupo específico
  *     tags: [Reservas]
@@ -212,7 +212,7 @@ router.get('/grupo/:id', reservasController.mostrarReservasComLugares);
 
 /**
  * @swagger
- * /reservas/grupo:
+ * /api/reservas/grupo:
  *   get:
  *     summary: Mostra as reservas inscritas do utilizador autenticado
  *     tags: [Reservas]
@@ -229,7 +229,7 @@ router.get('/grupo', checkAuth, reservasController.mostrarReservasGrupo);
 
 /**
  * @swagger
- * /reservas/sair/{id}:
+ * /api/reservas/sair/{id}:
  *   delete:
  *     summary: Sair de um grupo da reserva que o utilizador se juntou
  *     tags: [Reservas]

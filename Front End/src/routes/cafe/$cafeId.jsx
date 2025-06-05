@@ -52,9 +52,9 @@ function CafeDetalhes() {
     try {
       setLoading(true);
       const [cafeRes, mesasRes, jogosRes] = await Promise.all([
-        axios.get(`http://localhost:3000/cafes/porId/${cafeId}`),
-        axios.get(`http://localhost:3000/mesas/${cafeId}`),
-        axios.get(`http://localhost:3000/jogos/${cafeId}`)
+        axios.get(`http://localhost:3000/api/cafes/porId/${cafeId}`),
+        axios.get(`http://localhost:3000/api/mesas/${cafeId}`),
+        axios.get(`http://localhost:3000/api/jogos/${cafeId}`)
       ]);
       setCafe(cafeRes.data);
       setMesas(mesasRes.data);
@@ -93,7 +93,7 @@ function CafeDetalhes() {
         payload.ID_Jogo = formData.ID_Jogo;
       }
 
-      await axios.post('http://localhost:3000/reservas', payload, { withCredentials: true });
+      await axios.post('http://localhost:3000/api/reservas', payload, { withCredentials: true });
       toast.success('Reserva criada com sucesso!', {
         position: "bottom-center",
         autoClose: 2000,
@@ -125,7 +125,7 @@ function CafeDetalhes() {
       const stripe = await stripePromise;
 
       // 1. Chama o endpoint para criar a sessão
-      const response = await axios.post(`http://localhost:3000/jogos/comprar/${id}`, null, {
+      const response = await axios.post(`http://localhost:3000/api/jogos/comprar/${id}`, null, {
         withCredentials: true,
       });
 
@@ -164,7 +164,7 @@ function CafeDetalhes() {
 
   const buscarReservasDisponiveis = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/reservas/grupo/${cafeId}`, { withCredentials: true });
+      const res = await axios.get(`http://localhost:3000/api/reservas/grupo/${cafeId}`, { withCredentials: true });
       setReservasDisponiveis(Array.isArray(res.data) ? res.data : []);
       setMostrarReservasDisponiveis(true);
     } catch (err) {
@@ -184,7 +184,7 @@ function CafeDetalhes() {
 
   const juntarAoGrupo = async (idGrupo) => {
     try {
-      await axios.post(`http://localhost:3000/reservas/juntar/${idGrupo}`, null, { withCredentials: true });
+      await axios.post(`http://localhost:3000/api/reservas/juntar/${idGrupo}`, null, { withCredentials: true });
       toast.success('Juntou-se ao Grupo com sucesso', {
         position: "bottom-center",
         autoClose: 2000,
@@ -238,11 +238,13 @@ function CafeDetalhes() {
             alt={cafe.Nome_Cafe}
             className="w-full md:w-1/3 rounded-lg object-cover shadow-md h-64"
           />
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-2 md:h-64 overflow-hidden">
             <h1 className="text-3xl font-bold text-indigo-400">{cafe.Nome_Cafe}</h1>
-            <p className="italic text-gray-300">{cafe.Descricao}</p>
+            <p className="italic text-gray-300 break-words whitespace-pre-line overflow-auto pr-2">
+              {cafe.Descricao}
+            </p>
             <p>📍 <span className="text-gray-300">{cafe.Local}</span></p>
-            <p>🕒 <span className="text-gray-300">Horário: {cafe.Horario_Abertura} - {cafe.Horario_Fecho}</span></p>
+            <p>🕒 <span className="text-gray-300">Horário: {cafe.Horario_Abertura.slice(0, 5)} - {cafe.Horario_Fecho.slice(0, 5)}</span></p>
             <p>🎲 <span className="text-gray-300">Tipo: {cafe.Tipo_Cafe === 0 ? 'Café com Jogos' : 'Café sem Jogos'}</span></p>
           </div>
         </div>
