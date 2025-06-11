@@ -44,7 +44,7 @@ exports.comprarJogo = async (req, res) => {
         res.status(200).json({ sessionId: session.id });
 
     } catch (error) {
-        res.status(500).json({ error: "Erro ao criar sessão de pagamento." });
+        res.status(500).json({ error: "Erro ao criar sessão de pagamento: " + error.message });
     }
 };
 
