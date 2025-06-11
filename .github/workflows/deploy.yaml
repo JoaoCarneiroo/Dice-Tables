@@ -1,0 +1,41 @@
+name: Dice & Tables Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies for frontend
+        working-directory: ./Front End
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ./Front End
+        run: npx vite build
+
+      - name: Copy frontend to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf /home/diceandtables/www/*"
+          scp -o StrictHostKeyChecking=no -r "./Front End/dist/." ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/diceandtables/www/
+
+      - name: Copy backend to server and restart service
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            rm -rf /home/diceandtables/Back-End/*
+            mkdir -p /home/diceandtables/Back-End/
+          EOF
+          scp -o StrictHostKeyChecking=no -r "./Back-End/." ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/diceandtables/Back-End/
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo -n systemctl restart dice-and-tables-express-app"
