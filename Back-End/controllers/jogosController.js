@@ -5,7 +5,8 @@ const Utilizador = require('../models/utilizadorModel');
 
 const { enviarFaturaCompra } = require('../middlewares/email');
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+//const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')('sk_test_51RQUSAQsEvSErosmyoSByCzP0fWGqmNebpntnO7T59e88QJ9qyy1249vIcBrV89qx24ZJxjlPzm0SBCnmStqpzTV00M7Mpwfdz');
 
 // Comprar um jogo
 exports.comprarJogo = async (req, res) => {
