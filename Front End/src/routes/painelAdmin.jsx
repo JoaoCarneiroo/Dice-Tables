@@ -44,7 +44,7 @@ function CardUtilizador({ utilizador, onPromover }) {
 function CardGestor({ gestor, onDespromover }) {
 
   return (
-    <div className="bg-gray-800 p-4 rounded-md shadow-md">
+    <div className="bg-gray-800 p-4 rounded-md shadow-md hover:scale-[102%] transition-all">
       <h2 className="text-xl font-semibold text-indigo-600">{gestor.Nome}</h2>
       <p className="text-gray-300">Email: {gestor.Email}</p>
       <p className="text-gray-300">Cargo: {gestor.Cargo}</p>
