@@ -211,7 +211,7 @@ exports.criarUtilizador = async (req, res) => {
         });
 
         // Enviar e-mail com link de confirmação
-        const urlConfirmacao = `${process.env.API_URL}/api/autenticar/confirmar-email/${tokenConfirmacao}`;
+        const urlConfirmacao = `${process.env.CLIENT_URL}/api/autenticar/confirmar-email/${tokenConfirmacao}`;
         await enviarEmailConfirmacao(email, urlConfirmacao);
 
         res.status(201).json({ message: 'Utilizador criado! Verifique o seu email para confirmar a sua conta.' });
