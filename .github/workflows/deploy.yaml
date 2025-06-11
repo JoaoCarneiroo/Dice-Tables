@@ -27,6 +27,10 @@ jobs:
         working-directory: ./Front End
         run: npm ci
 
+      - name: Create .env
+        run: |
+            echo "${{secrets.VITE_API_URL}}" > ./Front End
+
       - name: Build frontend
         working-directory: ./Front End
         run: npx vite build
