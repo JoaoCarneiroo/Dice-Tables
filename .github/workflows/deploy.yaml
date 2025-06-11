@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Create SSH Key & Permissions
+        run: |
+            mkdir -p ~/.ssh
+            echo "${{secrets.SSH_KEY}}" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -28,14 +33,14 @@ jobs:
 
       - name: Copy frontend to server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf /home/diceandtables/www/*"
-          scp -o StrictHostKeyChecking=no -r "./Front End/dist/." ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/diceandtables/www/
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf /home/diceandtables/www/*"
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -r "./Front End/dist/." ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/diceandtables/www/
 
       - name: Copy backend to server and restart service
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             rm -rf /home/diceandtables/Back-End/*
             mkdir -p /home/diceandtables/Back-End/
           EOF
-          scp -o StrictHostKeyChecking=no -r "./Back-End/." ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/diceandtables/Back-End/
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo -n systemctl restart dice-and-tables-express-app"
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -r "./Back-End/." ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/diceandtables/Back-End/
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo -n systemctl restart dice-and-tables-express-app"
