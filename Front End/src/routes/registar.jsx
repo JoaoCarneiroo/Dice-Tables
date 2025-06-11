@@ -9,12 +9,13 @@ export const Route = createFileRoute('/registar')({
 });
 
 function Registar() {
+
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const mutation = useMutation({
-        mutationFn: (registerData) => axios.post('http://localhost:3000/api/autenticar', registerData, {
+        mutationFn: (registerData) => axios.post(`${import.meta.env.VITE_API_URL}/api/autenticar`, registerData, {
             withCredentials: true,
         }),
         onSuccess: (response) => {
@@ -44,13 +45,35 @@ function Registar() {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-            }); 
+            });
         }
     });
 
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        mutation.mutate({ nome, email, password });
+
+        toast.loading('A criar conta...', {
+            toastId: 'registo-loading',
+            position: "bottom-center",
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Bounce,
+        });
+
+        mutation.mutate({ nome, email, password }, {
+            onSuccess: () => {
+                toast.dismiss('registo-loading');
+            },
+            onError: () => {
+                toast.dismiss('registo-loading');
+            },
+        });
     };
 
     return (

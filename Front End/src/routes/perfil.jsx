@@ -30,7 +30,7 @@ function Perfil() {
 
 
 
-    const [formData, setFormData] = useState({ nome: '', email: '', password: '' });
+    const [formData, setFormData] = useState({ nome: '', password: '' });
     const [showForm, setShowForm] = useState(false);
 
     // Obter Informações do Utilizador Autenticado
@@ -38,7 +38,7 @@ function Perfil() {
         queryKey: ['userProfile'],
         queryFn: async () => {
             if (!token) return;
-            const response = await axios.get('http://localhost:3000/api/autenticar/utilizador', {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/autenticar/utilizador`, {
                 withCredentials: true,
             });
             return response.data;
@@ -47,7 +47,6 @@ function Perfil() {
         onSuccess: (data) => {
             setFormData({
                 nome: data?.Nome || '',
-                email: data?.Email || '',
                 password: '',
             });
         },
@@ -64,23 +63,23 @@ function Perfil() {
     const { data: reservas, isLoading: isLoadingReservas, isError: isErrorReservas, refetch: refetchReservas } = useQuery({
         queryKey: ['userReservas'],
         queryFn: async () => {
-            const response = await axios.get('http://localhost:3000/api/reservas/utilizador', {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/reservas/utilizador`, {
                 withCredentials: true,
             });
 
             const reservas = await Promise.all(
                 response.data.map(async (reserva) => {
-                    const responseCafe = await axios.get(`http://localhost:3000/api/cafes/porID/${reserva.ID_Cafe}`, {
+                    const responseCafe = await axios.get(`${import.meta.env.VITE_API_URL}/api/cafes/porID/${reserva.ID_Cafe}`, {
                         withCredentials: true,
                     });
 
-                    const responseMesa = await axios.get(`http://localhost:3000/api/mesas/porID/${reserva.ID_Mesa}`, {
+                    const responseMesa = await axios.get(`${import.meta.env.VITE_API_URL}/api/mesas/porID/${reserva.ID_Mesa}`, {
                         withCredentials: true,
                     });
 
 
                     if (reserva.ID_Jogo) {
-                        const responseJogo = await axios.get(`http://localhost:3000/api/jogos/porID/${reserva.ID_Jogo}`, {
+                        const responseJogo = await axios.get(`${import.meta.env.VITE_API_URL}/api/jogos/porID/${reserva.ID_Jogo}`, {
                             withCredentials: true,
                         });
 
@@ -110,7 +109,7 @@ function Perfil() {
     const { data: reservasGrupo, refetch: refetchReservasGrupo } = useQuery({
         queryKey: ['userReservasGrupo'],
         queryFn: async () => {
-            const response = await axios.get('http://localhost:3000/api/reservas/grupo', {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/reservas/grupo`, {
                 withCredentials: true,
                 validateStatus: (status) => status === 200 || status === 204
             });
@@ -150,7 +149,7 @@ function Perfil() {
     // Sair do Grupo da Reserva
     const leaveGroupMutation = useMutation({
         mutationFn: async (reservaGrupo) => {
-            await axios.delete(`http://localhost:3000/api/reservas/sair/${reservaGrupo.ID_Grupo}`, {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/reservas/sair/${reservaGrupo.ID_Grupo}`, {
                 withCredentials: true,
             });
         },
@@ -188,7 +187,7 @@ function Perfil() {
     // Atualizar Utilizador
     const updateUserMutation = useMutation({
         mutationFn: async (updatedData) => {
-            await axios.patch('http://localhost:3000/api/autenticar', updatedData, {
+            await axios.patch(`${import.meta.env.VITE_API_URL}/api/autenticar`, updatedData, {
                 withCredentials: true,
             });
         },
@@ -225,7 +224,7 @@ function Perfil() {
     // Apagar Utilizador
     const deleteUserMutation = useMutation({
         mutationFn: async () => {
-            await axios.delete('http://localhost:3000/api/autenticar', {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/autenticar`, {
                 withCredentials: true,
             });
         },
@@ -280,7 +279,7 @@ function Perfil() {
     // Atualizar Reserva
     const updateReservaMutation = useMutation({
         mutationFn: async ({ id, updatedData }) => {
-            await axios.patch(`http://localhost:3000/api/reservas/${id}`, updatedData, {
+            await axios.patch(`${import.meta.env.VITE_API_URL}/api/reservas/${id}`, updatedData, {
                 withCredentials: true,
             });
         },
@@ -315,7 +314,7 @@ function Perfil() {
     // Apagar Reserva
     const deleteReservaMutation = useMutation({
         mutationFn: async (id) => {
-            await axios.delete(`http://localhost:3000/api/reservas/${id}`, {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/reservas/${id}`, {
                 withCredentials: true,
             });
         },
@@ -496,16 +495,6 @@ function Perfil() {
                                 type="text"
                                 name="nome"
                                 value={formData.nome}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400">Email</label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             />

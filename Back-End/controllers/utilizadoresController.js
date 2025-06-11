@@ -248,7 +248,7 @@ exports.confirmarEmail = async (req, res) => {
 
 // Atualizar um utilizador
 exports.atualizarUtilizador = async (req, res) => {
-    const { nome, email, password } = req.body;
+    const { nome, password } = req.body;
 
     try {
         const utilizador = await Utilizador.findByPk(req.user.id);
@@ -259,9 +259,6 @@ exports.atualizarUtilizador = async (req, res) => {
         // Atualizar apenas os campos enviados
         if (nome) {
             utilizador.Nome = nome;
-        }
-        if (email) {
-            utilizador.Email = email;
         }
         if (password) {
             utilizador.Password = await bcrypt.hash(password, 10);

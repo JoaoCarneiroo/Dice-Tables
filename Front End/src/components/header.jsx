@@ -7,7 +7,6 @@ export default function Header() {
 
     return (
         <nav className="bg-gray-800 shadow-md p-4 flex justify-between items-center">
-            <title>Dice & Tables</title>
 
                 <Link to="/" className="text-2xl font-bold text-white hover:text-blue-400">
                     Dice & Tables

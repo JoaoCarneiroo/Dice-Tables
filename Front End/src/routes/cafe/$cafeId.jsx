@@ -52,9 +52,9 @@ function CafeDetalhes() {
     try {
       setLoading(true);
       const [cafeRes, mesasRes, jogosRes] = await Promise.all([
-        axios.get(`http://localhost:3000/api/cafes/porId/${cafeId}`),
-        axios.get(`http://localhost:3000/api/mesas/${cafeId}`),
-        axios.get(`http://localhost:3000/api/jogos/${cafeId}`)
+        axios.get(`${import.meta.env.VITE_API_URL}/api/cafes/porId/${cafeId}`),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/mesas/${cafeId}`),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/jogos/${cafeId}`)
       ]);
       setCafe(cafeRes.data);
       setMesas(mesasRes.data);
@@ -93,7 +93,7 @@ function CafeDetalhes() {
         payload.ID_Jogo = formData.ID_Jogo;
       }
 
-      await axios.post('http://localhost:3000/api/reservas', payload, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/reservas`, payload, { withCredentials: true });
       toast.success('Reserva criada com sucesso!', {
         position: "bottom-center",
         autoClose: 2000,
@@ -125,7 +125,7 @@ function CafeDetalhes() {
       const stripe = await stripePromise;
 
       // 1. Chama o endpoint para criar a sessão
-      const response = await axios.post(`http://localhost:3000/api/jogos/comprar/${id}`, null, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/jogos/comprar/${id}`, null, {
         withCredentials: true,
       });
 
@@ -164,7 +164,7 @@ function CafeDetalhes() {
 
   const buscarReservasDisponiveis = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/api/reservas/grupo/${cafeId}`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reservas/grupo/${cafeId}`, { withCredentials: true });
       setReservasDisponiveis(Array.isArray(res.data) ? res.data : []);
       setMostrarReservasDisponiveis(true);
     } catch (err) {
@@ -184,7 +184,7 @@ function CafeDetalhes() {
 
   const juntarAoGrupo = async (idGrupo) => {
     try {
-      await axios.post(`http://localhost:3000/api/reservas/juntar/${idGrupo}`, null, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/reservas/juntar/${idGrupo}`, null, { withCredentials: true });
       toast.success('Juntou-se ao Grupo com sucesso', {
         position: "bottom-center",
         autoClose: 2000,
@@ -234,7 +234,7 @@ function CafeDetalhes() {
         {/* Detalhes do Café */}
         <div className="flex flex-col md:flex-row gap-6">
           <img
-            src={`http://localhost:3000/uploads/cafes/${cafe.Imagem_Cafe}`}
+            src={`${import.meta.env.VITE_API_URL}/uploads/cafes/${cafe.Imagem_Cafe}`}
             alt={cafe.Nome_Cafe}
             className="w-full md:w-1/3 rounded-lg object-cover shadow-md h-64"
           />

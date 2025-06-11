@@ -28,7 +28,7 @@ export const UserProvider = ({ children }) => {
 
   // Função Logout do Utilizador
   const logout = () => {
-    axios.post('http://localhost:3000/api/autenticar/logout', {}, { withCredentials: true })
+    axios.post(`${import.meta.env.VITE_API_URL}/api/autenticar/logout`, {}, { withCredentials: true })
       .then(() => {
         const emptyUser = { nome: '', cargos: { isAdmin: false, isGestor: false }, isLoggedIn: false };
         setUser(emptyUser);

@@ -23,7 +23,7 @@ function SucessoPage() {
         const finalizarCompra = async () => {
             try {
                 const res = await axios.post(
-                    'http://localhost:3000/api/jogos/finalizar',
+                    `${import.meta.env.VITE_API_URL}/api/jogos/finalizar`,
                     { sessionId },
                     { withCredentials: true }
                 );

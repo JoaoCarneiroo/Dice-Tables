@@ -22,7 +22,7 @@ function CardCafe({ cafe }) {
       </div>
       {cafe.Imagem_Cafe ? (
         <img
-          src={`http://localhost:3000/uploads/cafes/${cafe.Imagem_Cafe}`}
+          src={`${import.meta.env.VITE_API_URL}/uploads/cafes/${cafe.Imagem_Cafe}`}
           alt={cafe.Nome_Cafe}
           className="mt-2 mb-4 h-48 object-cover rounded-lg aspect-21/9 mx-auto"
         />
@@ -60,7 +60,7 @@ function Cafes() {
   const fetchCafes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/api/cafes');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/cafes`);
       setCafes(response.data);
     } catch (err) {
       setError('Erro ao carregar os cafés');

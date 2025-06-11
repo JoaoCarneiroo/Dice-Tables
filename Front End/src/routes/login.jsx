@@ -23,7 +23,7 @@ function Login() {
 
     // Mutation para login inicial (email + senha)
     const loginMutation = useMutation({
-        mutationFn: (loginData) => axios.post('http://localhost:3000/api/autenticar/login', loginData, { withCredentials: true }),
+        mutationFn: (loginData) => axios.post(`${import.meta.env.VITE_API_URL}/api/autenticar/login`, loginData, { withCredentials: true }),
         onSuccess: (response) => {
             toast.info('Código 2FA enviado para o seu email. Por favor, insira-o para continuar.', {
                 position: "bottom-center",
@@ -56,7 +56,7 @@ function Login() {
 
     // Mutation para verificar o código 2FA
     const verificar2FAMutation = useMutation({
-        mutationFn: (data) => axios.post('http://localhost:3000/api/autenticar/login/2fa', data, { withCredentials: true }),
+        mutationFn: (data) => axios.post(`${import.meta.env.VITE_API_URL}/api/autenticar/login/2fa`, data, { withCredentials: true }),
         onSuccess: (response) => {
             const nome = response.data.nome;
             const cargos = { isAdmin: response.data.isAdmin, isGestor: response.data.isGestor };
@@ -92,7 +92,28 @@ function Login() {
     // Submit do Login Inicial
     const handleSubmitLogin = (e) => {
         e.preventDefault();
-        loginMutation.mutate({ email, password });
+
+        toast.loading('A realizar login...', {
+            toastId: 'registo-loading',
+            position: "bottom-center",
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Bounce,
+        });
+
+        loginMutation.mutate({ email, password }, {
+            onSuccess: () => {
+                toast.dismiss('registo-loading');
+            },
+            onError: () => {
+                toast.dismiss('registo-loading');
+            },
+        });
     };
 
     // Submit da Validação do Código 2FA

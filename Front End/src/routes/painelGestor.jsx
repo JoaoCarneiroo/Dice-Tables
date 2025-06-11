@@ -9,7 +9,7 @@ export const Route = createFileRoute('/painelGestor')({
     beforeLoad: async () => {
 
         try {
-            const response = await axios.get("http://localhost:3000/api/autenticar/verificar/gestor", {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/autenticar/verificar/gestor`, {
                 withCredentials: true
             });
 
@@ -50,7 +50,7 @@ function PainelGestor() {
     const { data: cafeData, isLoading, error, refetch } = useQuery({
         queryKey: ['cafeData'],
         queryFn: async () => {
-            const response = await axios.get('http://localhost:3000/api/cafes/gestor', {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/cafes/gestor`, {
                 withCredentials: true,
             });
             return response.data;
@@ -63,7 +63,7 @@ function PainelGestor() {
     const { data: reservasData, isLoading: isLoadingReservas, error: reservasError } = useQuery({
         queryKey: ['reservasCafe', cafeData?.ID_Cafe],
         queryFn: async () => {
-            const response = await axios.get(`http://localhost:3000/api/reservas/cafe/${cafeData.ID_Cafe}`, {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/reservas/cafe/${cafeData.ID_Cafe}`, {
                 withCredentials: true,
             });
             return response.data;
@@ -87,7 +87,7 @@ function PainelGestor() {
     // Função para Criar Café
     const createMutation = useMutation({
         mutationFn: async (newCafe) => {
-            const response = await axios.post('http://localhost:3000/api/cafes', newCafe, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/cafes`, newCafe, {
                 withCredentials: true,
                 headers: { "Content-Type": "multipart/form-data" },
             });
@@ -125,7 +125,7 @@ function PainelGestor() {
     // Função para Atualizar Café
     const updateMutation = useMutation({
         mutationFn: async (updatedCafe) => {
-            const response = await axios.patch(`http://localhost:3000/api/cafes`, updatedCafe, {
+            const response = await axios.patch(`${import.meta.env.VITE_API_URL}/api/cafes`, updatedCafe, {
                 withCredentials: true,
                 headers: { "Content-Type": "multipart/form-data" },
             });
@@ -163,7 +163,7 @@ function PainelGestor() {
     // Função para Apagar Café
     const deleteMutation = useMutation({
         mutationFn: async () => {
-            await axios.delete(`http://localhost:3000/api/cafes`, {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/cafes`, {
                 withCredentials: true,
             });
         },
@@ -284,7 +284,7 @@ function PainelGestor() {
                         <p className="text-gray-200">🕒 {cafeData.Horario_Abertura.slice(0, 5)} - {cafeData.Horario_Fecho.slice(0, 5)}</p>
                         {cafeData.Imagem_Cafe ? (
                             <img
-                                src={`http://localhost:3000/uploads/cafes/${cafeData.Imagem_Cafe}`}
+                                src={`${import.meta.env.VITE_API_URL}/uploads/cafes/${cafeData.Imagem_Cafe}`}
                                 alt={cafeData.Nome_Cafe}
                                 className="mt-4 w-full h-48 object-contain rounded-md"
                             />
