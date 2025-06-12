@@ -240,7 +240,7 @@ exports.confirmarEmail = async (req, res) => {
 
         await utilizador.save();
 
-        res.redirect('http://localhost:5173/login');
+        res.redirect(`${process.env.CLIENT_URL}/login`);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
